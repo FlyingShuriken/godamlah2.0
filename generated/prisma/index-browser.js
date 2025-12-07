@@ -121,14 +121,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.PostScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  createdById: 'createdById'
-};
-
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -175,6 +167,91 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fullName: 'fullName',
+  headline: 'headline',
+  bio: 'bio',
+  skills: 'skills',
+  consentTalentPool: 'consentTalentPool',
+  visibility: 'visibility',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  ssmNumber: 'ssmNumber',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EventScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  title: 'title',
+  description: 'description',
+  location: 'location',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.JobPostingScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  title: 'title',
+  description: 'description',
+  skills: 'skills',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExperienceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  eventId: 'eventId',
+  type: 'type',
+  title: 'title',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isCurrent: 'isCurrent',
+  verificationStatus: 'verificationStatus',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CheckInScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  eventId: 'eventId',
+  type: 'type',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CertificateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  eventId: 'eventId',
+  title: 'title',
+  issueDate: 'issueDate',
+  url: 'url',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -189,14 +266,49 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.TalentVisibility = exports.$Enums.TalentVisibility = {
+  PRIVATE: 'PRIVATE',
+  TALENT_POOL: 'TALENT_POOL'
+};
 
+exports.OrganizationType = exports.$Enums.OrganizationType = {
+  COMPANY: 'COMPANY',
+  ORGANIZER: 'ORGANIZER'
+};
+
+exports.JobStatus = exports.$Enums.JobStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  CLOSED: 'CLOSED'
+};
+
+exports.ExperienceType = exports.$Enums.ExperienceType = {
+  EVENT: 'EVENT',
+  EMPLOYMENT: 'EMPLOYMENT'
+};
+
+exports.VerificationStatus = exports.$Enums.VerificationStatus = {
+  VERIFIED: 'VERIFIED',
+  UNVERIFIED: 'UNVERIFIED'
+};
+
+exports.CheckInType = exports.$Enums.CheckInType = {
+  EVENT: 'EVENT',
+  EMPLOYMENT: 'EMPLOYMENT'
+};
 
 exports.Prisma.ModelName = {
-  Post: 'Post',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  UserProfile: 'UserProfile',
+  Organization: 'Organization',
+  Event: 'Event',
+  JobPosting: 'JobPosting',
+  Experience: 'Experience',
+  CheckIn: 'CheckIn',
+  Certificate: 'Certificate'
 };
 
 /**

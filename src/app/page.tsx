@@ -1,101 +1,111 @@
 import { headers } from "next/headers";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { LatestPost } from "@/app/_components/post";
+import { DashboardClient } from "@/app/_components/dashboard";
 import { auth } from "@/server/better-auth";
 import { getSession } from "@/server/better-auth/server";
-import { api, HydrateClient } from "@/trpc/server";
+import { HydrateClient } from "@/trpc/server";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
   const session = await getSession();
 
-  if (session) {
-    void api.post.getLatest.prefetch();
+  if (!session?.user) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="container flex max-w-lg flex-col items-center justify-center gap-8 px-4 py-16">
+          <div className="space-y-2 text-center">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+              GodamLah
+            </h1>
+            <p className="text-lg text-slate-300">Your career, verified</p>
+            <p className="text-sm text-slate-400">
+              Build a verified professional profile powered by MyKad. Discover
+              job matches and connect with events.
+            </p>
+          </div>
+
+          <form
+            className="w-full space-y-3"
+            action={async (formData) => {
+              "use server";
+              const mykad = (formData.get("mykad") ?? "").toString().trim();
+              if (!/^[0-9]{6,12}$/.test(mykad)) {
+                throw new Error("Invalid MyKad number");
+              }
+
+              const email = `${mykad}@mock.mykad.local`;
+              const password = mykad; // mock-only
+
+              await auth.api
+                .signUpEmail({
+                  body: { email, password, name: `MyKad ${mykad}` },
+                })
+                .catch(() => undefined); // ignore if already exists
+
+              const res = await auth.api.signInEmail({
+                body: { email, password },
+              });
+
+              if (!res?.token) {
+                throw new Error("Sign-in failed");
+              }
+
+              redirect("/");
+            }}
+          >
+            <label className="flex flex-col gap-1 text-sm text-slate-200">
+              MyKad IC Number (mock login)
+              <input
+                name="mykad"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={12}
+                placeholder="e.g. 900101015555"
+                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                required
+              />
+            </label>
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-emerald-500 px-6 py-3 text-base font-semibold text-slate-900 transition hover:bg-emerald-400"
+            >
+              Sign in with MyKad (mock)
+            </button>
+          </form>
+
+          <p className="text-xs text-slate-500">
+            Mock mode: we derive a temp account from your MyKad number. Replace
+            with QR-based flow later.
+          </p>
+        </div>
+      </main>
+    );
   }
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
+      <main className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
+        <nav className="border-b border-slate-800 bg-slate-900/40 backdrop-blur-sm">
+          <div className="container flex items-center justify-between px-4 py-4">
+            <h1 className="text-xl font-bold text-white">GodamLah</h1>
+            <form>
+              <button
+                formAction={async () => {
+                  "use server";
+                  await auth.api.signOut({
+                    headers: await headers(),
+                  });
+                  redirect("/");
+                }}
+                className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-600"
+              >
+                Sign out
+              </button>
+            </form>
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
-              </p>
-              {!session ? (
-                <form>
-                  <button
-                    className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-                    formAction={async () => {
-                      "use server";
-                      const res = await auth.api.signInSocial({
-                        body: {
-                          provider: "github",
-                          callbackURL: "/",
-                        },
-                      });
-                      if (!res.url) {
-                        throw new Error("No URL returned from signInSocial");
-                      }
-                      redirect(res.url);
-                    }}
-                  >
-                    Sign in with Github
-                  </button>
-                </form>
-              ) : (
-                <form>
-                  <button
-                    className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-                    formAction={async () => {
-                      "use server";
-                      await auth.api.signOut({
-                        headers: await headers(),
-                      });
-                      redirect("/");
-                    }}
-                  >
-                    Sign out
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-
-          {session?.user && <LatestPost />}
+        </nav>
+        <div className="container px-4 py-8">
+          <DashboardClient userName={session.user.name ?? "there"} />
         </div>
       </main>
     </HydrateClient>

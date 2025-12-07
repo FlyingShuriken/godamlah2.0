@@ -93,14 +93,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.PostScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  createdById: 'createdById'
-};
-
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -147,6 +139,91 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fullName: 'fullName',
+  headline: 'headline',
+  bio: 'bio',
+  skills: 'skills',
+  consentTalentPool: 'consentTalentPool',
+  visibility: 'visibility',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  ssmNumber: 'ssmNumber',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EventScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  title: 'title',
+  description: 'description',
+  location: 'location',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.JobPostingScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  title: 'title',
+  description: 'description',
+  skills: 'skills',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExperienceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  eventId: 'eventId',
+  type: 'type',
+  title: 'title',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isCurrent: 'isCurrent',
+  verificationStatus: 'verificationStatus',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CheckInScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  eventId: 'eventId',
+  type: 'type',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CertificateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  organizationId: 'organizationId',
+  eventId: 'eventId',
+  title: 'title',
+  issueDate: 'issueDate',
+  url: 'url',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -161,14 +238,49 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.OrganizationType = exports.$Enums.OrganizationType = {
+  COMPANY: 'COMPANY',
+  ORGANIZER: 'ORGANIZER'
+};
 
+exports.ExperienceType = exports.$Enums.ExperienceType = {
+  EVENT: 'EVENT',
+  EMPLOYMENT: 'EMPLOYMENT'
+};
+
+exports.CheckInType = exports.$Enums.CheckInType = {
+  EVENT: 'EVENT',
+  EMPLOYMENT: 'EMPLOYMENT'
+};
+
+exports.JobStatus = exports.$Enums.JobStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  CLOSED: 'CLOSED'
+};
+
+exports.TalentVisibility = exports.$Enums.TalentVisibility = {
+  PRIVATE: 'PRIVATE',
+  TALENT_POOL: 'TALENT_POOL'
+};
+
+exports.VerificationStatus = exports.$Enums.VerificationStatus = {
+  VERIFIED: 'VERIFIED',
+  UNVERIFIED: 'UNVERIFIED'
+};
 
 exports.Prisma.ModelName = {
-  Post: 'Post',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  UserProfile: 'UserProfile',
+  Organization: 'Organization',
+  Event: 'Event',
+  JobPosting: 'JobPosting',
+  Experience: 'Experience',
+  CheckIn: 'CheckIn',
+  Certificate: 'Certificate'
 };
 /**
  * Create the Client
@@ -217,13 +329,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// Prisma schema for Better Auth\n// learn more: https://better-auth.com/docs/concepts/database\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\n// NOTE: When using mysql or sqlserver, uncomment the //@db.Text annotations in model Account below\n// Further reading:\n// https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Post {\n  id        String   @id @default(cuid())\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  createdBy   User   @relation(fields: [createdById], references: [id])\n  createdById String\n\n  @@index([name])\n}\n\nmodel User {\n  id            String    @id\n  name          String //@db.Text\n  email         String\n  emailVerified Boolean   @default(false)\n  image         String? //@db.Text\n  createdAt     DateTime  @default(now())\n  updatedAt     DateTime  @default(now()) @updatedAt\n  sessions      Session[]\n  accounts      Account[]\n  posts         Post[]\n\n  @@unique([email])\n  @@map(\"user\")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String? //@db.Text\n  userAgent String? //@db.Text\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String //@db.Text\n  providerId            String //@db.Text\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String? //@db.Text\n  refreshToken          String? //@db.Text\n  idToken               String? //@db.Text\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String? //@db.Text\n  password              String? //@db.Text\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String //@db.Text\n  value      String //@db.Text\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @default(now()) @updatedAt\n\n  @@map(\"verification\")\n}\n",
-  "inlineSchemaHash": "13b811a21e98325911952479534b19039c5183588e791c7b9235c4279bb03147",
+  "inlineSchema": "// Prisma schema for Better Auth\n// learn more: https://better-auth.com/docs/concepts/database\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\n// NOTE: When using mysql or sqlserver, uncomment the //@db.Text annotations in model Account below\n// Further reading:\n// https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum OrganizationType {\n  COMPANY\n  ORGANIZER\n}\n\nenum ExperienceType {\n  EVENT\n  EMPLOYMENT\n}\n\nenum CheckInType {\n  EVENT\n  EMPLOYMENT\n}\n\nenum JobStatus {\n  DRAFT\n  PUBLISHED\n  CLOSED\n}\n\nenum TalentVisibility {\n  PRIVATE\n  TALENT_POOL\n}\n\nenum VerificationStatus {\n  VERIFIED\n  UNVERIFIED\n}\n\nmodel User {\n  id                   String         @id\n  name                 String //@db.Text\n  email                String\n  emailVerified        Boolean        @default(false)\n  image                String? //@db.Text\n  createdAt            DateTime       @default(now())\n  updatedAt            DateTime       @default(now()) @updatedAt\n  sessions             Session[]\n  accounts             Account[]\n  profile              UserProfile?\n  createdOrganizations Organization[] @relation(\"OrganizationCreator\")\n  eventsCreated        Event[]        @relation(\"EventCreator\")\n  jobsCreated          JobPosting[]   @relation(\"JobCreator\")\n  experiences          Experience[]\n  checkIns             CheckIn[]      @relation(\"UserCheckIns\")\n  certificates         Certificate[]\n\n  @@unique([email])\n  @@map(\"user\")\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String? //@db.Text\n  userAgent String? //@db.Text\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String //@db.Text\n  providerId            String //@db.Text\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String? //@db.Text\n  refreshToken          String? //@db.Text\n  idToken               String? //@db.Text\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String? //@db.Text\n  password              String? //@db.Text\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String //@db.Text\n  value      String //@db.Text\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @default(now()) @updatedAt\n\n  @@map(\"verification\")\n}\n\nmodel UserProfile {\n  id                String           @id @default(cuid())\n  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId            String           @unique\n  fullName          String?\n  headline          String?\n  bio               String?\n  skills            String[]\n  consentTalentPool Boolean          @default(false)\n  visibility        TalentVisibility @default(TALENT_POOL)\n  createdAt         DateTime         @default(now())\n  updatedAt         DateTime         @updatedAt\n}\n\nmodel Organization {\n  id           String           @id @default(cuid())\n  name         String\n  type         OrganizationType\n  ssmNumber    String?\n  createdBy    User             @relation(\"OrganizationCreator\", fields: [createdById], references: [id])\n  createdById  String\n  events       Event[]\n  jobs         JobPosting[]\n  experiences  Experience[]\n  checkIns     CheckIn[]\n  certificates Certificate[]\n  createdAt    DateTime         @default(now())\n  updatedAt    DateTime         @updatedAt\n\n  @@index([name])\n}\n\nmodel Event {\n  id             String        @id @default(cuid())\n  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)\n  organizationId String\n  title          String\n  description    String?\n  location       String?\n  startsAt       DateTime\n  endsAt         DateTime?\n  createdBy      User          @relation(\"EventCreator\", fields: [createdById], references: [id])\n  createdById    String\n  checkIns       CheckIn[]\n  experiences    Experience[]\n  certificates   Certificate[]\n  createdAt      DateTime      @default(now())\n  updatedAt      DateTime      @updatedAt\n\n  @@index([organizationId, startsAt])\n}\n\nmodel JobPosting {\n  id             String       @id @default(cuid())\n  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)\n  organizationId String\n  title          String\n  description    String?\n  skills         String[]\n  status         JobStatus    @default(DRAFT)\n  createdBy      User         @relation(\"JobCreator\", fields: [createdById], references: [id])\n  createdById    String\n  createdAt      DateTime     @default(now())\n  updatedAt      DateTime     @updatedAt\n\n  @@index([status])\n}\n\nmodel Experience {\n  id                 String             @id @default(cuid())\n  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId             String\n  organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)\n  organizationId     String?\n  event              Event?             @relation(fields: [eventId], references: [id], onDelete: SetNull)\n  eventId            String?\n  type               ExperienceType\n  title              String\n  startDate          DateTime?\n  endDate            DateTime?\n  isCurrent          Boolean            @default(false)\n  verificationStatus VerificationStatus @default(UNVERIFIED)\n  notes              String?\n  createdAt          DateTime           @default(now())\n  updatedAt          DateTime           @updatedAt\n\n  @@index([userId, type])\n}\n\nmodel CheckIn {\n  id             String       @id @default(cuid())\n  user           User         @relation(\"UserCheckIns\", fields: [userId], references: [id], onDelete: Cascade)\n  userId         String\n  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)\n  organizationId String\n  event          Event?       @relation(fields: [eventId], references: [id], onDelete: SetNull)\n  eventId        String?\n  type           CheckInType\n  note           String?\n  createdAt      DateTime     @default(now())\n\n  @@index([userId, type])\n  @@index([organizationId, createdAt])\n}\n\nmodel Certificate {\n  id             String        @id @default(cuid())\n  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)\n  userId         String\n  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)\n  organizationId String?\n  event          Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)\n  eventId        String?\n  title          String\n  issueDate      DateTime\n  url            String?\n  createdAt      DateTime      @default(now())\n\n  @@index([userId])\n}\n",
+  "inlineSchemaHash": "2513b7706b03910fc97ee809132e5f1392078115e41d0194db4654c515521d9f",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PostToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"PostToUser\"}],\"dbName\":\"user\"},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"session\"},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"accessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refreshToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"idToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accessTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"refreshTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"account\"},\"Verification\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"verification\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"profile\",\"kind\":\"object\",\"type\":\"UserProfile\",\"relationName\":\"UserToUserProfile\"},{\"name\":\"createdOrganizations\",\"kind\":\"object\",\"type\":\"Organization\",\"relationName\":\"OrganizationCreator\"},{\"name\":\"eventsCreated\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventCreator\"},{\"name\":\"jobsCreated\",\"kind\":\"object\",\"type\":\"JobPosting\",\"relationName\":\"JobCreator\"},{\"name\":\"experiences\",\"kind\":\"object\",\"type\":\"Experience\",\"relationName\":\"ExperienceToUser\"},{\"name\":\"checkIns\",\"kind\":\"object\",\"type\":\"CheckIn\",\"relationName\":\"UserCheckIns\"},{\"name\":\"certificates\",\"kind\":\"object\",\"type\":\"Certificate\",\"relationName\":\"CertificateToUser\"}],\"dbName\":\"user\"},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"ipAddress\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userAgent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":\"session\"},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"accessToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refreshToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"idToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accessTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"refreshTokenExpiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"account\"},\"Verification\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"verification\"},\"UserProfile\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToUserProfile\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"headline\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bio\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skills\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"consentTalentPool\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"visibility\",\"kind\":\"enum\",\"type\":\"TalentVisibility\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Organization\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"OrganizationType\"},{\"name\":\"ssmNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"OrganizationCreator\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToOrganization\"},{\"name\":\"jobs\",\"kind\":\"object\",\"type\":\"JobPosting\",\"relationName\":\"JobPostingToOrganization\"},{\"name\":\"experiences\",\"kind\":\"object\",\"type\":\"Experience\",\"relationName\":\"ExperienceToOrganization\"},{\"name\":\"checkIns\",\"kind\":\"object\",\"type\":\"CheckIn\",\"relationName\":\"CheckInToOrganization\"},{\"name\":\"certificates\",\"kind\":\"object\",\"type\":\"Certificate\",\"relationName\":\"CertificateToOrganization\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"Organization\",\"relationName\":\"EventToOrganization\"},{\"name\":\"organizationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"startsAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"endsAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"EventCreator\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"checkIns\",\"kind\":\"object\",\"type\":\"CheckIn\",\"relationName\":\"CheckInToEvent\"},{\"name\":\"experiences\",\"kind\":\"object\",\"type\":\"Experience\",\"relationName\":\"EventToExperience\"},{\"name\":\"certificates\",\"kind\":\"object\",\"type\":\"Certificate\",\"relationName\":\"CertificateToEvent\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"JobPosting\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"Organization\",\"relationName\":\"JobPostingToOrganization\"},{\"name\":\"organizationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skills\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"JobStatus\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"JobCreator\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Experience\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ExperienceToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"Organization\",\"relationName\":\"ExperienceToOrganization\"},{\"name\":\"organizationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"event\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToExperience\"},{\"name\":\"eventId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"ExperienceType\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"startDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"endDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"isCurrent\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"verificationStatus\",\"kind\":\"enum\",\"type\":\"VerificationStatus\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"CheckIn\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserCheckIns\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"Organization\",\"relationName\":\"CheckInToOrganization\"},{\"name\":\"organizationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"event\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"CheckInToEvent\"},{\"name\":\"eventId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"CheckInType\"},{\"name\":\"note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Certificate\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CertificateToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"Organization\",\"relationName\":\"CertificateToOrganization\"},{\"name\":\"organizationId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"event\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"CertificateToEvent\"},{\"name\":\"eventId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"issueDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

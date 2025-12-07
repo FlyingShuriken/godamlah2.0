@@ -15,29 +15,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum OrganizationType {
+  COMPANY
+  ORGANIZER
+}
 
-  createdBy   User   @relation(fields: [createdById], references: [id])
-  createdById String
+enum ExperienceType {
+  EVENT
+  EMPLOYMENT
+}
 
-  @@index([name])
+enum CheckInType {
+  EVENT
+  EMPLOYMENT
+}
+
+enum JobStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum TalentVisibility {
+  PRIVATE
+  TALENT_POOL
+}
+
+enum VerificationStatus {
+  VERIFIED
+  UNVERIFIED
 }
 
 model User {
-  id            String    @id
-  name          String //@db.Text
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String? //@db.Text
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  posts         Post[]
+  id                   String         @id
+  name                 String //@db.Text
+  email                String
+  emailVerified        Boolean        @default(false)
+  image                String? //@db.Text
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @default(now()) @updatedAt
+  sessions             Session[]
+  accounts             Account[]
+  profile              UserProfile?
+  createdOrganizations Organization[] @relation("OrganizationCreator")
+  eventsCreated        Event[]        @relation("EventCreator")
+  jobsCreated          JobPosting[]   @relation("JobCreator")
+  experiences          Experience[]
+  checkIns             CheckIn[]      @relation("UserCheckIns")
+  certificates         Certificate[]
 
   @@unique([email])
   @@map("user")
@@ -86,4 +111,125 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
+}
+
+model UserProfile {
+  id                String           @id @default(cuid())
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String           @unique
+  fullName          String?
+  headline          String?
+  bio               String?
+  skills            String[]
+  consentTalentPool Boolean          @default(false)
+  visibility        TalentVisibility @default(TALENT_POOL)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model Organization {
+  id           String           @id @default(cuid())
+  name         String
+  type         OrganizationType
+  ssmNumber    String?
+  createdBy    User             @relation("OrganizationCreator", fields: [createdById], references: [id])
+  createdById  String
+  events       Event[]
+  jobs         JobPosting[]
+  experiences  Experience[]
+  checkIns     CheckIn[]
+  certificates Certificate[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([name])
+}
+
+model Event {
+  id             String        @id @default(cuid())
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  title          String
+  description    String?
+  location       String?
+  startsAt       DateTime
+  endsAt         DateTime?
+  createdBy      User          @relation("EventCreator", fields: [createdById], references: [id])
+  createdById    String
+  checkIns       CheckIn[]
+  experiences    Experience[]
+  certificates   Certificate[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([organizationId, startsAt])
+}
+
+model JobPosting {
+  id             String       @id @default(cuid())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  title          String
+  description    String?
+  skills         String[]
+  status         JobStatus    @default(DRAFT)
+  createdBy      User         @relation("JobCreator", fields: [createdById], references: [id])
+  createdById    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([status])
+}
+
+model Experience {
+  id                 String             @id @default(cuid())
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String
+  organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organizationId     String?
+  event              Event?             @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  eventId            String?
+  type               ExperienceType
+  title              String
+  startDate          DateTime?
+  endDate            DateTime?
+  isCurrent          Boolean            @default(false)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  notes              String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([userId, type])
+}
+
+model CheckIn {
+  id             String       @id @default(cuid())
+  user           User         @relation("UserCheckIns", fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String
+  event          Event?       @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  eventId        String?
+  type           CheckInType
+  note           String?
+  createdAt      DateTime     @default(now())
+
+  @@index([userId, type])
+  @@index([organizationId, createdAt])
+}
+
+model Certificate {
+  id             String        @id @default(cuid())
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organizationId String?
+  event          Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  eventId        String?
+  title          String
+  issueDate      DateTime
+  url            String?
+  createdAt      DateTime      @default(now())
+
+  @@index([userId])
 }
