@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 
+const profileType = z.enum(["USER", "ORGANIZER", "COMPANY"]);
+
 const profileInput = z.object({
   fullName: z.string().min(2).max(100).optional(),
   headline: z.string().min(2).max(140).optional(),
@@ -19,6 +21,16 @@ export const profileRouter = createTRPCRouter({
     });
 
     return profile ?? null;
+  }),
+
+  getProfileType: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const user = await ctx.db.user.findUnique({
+      where: { id: userId },
+      select: { profileType: true },
+    });
+
+    return { profileType: user?.profileType ?? "USER" } as const;
   }),
 
   upsert: protectedProcedure
@@ -51,6 +63,18 @@ export const profileRouter = createTRPCRouter({
       });
 
       return profile;
+    }),
+
+  setProfileType: protectedProcedure
+    .input(z.object({ profileType }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const updated = await ctx.db.user.update({
+        where: { id: userId },
+        data: { profileType: input.profileType },
+        select: { profileType: true },
+      });
+      return updated;
     }),
 
   timeline: protectedProcedure.query(async ({ ctx }) => {

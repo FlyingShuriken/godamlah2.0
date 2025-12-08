@@ -130,7 +130,8 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   mykadNumber: 'mykadNumber',
-  mykadVerifiedAt: 'mykadVerifiedAt'
+  mykadVerifiedAt: 'mykadVerifiedAt',
+  profileType: 'profileType'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -187,6 +188,7 @@ exports.Prisma.OrganizationScalarFieldEnum = {
   name: 'name',
   type: 'type',
   ssmNumber: 'ssmNumber',
+  industry: 'industry',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -240,6 +242,8 @@ exports.Prisma.CheckInScalarFieldEnum = {
   eventId: 'eventId',
   type: 'type',
   note: 'note',
+  verificationStatus: 'verificationStatus',
+  addedById: 'addedById',
   createdAt: 'createdAt'
 };
 
@@ -268,6 +272,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.ProfileType = exports.$Enums.ProfileType = {
+  USER: 'USER',
+  ORGANIZER: 'ORGANIZER',
+  COMPANY: 'COMPANY'
+};
+
 exports.TalentVisibility = exports.$Enums.TalentVisibility = {
   PRIVATE: 'PRIVATE',
   TALENT_POOL: 'TALENT_POOL'

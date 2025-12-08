@@ -18,7 +18,10 @@ export const getSession = cache(async () => {
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get("better-auth.session_token")?.value;
 
-    console.log("[Auth] Session token from cookie:", sessionToken ? "present" : "missing");
+    console.log(
+      "[Auth] Session token from cookie:",
+      sessionToken ? "present" : "missing",
+    );
 
     if (!sessionToken) {
       return null;

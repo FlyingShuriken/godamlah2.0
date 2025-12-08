@@ -30,6 +30,7 @@ export function DashboardClient({ userName }: { userName: string }) {
   const utils = api.useUtils();
 
   const profileQuery = api.profile.getMine.useQuery();
+  const profileTypeQuery = api.profile.getProfileType.useQuery();
   const timelineQuery = api.profile.timeline.useQuery();
   const checkInsQuery = api.checkIn.myCheckIns.useQuery();
   const organizationsQuery = api.organization.listMine.useQuery();
@@ -40,6 +41,12 @@ export function DashboardClient({ userName }: { userName: string }) {
   const profileMutation = api.profile.upsert.useMutation({
     onSuccess: async () => {
       await Promise.all([utils.profile.getMine.invalidate(), utils.profile.timeline.invalidate()]);
+    },
+  });
+
+  const setProfileTypeMutation = api.profile.setProfileType.useMutation({
+    onSuccess: async () => {
+      await utils.profile.getProfileType.invalidate();
     },
   });
 
@@ -83,15 +90,35 @@ export function DashboardClient({ userName }: { userName: string }) {
     },
   });
 
+  const adminEventCheckInMutation = api.checkIn.adminCheckInToEvent.useMutation({
+    onSuccess: async () => {
+      await Promise.all([
+        utils.checkIn.myCheckIns.invalidate(),
+        utils.profile.timeline.invalidate(),
+      ]);
+    },
+  });
+
+  const adminEmploymentCheckInMutation = api.checkIn.adminCheckInEmployment.useMutation({
+    onSuccess: async () => {
+      await Promise.all([
+        utils.checkIn.myCheckIns.invalidate(),
+        utils.profile.timeline.invalidate(),
+      ]);
+    },
+  });
+
   const [fullName, setFullName] = useState("");
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
   const [consentTalentPool, setConsentTalentPool] = useState(true);
+  const [profileTypeSelection, setProfileTypeSelection] = useState<"USER" | "ORGANIZER" | "COMPANY">("USER");
 
   const [orgName, setOrgName] = useState("");
   const [orgType, setOrgType] = useState("COMPANY");
   const [ssmNumber, setSsmNumber] = useState("");
+  const [industry, setIndustry] = useState("");
 
   const [eventOrgId, setEventOrgId] = useState("");
   const [eventTitle, setEventTitle] = useState("");
@@ -112,6 +139,18 @@ export function DashboardClient({ userName }: { userName: string }) {
   const [eventCheckInId, setEventCheckInId] = useState("");
   const [eventCheckInNote, setEventCheckInNote] = useState("");
 
+  const [adminEventId, setAdminEventId] = useState("");
+  const [adminEventUserId, setAdminEventUserId] = useState("");
+  const [adminEventNote, setAdminEventNote] = useState("");
+
+  const [adminEmploymentOrgId, setAdminEmploymentOrgId] = useState("");
+  const [adminEmploymentUserId, setAdminEmploymentUserId] = useState("");
+  const [adminEmploymentTitle, setAdminEmploymentTitle] = useState("");
+  const [adminEmploymentStart, setAdminEmploymentStart] = useState("");
+  const [adminEmploymentEnd, setAdminEmploymentEnd] = useState("");
+  const [adminEmploymentNote, setAdminEmploymentNote] = useState("");
+  const [adminEmploymentIsCurrent, setAdminEmploymentIsCurrent] = useState(true);
+
   useEffect(() => {
     const profile = profileQuery.data;
     if (!profile) return;
@@ -124,13 +163,28 @@ export function DashboardClient({ userName }: { userName: string }) {
   }, [profileQuery.data, userName]);
 
   useEffect(() => {
+    const type = profileTypeQuery.data?.profileType;
+    if (!type) return;
+    setProfileTypeSelection(type);
+  }, [profileTypeQuery.data?.profileType]);
+
+  useEffect(() => {
     const orgs = organizationsQuery.data;
     if (orgs?.length) {
       setEventOrgId((prev) => (prev ? prev : orgs[0]!.id));
       setJobOrgId((prev) => (prev ? prev : orgs[0]!.id));
       setEmploymentOrgId((prev) => (prev ? prev : orgs[0]!.id));
+      setAdminEmploymentOrgId((prev) => (prev ? prev : orgs[0]!.id));
     }
   }, [organizationsQuery.data]);
+
+  useEffect(() => {
+    const events = eventsQuery.data;
+    if (events?.length) {
+      setEventCheckInId((prev) => (prev ? prev : events[0]!.id));
+      setAdminEventId((prev) => (prev ? prev : events[0]!.id));
+    }
+  }, [eventsQuery.data]);
 
   const experiences = timelineQuery.data ?? [];
   const checkIns = checkInsQuery.data ?? [];
@@ -153,6 +207,11 @@ export function DashboardClient({ userName }: { userName: string }) {
     });
   };
 
+  const handleProfileTypeSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileTypeMutation.mutate({ profileType: profileTypeSelection });
+  };
+
   const handleOrgCreate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!orgName.trim()) return;
@@ -161,10 +220,12 @@ export function DashboardClient({ userName }: { userName: string }) {
       name: orgName.trim(),
       type: orgType as "COMPANY" | "ORGANIZER",
       ssmNumber: ssmNumber.trim() || undefined,
+      industry: industry.trim() || undefined,
     });
 
     setOrgName("");
     setSsmNumber("");
+    setIndustry("");
   };
 
   const handleEventCreate = (e: React.FormEvent) => {
@@ -230,6 +291,32 @@ export function DashboardClient({ userName }: { userName: string }) {
     setEmploymentNote("");
   };
 
+  const handleAdminEventCheckIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminEventId || !adminEventUserId) return;
+    adminEventCheckInMutation.mutate({
+      eventId: adminEventId,
+      userId: adminEventUserId,
+      note: adminEventNote || undefined,
+    });
+    setAdminEventNote("");
+  };
+
+  const handleAdminEmploymentCheckIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminEmploymentOrgId || !adminEmploymentUserId || !adminEmploymentTitle) return;
+    adminEmploymentCheckInMutation.mutate({
+      organizationId: adminEmploymentOrgId,
+      userId: adminEmploymentUserId,
+      title: adminEmploymentTitle,
+      startDate: adminEmploymentStart ? new Date(adminEmploymentStart).toISOString() : undefined,
+      endDate: adminEmploymentEnd ? new Date(adminEmploymentEnd).toISOString() : undefined,
+      isCurrent: adminEmploymentIsCurrent,
+      note: adminEmploymentNote || undefined,
+    });
+    setAdminEmploymentNote("");
+  };
+
   const loading =
     profileQuery.isLoading ||
     timelineQuery.isLoading ||
@@ -258,6 +345,33 @@ export function DashboardClient({ userName }: { userName: string }) {
             <h2 className="text-lg font-semibold text-white">Profile & Visibility</h2>
             {profileMutation.isPending && <span className="text-xs text-amber-300">Saving…</span>}
           </div>
+          <form onSubmit={handleProfileTypeSave} className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-200">
+            <div className="flex items-center gap-2">
+              <span className="text-slate-400">Profile type</span>
+              <select
+                value={profileTypeSelection}
+                onChange={(e) => setProfileTypeSelection(e.target.value as "USER" | "ORGANIZER" | "COMPANY")}
+                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="USER">User</option>
+                <option value="ORGANIZER">Organizer</option>
+                <option value="COMPANY">Company</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              className="rounded-lg bg-slate-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-600 disabled:opacity-50"
+              disabled={setProfileTypeMutation.isPending}
+            >
+              Save type
+            </button>
+            {setProfileTypeMutation.isSuccess && (
+              <span className="text-xs text-emerald-300">Updated</span>
+            )}
+            {setProfileTypeMutation.error && (
+              <span className="text-xs text-rose-300">{setProfileTypeMutation.error.message}</span>
+            )}
+          </form>
           <form onSubmit={handleProfileSave} className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-1 text-sm text-slate-200 md:col-span-2">
               Full Name
@@ -292,7 +406,7 @@ export function DashboardClient({ userName }: { userName: string }) {
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="min-h-[80px] rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                className="min-h-20 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
                 placeholder="What do you do? What are you looking for?"
               />
             </label>
@@ -347,6 +461,12 @@ export function DashboardClient({ userName }: { userName: string }) {
               value={ssmNumber}
               onChange={(e) => setSsmNumber(e.target.value)}
               placeholder="SSM Number (optional)"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+            />
+            <input
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              placeholder="Industry (optional)"
               className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
             />
             <button
@@ -465,6 +585,9 @@ export function DashboardClient({ userName }: { userName: string }) {
               <span className="text-xs text-amber-300">Recording…</span>
             )}
           </div>
+          <p className="mt-2 text-xs text-slate-400">
+            Self check-ins are marked Unverified until an organizer/company verifies them.
+          </p>
           <form onSubmit={handleEventCheckIn} className="mt-4 space-y-3">
             <p className="text-sm font-medium text-slate-200">Event attendance</p>
             <select
@@ -535,6 +658,117 @@ export function DashboardClient({ userName }: { userName: string }) {
             </button>
           </form>
 
+          <div className="mt-8 border-t border-slate-800 pt-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">Admin check-in (Organizer)</h3>
+              {adminEventCheckInMutation.isPending && <span className="text-xs text-amber-300">Recording…</span>}
+            </div>
+            <form onSubmit={handleAdminEventCheckIn} className="mt-3 space-y-3">
+              <select
+                value={adminEventId}
+                onChange={(e) => setAdminEventId(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="">Select event</option>
+                {eventsQuery.data?.map((evt) => (
+                  <option key={evt.id} value={evt.id}>
+                    {evt.title} ({formatDate(evt.startsAt)})
+                  </option>
+                ))}
+              </select>
+              <input
+                value={adminEventUserId}
+                onChange={(e) => setAdminEventUserId(e.target.value)}
+                placeholder="User ID (cuid)"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <input
+                value={adminEventNote}
+                onChange={(e) => setAdminEventNote(e.target.value)}
+                placeholder="Note (optional)"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-sky-400 disabled:opacity-50"
+                disabled={adminEventCheckInMutation.isPending}
+              >
+                Verify attendee
+              </button>
+            </form>
+          </div>
+
+          <div className="mt-8 border-t border-slate-800 pt-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">Admin employment (Company)</h3>
+              {adminEmploymentCheckInMutation.isPending && <span className="text-xs text-amber-300">Recording…</span>}
+            </div>
+            <form onSubmit={handleAdminEmploymentCheckIn} className="mt-3 space-y-3">
+              <select
+                value={adminEmploymentOrgId}
+                onChange={(e) => setAdminEmploymentOrgId(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="">Select company</option>
+                {organizationsQuery.data
+                  ?.filter((org) => org.type === "COMPANY")
+                  .map((org) => (
+                    <option key={org.id} value={org.id}>
+                      {org.name}
+                    </option>
+                  ))}
+              </select>
+              <input
+                value={adminEmploymentUserId}
+                onChange={(e) => setAdminEmploymentUserId(e.target.value)}
+                placeholder="User ID (cuid)"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <input
+                value={adminEmploymentTitle}
+                onChange={(e) => setAdminEmploymentTitle(e.target.value)}
+                placeholder="Role title"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <div className="grid gap-3 md:grid-cols-2">
+                <input
+                  type="datetime-local"
+                  value={adminEmploymentStart}
+                  onChange={(e) => setAdminEmploymentStart(e.target.value)}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                />
+                <input
+                  type="datetime-local"
+                  value={adminEmploymentEnd}
+                  onChange={(e) => setAdminEmploymentEnd(e.target.value)}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                />
+              </div>
+              <label className="flex items-center gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={adminEmploymentIsCurrent}
+                  onChange={(e) => setAdminEmploymentIsCurrent(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-emerald-500 focus:ring-emerald-500"
+                />
+                Currently employed
+              </label>
+              <input
+                value={adminEmploymentNote}
+                onChange={(e) => setAdminEmploymentNote(e.target.value)}
+                placeholder="Note (optional)"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-sky-400 disabled:opacity-50"
+                disabled={adminEmploymentCheckInMutation.isPending}
+              >
+                Verify employment
+              </button>
+            </form>
+          </div>
+
           <div className="mt-4 space-y-2">
             <p className="text-xs uppercase tracking-wide text-slate-500">Recent check-ins</p>
             {checkIns?.length ? (
@@ -549,6 +783,10 @@ export function DashboardClient({ userName }: { userName: string }) {
                       {ci.organization?.name ?? ""}
                       {ci.note ? ` · ${ci.note}` : ""}
                     </p>
+                    <div className="text-[11px] text-slate-400">
+                      Status: {ci.verificationStatus}
+                      {ci.addedBy?.name ? ` · Verified by ${ci.addedBy.name}` : ""}
+                    </div>
                   </li>
                 ))}
               </ul>

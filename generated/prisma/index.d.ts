@@ -81,6 +81,15 @@ export namespace $Enums {
 export type OrganizationType = (typeof OrganizationType)[keyof typeof OrganizationType]
 
 
+export const ProfileType: {
+  USER: 'USER',
+  ORGANIZER: 'ORGANIZER',
+  COMPANY: 'COMPANY'
+};
+
+export type ProfileType = (typeof ProfileType)[keyof typeof ProfileType]
+
+
 export const ExperienceType: {
   EVENT: 'EVENT',
   EMPLOYMENT: 'EMPLOYMENT'
@@ -126,6 +135,10 @@ export type VerificationStatus = (typeof VerificationStatus)[keyof typeof Verifi
 export type OrganizationType = $Enums.OrganizationType
 
 export const OrganizationType: typeof $Enums.OrganizationType
+
+export type ProfileType = $Enums.ProfileType
+
+export const ProfileType: typeof $Enums.ProfileType
 
 export type ExperienceType = $Enums.ExperienceType
 
@@ -1856,6 +1869,7 @@ export namespace Prisma {
     jobsCreated: number
     experiences: number
     checkIns: number
+    checkInsAdded: number
     certificates: number
   }
 
@@ -1867,6 +1881,7 @@ export namespace Prisma {
     jobsCreated?: boolean | UserCountOutputTypeCountJobsCreatedArgs
     experiences?: boolean | UserCountOutputTypeCountExperiencesArgs
     checkIns?: boolean | UserCountOutputTypeCountCheckInsArgs
+    checkInsAdded?: boolean | UserCountOutputTypeCountCheckInsAddedArgs
     certificates?: boolean | UserCountOutputTypeCountCertificatesArgs
   }
 
@@ -1927,6 +1942,13 @@ export namespace Prisma {
    * UserCountOutputType without action
    */
   export type UserCountOutputTypeCountCheckInsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CheckInWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCheckInsAddedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CheckInWhereInput
   }
 
@@ -2078,6 +2100,7 @@ export namespace Prisma {
     updatedAt: Date | null
     mykadNumber: string | null
     mykadVerifiedAt: Date | null
+    profileType: $Enums.ProfileType | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -2090,6 +2113,7 @@ export namespace Prisma {
     updatedAt: Date | null
     mykadNumber: string | null
     mykadVerifiedAt: Date | null
+    profileType: $Enums.ProfileType | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -2102,6 +2126,7 @@ export namespace Prisma {
     updatedAt: number
     mykadNumber: number
     mykadVerifiedAt: number
+    profileType: number
     _all: number
   }
 
@@ -2116,6 +2141,7 @@ export namespace Prisma {
     updatedAt?: true
     mykadNumber?: true
     mykadVerifiedAt?: true
+    profileType?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -2128,6 +2154,7 @@ export namespace Prisma {
     updatedAt?: true
     mykadNumber?: true
     mykadVerifiedAt?: true
+    profileType?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -2140,6 +2167,7 @@ export namespace Prisma {
     updatedAt?: true
     mykadNumber?: true
     mykadVerifiedAt?: true
+    profileType?: true
     _all?: true
   }
 
@@ -2225,6 +2253,7 @@ export namespace Prisma {
     updatedAt: Date
     mykadNumber: string | null
     mykadVerifiedAt: Date | null
+    profileType: $Enums.ProfileType
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -2254,6 +2283,7 @@ export namespace Prisma {
     updatedAt?: boolean
     mykadNumber?: boolean
     mykadVerifiedAt?: boolean
+    profileType?: boolean
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     profile?: boolean | User$profileArgs<ExtArgs>
@@ -2262,6 +2292,7 @@ export namespace Prisma {
     jobsCreated?: boolean | User$jobsCreatedArgs<ExtArgs>
     experiences?: boolean | User$experiencesArgs<ExtArgs>
     checkIns?: boolean | User$checkInsArgs<ExtArgs>
+    checkInsAdded?: boolean | User$checkInsAddedArgs<ExtArgs>
     certificates?: boolean | User$certificatesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -2276,6 +2307,7 @@ export namespace Prisma {
     updatedAt?: boolean
     mykadNumber?: boolean
     mykadVerifiedAt?: boolean
+    profileType?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2288,6 +2320,7 @@ export namespace Prisma {
     updatedAt?: boolean
     mykadNumber?: boolean
     mykadVerifiedAt?: boolean
+    profileType?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -2300,9 +2333,10 @@ export namespace Prisma {
     updatedAt?: boolean
     mykadNumber?: boolean
     mykadVerifiedAt?: boolean
+    profileType?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "mykadNumber" | "mykadVerifiedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "mykadNumber" | "mykadVerifiedAt" | "profileType", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -2312,6 +2346,7 @@ export namespace Prisma {
     jobsCreated?: boolean | User$jobsCreatedArgs<ExtArgs>
     experiences?: boolean | User$experiencesArgs<ExtArgs>
     checkIns?: boolean | User$checkInsArgs<ExtArgs>
+    checkInsAdded?: boolean | User$checkInsAddedArgs<ExtArgs>
     certificates?: boolean | User$certificatesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -2329,6 +2364,7 @@ export namespace Prisma {
       jobsCreated: Prisma.$JobPostingPayload<ExtArgs>[]
       experiences: Prisma.$ExperiencePayload<ExtArgs>[]
       checkIns: Prisma.$CheckInPayload<ExtArgs>[]
+      checkInsAdded: Prisma.$CheckInPayload<ExtArgs>[]
       certificates: Prisma.$CertificatePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -2341,6 +2377,7 @@ export namespace Prisma {
       updatedAt: Date
       mykadNumber: string | null
       mykadVerifiedAt: Date | null
+      profileType: $Enums.ProfileType
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2743,6 +2780,7 @@ export namespace Prisma {
     jobsCreated<T extends User$jobsCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$jobsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobPostingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     experiences<T extends User$experiencesArgs<ExtArgs> = {}>(args?: Subset<T, User$experiencesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExperiencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     checkIns<T extends User$checkInsArgs<ExtArgs> = {}>(args?: Subset<T, User$checkInsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CheckInPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    checkInsAdded<T extends User$checkInsAddedArgs<ExtArgs> = {}>(args?: Subset<T, User$checkInsAddedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CheckInPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     certificates<T extends User$certificatesArgs<ExtArgs> = {}>(args?: Subset<T, User$certificatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CertificatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2782,6 +2820,7 @@ export namespace Prisma {
     readonly updatedAt: FieldRef<"User", 'DateTime'>
     readonly mykadNumber: FieldRef<"User", 'String'>
     readonly mykadVerifiedAt: FieldRef<"User", 'DateTime'>
+    readonly profileType: FieldRef<"User", 'ProfileType'>
   }
     
 
@@ -3336,6 +3375,30 @@ export namespace Prisma {
    * User.checkIns
    */
   export type User$checkInsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CheckIn
+     */
+    select?: CheckInSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CheckIn
+     */
+    omit?: CheckInOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CheckInInclude<ExtArgs> | null
+    where?: CheckInWhereInput
+    orderBy?: CheckInOrderByWithRelationInput | CheckInOrderByWithRelationInput[]
+    cursor?: CheckInWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CheckInScalarFieldEnum | CheckInScalarFieldEnum[]
+  }
+
+  /**
+   * User.checkInsAdded
+   */
+  export type User$checkInsAddedArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the CheckIn
      */
@@ -7800,6 +7863,7 @@ export namespace Prisma {
     name: string | null
     type: $Enums.OrganizationType | null
     ssmNumber: string | null
+    industry: string | null
     createdById: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -7810,6 +7874,7 @@ export namespace Prisma {
     name: string | null
     type: $Enums.OrganizationType | null
     ssmNumber: string | null
+    industry: string | null
     createdById: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -7820,6 +7885,7 @@ export namespace Prisma {
     name: number
     type: number
     ssmNumber: number
+    industry: number
     createdById: number
     createdAt: number
     updatedAt: number
@@ -7832,6 +7898,7 @@ export namespace Prisma {
     name?: true
     type?: true
     ssmNumber?: true
+    industry?: true
     createdById?: true
     createdAt?: true
     updatedAt?: true
@@ -7842,6 +7909,7 @@ export namespace Prisma {
     name?: true
     type?: true
     ssmNumber?: true
+    industry?: true
     createdById?: true
     createdAt?: true
     updatedAt?: true
@@ -7852,6 +7920,7 @@ export namespace Prisma {
     name?: true
     type?: true
     ssmNumber?: true
+    industry?: true
     createdById?: true
     createdAt?: true
     updatedAt?: true
@@ -7935,6 +8004,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber: string | null
+    industry: string | null
     createdById: string
     createdAt: Date
     updatedAt: Date
@@ -7962,6 +8032,7 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     ssmNumber?: boolean
+    industry?: boolean
     createdById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7979,6 +8050,7 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     ssmNumber?: boolean
+    industry?: boolean
     createdById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7990,6 +8062,7 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     ssmNumber?: boolean
+    industry?: boolean
     createdById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8001,12 +8074,13 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     ssmNumber?: boolean
+    industry?: boolean
     createdById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OrganizationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "type" | "ssmNumber" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+  export type OrganizationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "type" | "ssmNumber" | "industry" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
   export type OrganizationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     events?: boolean | Organization$eventsArgs<ExtArgs>
@@ -8038,6 +8112,7 @@ export namespace Prisma {
       name: string
       type: $Enums.OrganizationType
       ssmNumber: string | null
+      industry: string | null
       createdById: string
       createdAt: Date
       updatedAt: Date
@@ -8474,6 +8549,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Organization", 'String'>
     readonly type: FieldRef<"Organization", 'OrganizationType'>
     readonly ssmNumber: FieldRef<"Organization", 'String'>
+    readonly industry: FieldRef<"Organization", 'String'>
     readonly createdById: FieldRef<"Organization", 'String'>
     readonly createdAt: FieldRef<"Organization", 'DateTime'>
     readonly updatedAt: FieldRef<"Organization", 'DateTime'>
@@ -12575,6 +12651,8 @@ export namespace Prisma {
     eventId: string | null
     type: $Enums.CheckInType | null
     note: string | null
+    verificationStatus: $Enums.VerificationStatus | null
+    addedById: string | null
     createdAt: Date | null
   }
 
@@ -12585,6 +12663,8 @@ export namespace Prisma {
     eventId: string | null
     type: $Enums.CheckInType | null
     note: string | null
+    verificationStatus: $Enums.VerificationStatus | null
+    addedById: string | null
     createdAt: Date | null
   }
 
@@ -12595,6 +12675,8 @@ export namespace Prisma {
     eventId: number
     type: number
     note: number
+    verificationStatus: number
+    addedById: number
     createdAt: number
     _all: number
   }
@@ -12607,6 +12689,8 @@ export namespace Prisma {
     eventId?: true
     type?: true
     note?: true
+    verificationStatus?: true
+    addedById?: true
     createdAt?: true
   }
 
@@ -12617,6 +12701,8 @@ export namespace Prisma {
     eventId?: true
     type?: true
     note?: true
+    verificationStatus?: true
+    addedById?: true
     createdAt?: true
   }
 
@@ -12627,6 +12713,8 @@ export namespace Prisma {
     eventId?: true
     type?: true
     note?: true
+    verificationStatus?: true
+    addedById?: true
     createdAt?: true
     _all?: true
   }
@@ -12710,6 +12798,8 @@ export namespace Prisma {
     eventId: string | null
     type: $Enums.CheckInType
     note: string | null
+    verificationStatus: $Enums.VerificationStatus
+    addedById: string | null
     createdAt: Date
     _count: CheckInCountAggregateOutputType | null
     _min: CheckInMinAggregateOutputType | null
@@ -12737,10 +12827,13 @@ export namespace Prisma {
     eventId?: boolean
     type?: boolean
     note?: boolean
+    verificationStatus?: boolean
+    addedById?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     event?: boolean | CheckIn$eventArgs<ExtArgs>
+    addedBy?: boolean | CheckIn$addedByArgs<ExtArgs>
   }, ExtArgs["result"]["checkIn"]>
 
   export type CheckInSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12750,10 +12843,13 @@ export namespace Prisma {
     eventId?: boolean
     type?: boolean
     note?: boolean
+    verificationStatus?: boolean
+    addedById?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     event?: boolean | CheckIn$eventArgs<ExtArgs>
+    addedBy?: boolean | CheckIn$addedByArgs<ExtArgs>
   }, ExtArgs["result"]["checkIn"]>
 
   export type CheckInSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12763,10 +12859,13 @@ export namespace Prisma {
     eventId?: boolean
     type?: boolean
     note?: boolean
+    verificationStatus?: boolean
+    addedById?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     event?: boolean | CheckIn$eventArgs<ExtArgs>
+    addedBy?: boolean | CheckIn$addedByArgs<ExtArgs>
   }, ExtArgs["result"]["checkIn"]>
 
   export type CheckInSelectScalar = {
@@ -12776,24 +12875,29 @@ export namespace Prisma {
     eventId?: boolean
     type?: boolean
     note?: boolean
+    verificationStatus?: boolean
+    addedById?: boolean
     createdAt?: boolean
   }
 
-  export type CheckInOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "organizationId" | "eventId" | "type" | "note" | "createdAt", ExtArgs["result"]["checkIn"]>
+  export type CheckInOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "organizationId" | "eventId" | "type" | "note" | "verificationStatus" | "addedById" | "createdAt", ExtArgs["result"]["checkIn"]>
   export type CheckInInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     event?: boolean | CheckIn$eventArgs<ExtArgs>
+    addedBy?: boolean | CheckIn$addedByArgs<ExtArgs>
   }
   export type CheckInIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     event?: boolean | CheckIn$eventArgs<ExtArgs>
+    addedBy?: boolean | CheckIn$addedByArgs<ExtArgs>
   }
   export type CheckInIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     event?: boolean | CheckIn$eventArgs<ExtArgs>
+    addedBy?: boolean | CheckIn$addedByArgs<ExtArgs>
   }
 
   export type $CheckInPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12802,6 +12906,7 @@ export namespace Prisma {
       user: Prisma.$UserPayload<ExtArgs>
       organization: Prisma.$OrganizationPayload<ExtArgs>
       event: Prisma.$EventPayload<ExtArgs> | null
+      addedBy: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12810,6 +12915,8 @@ export namespace Prisma {
       eventId: string | null
       type: $Enums.CheckInType
       note: string | null
+      verificationStatus: $Enums.VerificationStatus
+      addedById: string | null
       createdAt: Date
     }, ExtArgs["result"]["checkIn"]>
     composites: {}
@@ -13208,6 +13315,7 @@ export namespace Prisma {
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     event<T extends CheckIn$eventArgs<ExtArgs> = {}>(args?: Subset<T, CheckIn$eventArgs<ExtArgs>>): Prisma__EventClient<$Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    addedBy<T extends CheckIn$addedByArgs<ExtArgs> = {}>(args?: Subset<T, CheckIn$addedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13243,6 +13351,8 @@ export namespace Prisma {
     readonly eventId: FieldRef<"CheckIn", 'String'>
     readonly type: FieldRef<"CheckIn", 'CheckInType'>
     readonly note: FieldRef<"CheckIn", 'String'>
+    readonly verificationStatus: FieldRef<"CheckIn", 'VerificationStatus'>
+    readonly addedById: FieldRef<"CheckIn", 'String'>
     readonly createdAt: FieldRef<"CheckIn", 'DateTime'>
   }
     
@@ -13656,6 +13766,25 @@ export namespace Prisma {
      */
     include?: EventInclude<ExtArgs> | null
     where?: EventWhereInput
+  }
+
+  /**
+   * CheckIn.addedBy
+   */
+  export type CheckIn$addedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -14851,7 +14980,8 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     mykadNumber: 'mykadNumber',
-    mykadVerifiedAt: 'mykadVerifiedAt'
+    mykadVerifiedAt: 'mykadVerifiedAt',
+    profileType: 'profileType'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -14923,6 +15053,7 @@ export namespace Prisma {
     name: 'name',
     type: 'type',
     ssmNumber: 'ssmNumber',
+    industry: 'industry',
     createdById: 'createdById',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -14988,6 +15119,8 @@ export namespace Prisma {
     eventId: 'eventId',
     type: 'type',
     note: 'note',
+    verificationStatus: 'verificationStatus',
+    addedById: 'addedById',
     createdAt: 'createdAt'
   };
 
@@ -15069,6 +15202,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProfileType'
+   */
+  export type EnumProfileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfileType'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProfileType[]'
+   */
+  export type ListEnumProfileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfileType[]'>
     
 
 
@@ -15186,6 +15333,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     mykadNumber?: StringNullableFilter<"User"> | string | null
     mykadVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    profileType?: EnumProfileTypeFilter<"User"> | $Enums.ProfileType
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     profile?: XOR<UserProfileNullableScalarRelationFilter, UserProfileWhereInput> | null
@@ -15194,6 +15342,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingListRelationFilter
     experiences?: ExperienceListRelationFilter
     checkIns?: CheckInListRelationFilter
+    checkInsAdded?: CheckInListRelationFilter
     certificates?: CertificateListRelationFilter
   }
 
@@ -15207,6 +15356,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     mykadNumber?: SortOrderInput | SortOrder
     mykadVerifiedAt?: SortOrderInput | SortOrder
+    profileType?: SortOrder
     sessions?: SessionOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     profile?: UserProfileOrderByWithRelationInput
@@ -15215,6 +15365,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingOrderByRelationAggregateInput
     experiences?: ExperienceOrderByRelationAggregateInput
     checkIns?: CheckInOrderByRelationAggregateInput
+    checkInsAdded?: CheckInOrderByRelationAggregateInput
     certificates?: CertificateOrderByRelationAggregateInput
   }
 
@@ -15231,6 +15382,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     mykadVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    profileType?: EnumProfileTypeFilter<"User"> | $Enums.ProfileType
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     profile?: XOR<UserProfileNullableScalarRelationFilter, UserProfileWhereInput> | null
@@ -15239,6 +15391,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingListRelationFilter
     experiences?: ExperienceListRelationFilter
     checkIns?: CheckInListRelationFilter
+    checkInsAdded?: CheckInListRelationFilter
     certificates?: CertificateListRelationFilter
   }, "id" | "mykadNumber" | "email">
 
@@ -15252,6 +15405,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     mykadNumber?: SortOrderInput | SortOrder
     mykadVerifiedAt?: SortOrderInput | SortOrder
+    profileType?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -15270,6 +15424,7 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     mykadNumber?: StringNullableWithAggregatesFilter<"User"> | string | null
     mykadVerifiedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    profileType?: EnumProfileTypeWithAggregatesFilter<"User"> | $Enums.ProfileType
   }
 
   export type SessionWhereInput = {
@@ -15582,6 +15737,7 @@ export namespace Prisma {
     name?: StringFilter<"Organization"> | string
     type?: EnumOrganizationTypeFilter<"Organization"> | $Enums.OrganizationType
     ssmNumber?: StringNullableFilter<"Organization"> | string | null
+    industry?: StringNullableFilter<"Organization"> | string | null
     createdById?: StringFilter<"Organization"> | string
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
@@ -15598,6 +15754,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     ssmNumber?: SortOrderInput | SortOrder
+    industry?: SortOrderInput | SortOrder
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -15617,6 +15774,7 @@ export namespace Prisma {
     name?: StringFilter<"Organization"> | string
     type?: EnumOrganizationTypeFilter<"Organization"> | $Enums.OrganizationType
     ssmNumber?: StringNullableFilter<"Organization"> | string | null
+    industry?: StringNullableFilter<"Organization"> | string | null
     createdById?: StringFilter<"Organization"> | string
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
@@ -15633,6 +15791,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     ssmNumber?: SortOrderInput | SortOrder
+    industry?: SortOrderInput | SortOrder
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -15649,6 +15808,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Organization"> | string
     type?: EnumOrganizationTypeWithAggregatesFilter<"Organization"> | $Enums.OrganizationType
     ssmNumber?: StringNullableWithAggregatesFilter<"Organization"> | string | null
+    industry?: StringNullableWithAggregatesFilter<"Organization"> | string | null
     createdById?: StringWithAggregatesFilter<"Organization"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
@@ -15867,6 +16027,8 @@ export namespace Prisma {
 
   export type ExperienceWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    userId_eventId_type?: ExperienceUserIdEventIdTypeCompoundUniqueInput
+    userId_organizationId_type?: ExperienceUserIdOrganizationIdTypeCompoundUniqueInput
     AND?: ExperienceWhereInput | ExperienceWhereInput[]
     OR?: ExperienceWhereInput[]
     NOT?: ExperienceWhereInput | ExperienceWhereInput[]
@@ -15885,7 +16047,7 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     organization?: XOR<OrganizationNullableScalarRelationFilter, OrganizationWhereInput> | null
     event?: XOR<EventNullableScalarRelationFilter, EventWhereInput> | null
-  }, "id">
+  }, "id" | "userId_eventId_type" | "userId_organizationId_type">
 
   export type ExperienceOrderByWithAggregationInput = {
     id?: SortOrder
@@ -15935,10 +16097,13 @@ export namespace Prisma {
     eventId?: StringNullableFilter<"CheckIn"> | string | null
     type?: EnumCheckInTypeFilter<"CheckIn"> | $Enums.CheckInType
     note?: StringNullableFilter<"CheckIn"> | string | null
+    verificationStatus?: EnumVerificationStatusFilter<"CheckIn"> | $Enums.VerificationStatus
+    addedById?: StringNullableFilter<"CheckIn"> | string | null
     createdAt?: DateTimeFilter<"CheckIn"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     event?: XOR<EventNullableScalarRelationFilter, EventWhereInput> | null
+    addedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type CheckInOrderByWithRelationInput = {
@@ -15948,14 +16113,19 @@ export namespace Prisma {
     eventId?: SortOrderInput | SortOrder
     type?: SortOrder
     note?: SortOrderInput | SortOrder
+    verificationStatus?: SortOrder
+    addedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
     organization?: OrganizationOrderByWithRelationInput
     event?: EventOrderByWithRelationInput
+    addedBy?: UserOrderByWithRelationInput
   }
 
   export type CheckInWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    userId_eventId_type?: CheckInUserIdEventIdTypeCompoundUniqueInput
+    userId_organizationId_type?: CheckInUserIdOrganizationIdTypeCompoundUniqueInput
     AND?: CheckInWhereInput | CheckInWhereInput[]
     OR?: CheckInWhereInput[]
     NOT?: CheckInWhereInput | CheckInWhereInput[]
@@ -15964,11 +16134,14 @@ export namespace Prisma {
     eventId?: StringNullableFilter<"CheckIn"> | string | null
     type?: EnumCheckInTypeFilter<"CheckIn"> | $Enums.CheckInType
     note?: StringNullableFilter<"CheckIn"> | string | null
+    verificationStatus?: EnumVerificationStatusFilter<"CheckIn"> | $Enums.VerificationStatus
+    addedById?: StringNullableFilter<"CheckIn"> | string | null
     createdAt?: DateTimeFilter<"CheckIn"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     organization?: XOR<OrganizationScalarRelationFilter, OrganizationWhereInput>
     event?: XOR<EventNullableScalarRelationFilter, EventWhereInput> | null
-  }, "id">
+    addedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "userId_eventId_type" | "userId_organizationId_type">
 
   export type CheckInOrderByWithAggregationInput = {
     id?: SortOrder
@@ -15977,6 +16150,8 @@ export namespace Prisma {
     eventId?: SortOrderInput | SortOrder
     type?: SortOrder
     note?: SortOrderInput | SortOrder
+    verificationStatus?: SortOrder
+    addedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: CheckInCountOrderByAggregateInput
     _max?: CheckInMaxOrderByAggregateInput
@@ -15993,6 +16168,8 @@ export namespace Prisma {
     eventId?: StringNullableWithAggregatesFilter<"CheckIn"> | string | null
     type?: EnumCheckInTypeWithAggregatesFilter<"CheckIn"> | $Enums.CheckInType
     note?: StringNullableWithAggregatesFilter<"CheckIn"> | string | null
+    verificationStatus?: EnumVerificationStatusWithAggregatesFilter<"CheckIn"> | $Enums.VerificationStatus
+    addedById?: StringNullableWithAggregatesFilter<"CheckIn"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CheckIn"> | Date | string
   }
 
@@ -16082,6 +16259,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -16090,6 +16268,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -16103,6 +16282,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -16111,6 +16291,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -16124,6 +16305,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -16132,6 +16314,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -16145,6 +16328,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -16153,6 +16337,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -16166,6 +16351,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
   }
 
   export type UserUpdateManyMutationInput = {
@@ -16178,6 +16364,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -16190,6 +16377,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
   }
 
   export type SessionCreateInput = {
@@ -16537,6 +16725,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     createdBy: UserCreateNestedOneWithoutCreatedOrganizationsInput
@@ -16552,6 +16741,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdById: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16567,6 +16757,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutCreatedOrganizationsNestedInput
@@ -16582,6 +16773,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16597,6 +16789,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdById: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16607,6 +16800,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16616,6 +16810,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16917,10 +17112,12 @@ export namespace Prisma {
     id?: string
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutCheckInsInput
     organization: OrganizationCreateNestedOneWithoutCheckInsInput
     event?: EventCreateNestedOneWithoutCheckInsInput
+    addedBy?: UserCreateNestedOneWithoutCheckInsAddedInput
   }
 
   export type CheckInUncheckedCreateInput = {
@@ -16930,6 +17127,8 @@ export namespace Prisma {
     eventId?: string | null
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
     createdAt?: Date | string
   }
 
@@ -16937,10 +17136,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCheckInsNestedInput
     organization?: OrganizationUpdateOneRequiredWithoutCheckInsNestedInput
     event?: EventUpdateOneWithoutCheckInsNestedInput
+    addedBy?: UserUpdateOneWithoutCheckInsAddedNestedInput
   }
 
   export type CheckInUncheckedUpdateInput = {
@@ -16950,6 +17151,8 @@ export namespace Prisma {
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -16960,6 +17163,8 @@ export namespace Prisma {
     eventId?: string | null
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
     createdAt?: Date | string
   }
 
@@ -16967,6 +17172,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -16977,6 +17183,8 @@ export namespace Prisma {
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -17111,6 +17319,13 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type EnumProfileTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProfileType | EnumProfileTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProfileTypeFilter<$PrismaModel> | $Enums.ProfileType
+  }
+
   export type SessionListRelationFilter = {
     every?: SessionWhereInput
     some?: SessionWhereInput
@@ -17211,6 +17426,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     mykadNumber?: SortOrder
     mykadVerifiedAt?: SortOrder
+    profileType?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -17223,6 +17439,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     mykadNumber?: SortOrder
     mykadVerifiedAt?: SortOrder
+    profileType?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -17235,6 +17452,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     mykadNumber?: SortOrder
     mykadVerifiedAt?: SortOrder
+    profileType?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -17307,6 +17525,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumProfileTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProfileType | EnumProfileTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProfileTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProfileType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProfileTypeFilter<$PrismaModel>
+    _max?: NestedEnumProfileTypeFilter<$PrismaModel>
   }
 
   export type UserScalarRelationFilter = {
@@ -17496,6 +17724,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     ssmNumber?: SortOrder
+    industry?: SortOrder
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -17506,6 +17735,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     ssmNumber?: SortOrder
+    industry?: SortOrder
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -17516,6 +17746,7 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     ssmNumber?: SortOrder
+    industry?: SortOrder
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -17650,6 +17881,18 @@ export namespace Prisma {
     isNot?: EventWhereInput | null
   }
 
+  export type ExperienceUserIdEventIdTypeCompoundUniqueInput = {
+    userId: string
+    eventId: string
+    type: $Enums.ExperienceType
+  }
+
+  export type ExperienceUserIdOrganizationIdTypeCompoundUniqueInput = {
+    userId: string
+    organizationId: string
+    type: $Enums.ExperienceType
+  }
+
   export type ExperienceCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -17725,6 +17968,23 @@ export namespace Prisma {
     not?: NestedEnumCheckInTypeFilter<$PrismaModel> | $Enums.CheckInType
   }
 
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type CheckInUserIdEventIdTypeCompoundUniqueInput = {
+    userId: string
+    eventId: string
+    type: $Enums.CheckInType
+  }
+
+  export type CheckInUserIdOrganizationIdTypeCompoundUniqueInput = {
+    userId: string
+    organizationId: string
+    type: $Enums.CheckInType
+  }
+
   export type CheckInCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -17732,6 +17992,8 @@ export namespace Prisma {
     eventId?: SortOrder
     type?: SortOrder
     note?: SortOrder
+    verificationStatus?: SortOrder
+    addedById?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -17742,6 +18004,8 @@ export namespace Prisma {
     eventId?: SortOrder
     type?: SortOrder
     note?: SortOrder
+    verificationStatus?: SortOrder
+    addedById?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -17752,6 +18016,8 @@ export namespace Prisma {
     eventId?: SortOrder
     type?: SortOrder
     note?: SortOrder
+    verificationStatus?: SortOrder
+    addedById?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -17853,6 +18119,13 @@ export namespace Prisma {
     connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
   }
 
+  export type CheckInCreateNestedManyWithoutAddedByInput = {
+    create?: XOR<CheckInCreateWithoutAddedByInput, CheckInUncheckedCreateWithoutAddedByInput> | CheckInCreateWithoutAddedByInput[] | CheckInUncheckedCreateWithoutAddedByInput[]
+    connectOrCreate?: CheckInCreateOrConnectWithoutAddedByInput | CheckInCreateOrConnectWithoutAddedByInput[]
+    createMany?: CheckInCreateManyAddedByInputEnvelope
+    connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+  }
+
   export type CertificateCreateNestedManyWithoutUserInput = {
     create?: XOR<CertificateCreateWithoutUserInput, CertificateUncheckedCreateWithoutUserInput> | CertificateCreateWithoutUserInput[] | CertificateUncheckedCreateWithoutUserInput[]
     connectOrCreate?: CertificateCreateOrConnectWithoutUserInput | CertificateCreateOrConnectWithoutUserInput[]
@@ -17915,6 +18188,13 @@ export namespace Prisma {
     connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
   }
 
+  export type CheckInUncheckedCreateNestedManyWithoutAddedByInput = {
+    create?: XOR<CheckInCreateWithoutAddedByInput, CheckInUncheckedCreateWithoutAddedByInput> | CheckInCreateWithoutAddedByInput[] | CheckInUncheckedCreateWithoutAddedByInput[]
+    connectOrCreate?: CheckInCreateOrConnectWithoutAddedByInput | CheckInCreateOrConnectWithoutAddedByInput[]
+    createMany?: CheckInCreateManyAddedByInputEnvelope
+    connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+  }
+
   export type CertificateUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<CertificateCreateWithoutUserInput, CertificateUncheckedCreateWithoutUserInput> | CertificateCreateWithoutUserInput[] | CertificateUncheckedCreateWithoutUserInput[]
     connectOrCreate?: CertificateCreateOrConnectWithoutUserInput | CertificateCreateOrConnectWithoutUserInput[]
@@ -17940,6 +18220,10 @@ export namespace Prisma {
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
+  }
+
+  export type EnumProfileTypeFieldUpdateOperationsInput = {
+    set?: $Enums.ProfileType
   }
 
   export type SessionUpdateManyWithoutUserNestedInput = {
@@ -18047,6 +18331,20 @@ export namespace Prisma {
     connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
     update?: CheckInUpdateWithWhereUniqueWithoutUserInput | CheckInUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CheckInUpdateManyWithWhereWithoutUserInput | CheckInUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CheckInScalarWhereInput | CheckInScalarWhereInput[]
+  }
+
+  export type CheckInUpdateManyWithoutAddedByNestedInput = {
+    create?: XOR<CheckInCreateWithoutAddedByInput, CheckInUncheckedCreateWithoutAddedByInput> | CheckInCreateWithoutAddedByInput[] | CheckInUncheckedCreateWithoutAddedByInput[]
+    connectOrCreate?: CheckInCreateOrConnectWithoutAddedByInput | CheckInCreateOrConnectWithoutAddedByInput[]
+    upsert?: CheckInUpsertWithWhereUniqueWithoutAddedByInput | CheckInUpsertWithWhereUniqueWithoutAddedByInput[]
+    createMany?: CheckInCreateManyAddedByInputEnvelope
+    set?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    disconnect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    delete?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    update?: CheckInUpdateWithWhereUniqueWithoutAddedByInput | CheckInUpdateWithWhereUniqueWithoutAddedByInput[]
+    updateMany?: CheckInUpdateManyWithWhereWithoutAddedByInput | CheckInUpdateManyWithWhereWithoutAddedByInput[]
     deleteMany?: CheckInScalarWhereInput | CheckInScalarWhereInput[]
   }
 
@@ -18169,6 +18467,20 @@ export namespace Prisma {
     connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
     update?: CheckInUpdateWithWhereUniqueWithoutUserInput | CheckInUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: CheckInUpdateManyWithWhereWithoutUserInput | CheckInUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CheckInScalarWhereInput | CheckInScalarWhereInput[]
+  }
+
+  export type CheckInUncheckedUpdateManyWithoutAddedByNestedInput = {
+    create?: XOR<CheckInCreateWithoutAddedByInput, CheckInUncheckedCreateWithoutAddedByInput> | CheckInCreateWithoutAddedByInput[] | CheckInUncheckedCreateWithoutAddedByInput[]
+    connectOrCreate?: CheckInCreateOrConnectWithoutAddedByInput | CheckInCreateOrConnectWithoutAddedByInput[]
+    upsert?: CheckInUpsertWithWhereUniqueWithoutAddedByInput | CheckInUpsertWithWhereUniqueWithoutAddedByInput[]
+    createMany?: CheckInCreateManyAddedByInputEnvelope
+    set?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    disconnect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    delete?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    connect?: CheckInWhereUniqueInput | CheckInWhereUniqueInput[]
+    update?: CheckInUpdateWithWhereUniqueWithoutAddedByInput | CheckInUpdateWithWhereUniqueWithoutAddedByInput[]
+    updateMany?: CheckInUpdateManyWithWhereWithoutAddedByInput | CheckInUpdateManyWithWhereWithoutAddedByInput[]
     deleteMany?: CheckInScalarWhereInput | CheckInScalarWhereInput[]
   }
 
@@ -18736,6 +19048,12 @@ export namespace Prisma {
     connect?: EventWhereUniqueInput
   }
 
+  export type UserCreateNestedOneWithoutCheckInsAddedInput = {
+    create?: XOR<UserCreateWithoutCheckInsAddedInput, UserUncheckedCreateWithoutCheckInsAddedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCheckInsAddedInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type EnumCheckInTypeFieldUpdateOperationsInput = {
     set?: $Enums.CheckInType
   }
@@ -18764,6 +19082,16 @@ export namespace Prisma {
     delete?: EventWhereInput | boolean
     connect?: EventWhereUniqueInput
     update?: XOR<XOR<EventUpdateToOneWithWhereWithoutCheckInsInput, EventUpdateWithoutCheckInsInput>, EventUncheckedUpdateWithoutCheckInsInput>
+  }
+
+  export type UserUpdateOneWithoutCheckInsAddedNestedInput = {
+    create?: XOR<UserCreateWithoutCheckInsAddedInput, UserUncheckedCreateWithoutCheckInsAddedInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCheckInsAddedInput
+    upsert?: UserUpsertWithoutCheckInsAddedInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCheckInsAddedInput, UserUpdateWithoutCheckInsAddedInput>, UserUncheckedUpdateWithoutCheckInsAddedInput>
   }
 
   export type UserCreateNestedOneWithoutCertificatesInput = {
@@ -18867,6 +19195,13 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedEnumProfileTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProfileType | EnumProfileTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProfileTypeFilter<$PrismaModel> | $Enums.ProfileType
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -18957,6 +19292,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumProfileTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProfileType | EnumProfileTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProfileType[] | ListEnumProfileTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumProfileTypeWithAggregatesFilter<$PrismaModel> | $Enums.ProfileType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProfileTypeFilter<$PrismaModel>
+    _max?: NestedEnumProfileTypeFilter<$PrismaModel>
   }
 
   export type NestedEnumTalentVisibilityFilter<$PrismaModel = never> = {
@@ -19165,6 +19510,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: EventCreateNestedManyWithoutOrganizationInput
@@ -19179,6 +19525,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     events?: EventUncheckedCreateNestedManyWithoutOrganizationInput
@@ -19314,9 +19661,11 @@ export namespace Prisma {
     id?: string
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
     createdAt?: Date | string
     organization: OrganizationCreateNestedOneWithoutCheckInsInput
     event?: EventCreateNestedOneWithoutCheckInsInput
+    addedBy?: UserCreateNestedOneWithoutCheckInsAddedInput
   }
 
   export type CheckInUncheckedCreateWithoutUserInput = {
@@ -19325,6 +19674,8 @@ export namespace Prisma {
     eventId?: string | null
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
     createdAt?: Date | string
   }
 
@@ -19335,6 +19686,38 @@ export namespace Prisma {
 
   export type CheckInCreateManyUserInputEnvelope = {
     data: CheckInCreateManyUserInput | CheckInCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CheckInCreateWithoutAddedByInput = {
+    id?: string
+    type: $Enums.CheckInType
+    note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutCheckInsInput
+    organization: OrganizationCreateNestedOneWithoutCheckInsInput
+    event?: EventCreateNestedOneWithoutCheckInsInput
+  }
+
+  export type CheckInUncheckedCreateWithoutAddedByInput = {
+    id?: string
+    userId: string
+    organizationId: string
+    eventId?: string | null
+    type: $Enums.CheckInType
+    note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    createdAt?: Date | string
+  }
+
+  export type CheckInCreateOrConnectWithoutAddedByInput = {
+    where: CheckInWhereUniqueInput
+    create: XOR<CheckInCreateWithoutAddedByInput, CheckInUncheckedCreateWithoutAddedByInput>
+  }
+
+  export type CheckInCreateManyAddedByInputEnvelope = {
+    data: CheckInCreateManyAddedByInput | CheckInCreateManyAddedByInput[]
     skipDuplicates?: boolean
   }
 
@@ -19492,6 +19875,7 @@ export namespace Prisma {
     name?: StringFilter<"Organization"> | string
     type?: EnumOrganizationTypeFilter<"Organization"> | $Enums.OrganizationType
     ssmNumber?: StringNullableFilter<"Organization"> | string | null
+    industry?: StringNullableFilter<"Organization"> | string | null
     createdById?: StringFilter<"Organization"> | string
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeFilter<"Organization"> | Date | string
@@ -19621,7 +20005,25 @@ export namespace Prisma {
     eventId?: StringNullableFilter<"CheckIn"> | string | null
     type?: EnumCheckInTypeFilter<"CheckIn"> | $Enums.CheckInType
     note?: StringNullableFilter<"CheckIn"> | string | null
+    verificationStatus?: EnumVerificationStatusFilter<"CheckIn"> | $Enums.VerificationStatus
+    addedById?: StringNullableFilter<"CheckIn"> | string | null
     createdAt?: DateTimeFilter<"CheckIn"> | Date | string
+  }
+
+  export type CheckInUpsertWithWhereUniqueWithoutAddedByInput = {
+    where: CheckInWhereUniqueInput
+    update: XOR<CheckInUpdateWithoutAddedByInput, CheckInUncheckedUpdateWithoutAddedByInput>
+    create: XOR<CheckInCreateWithoutAddedByInput, CheckInUncheckedCreateWithoutAddedByInput>
+  }
+
+  export type CheckInUpdateWithWhereUniqueWithoutAddedByInput = {
+    where: CheckInWhereUniqueInput
+    data: XOR<CheckInUpdateWithoutAddedByInput, CheckInUncheckedUpdateWithoutAddedByInput>
+  }
+
+  export type CheckInUpdateManyWithWhereWithoutAddedByInput = {
+    where: CheckInScalarWhereInput
+    data: XOR<CheckInUpdateManyMutationInput, CheckInUncheckedUpdateManyWithoutAddedByInput>
   }
 
   export type CertificateUpsertWithWhereUniqueWithoutUserInput = {
@@ -19664,6 +20066,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationCreateNestedManyWithoutCreatedByInput
@@ -19671,6 +20074,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -19684,6 +20088,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -19691,6 +20096,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -19720,6 +20126,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUpdateManyWithoutCreatedByNestedInput
@@ -19727,6 +20134,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -19740,6 +20148,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -19747,6 +20156,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -19760,6 +20170,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationCreateNestedManyWithoutCreatedByInput
@@ -19767,6 +20178,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -19780,6 +20192,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -19787,6 +20200,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -19816,6 +20230,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUpdateManyWithoutCreatedByNestedInput
@@ -19823,6 +20238,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -19836,6 +20252,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -19843,6 +20260,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -19856,6 +20274,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     createdOrganizations?: OrganizationCreateNestedManyWithoutCreatedByInput
@@ -19863,6 +20282,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -19876,6 +20296,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     createdOrganizations?: OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -19883,6 +20304,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -19912,6 +20334,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     createdOrganizations?: OrganizationUpdateManyWithoutCreatedByNestedInput
@@ -19919,6 +20342,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -19932,6 +20356,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     createdOrganizations?: OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -19939,6 +20364,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -19952,6 +20378,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -19959,6 +20386,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -19972,6 +20400,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -19979,6 +20408,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -20103,9 +20533,11 @@ export namespace Prisma {
     id?: string
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutCheckInsInput
     event?: EventCreateNestedOneWithoutCheckInsInput
+    addedBy?: UserCreateNestedOneWithoutCheckInsAddedInput
   }
 
   export type CheckInUncheckedCreateWithoutOrganizationInput = {
@@ -20114,6 +20546,8 @@ export namespace Prisma {
     eventId?: string | null
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
     createdAt?: Date | string
   }
 
@@ -20178,6 +20612,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20185,6 +20620,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -20198,6 +20634,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20205,6 +20642,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -20293,6 +20731,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     createdBy: UserCreateNestedOneWithoutCreatedOrganizationsInput
@@ -20307,6 +20746,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdById: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20331,6 +20771,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -20338,6 +20779,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -20351,6 +20793,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -20358,6 +20801,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -20370,9 +20814,11 @@ export namespace Prisma {
     id?: string
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutCheckInsInput
     organization: OrganizationCreateNestedOneWithoutCheckInsInput
+    addedBy?: UserCreateNestedOneWithoutCheckInsAddedInput
   }
 
   export type CheckInUncheckedCreateWithoutEventInput = {
@@ -20381,6 +20827,8 @@ export namespace Prisma {
     organizationId: string
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
     createdAt?: Date | string
   }
 
@@ -20480,6 +20928,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutCreatedOrganizationsNestedInput
@@ -20494,6 +20943,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20524,6 +20974,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20531,6 +20982,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -20544,6 +20996,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20551,6 +21004,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -20607,6 +21061,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     createdBy: UserCreateNestedOneWithoutCreatedOrganizationsInput
@@ -20621,6 +21076,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdById: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20645,6 +21101,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -20652,6 +21109,7 @@ export namespace Prisma {
     eventsCreated?: EventCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -20665,6 +21123,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -20672,6 +21131,7 @@ export namespace Prisma {
     eventsCreated?: EventUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -20696,6 +21156,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutCreatedOrganizationsNestedInput
@@ -20710,6 +21171,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20740,6 +21202,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20747,6 +21210,7 @@ export namespace Prisma {
     eventsCreated?: EventUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -20760,6 +21224,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20767,6 +21232,7 @@ export namespace Prisma {
     eventsCreated?: EventUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -20780,6 +21246,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -20787,6 +21254,7 @@ export namespace Prisma {
     eventsCreated?: EventCreateNestedManyWithoutCreatedByInput
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -20800,6 +21268,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -20807,6 +21276,7 @@ export namespace Prisma {
     eventsCreated?: EventUncheckedCreateNestedManyWithoutCreatedByInput
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -20820,6 +21290,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     createdBy: UserCreateNestedOneWithoutCreatedOrganizationsInput
@@ -20834,6 +21305,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdById: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20904,6 +21376,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20911,6 +21384,7 @@ export namespace Prisma {
     eventsCreated?: EventUpdateManyWithoutCreatedByNestedInput
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -20924,6 +21398,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20931,6 +21406,7 @@ export namespace Prisma {
     eventsCreated?: EventUncheckedUpdateManyWithoutCreatedByNestedInput
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -20950,6 +21426,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutCreatedOrganizationsNestedInput
@@ -20964,6 +21441,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21024,6 +21502,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -21031,6 +21510,7 @@ export namespace Prisma {
     eventsCreated?: EventCreateNestedManyWithoutCreatedByInput
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
     certificates?: CertificateCreateNestedManyWithoutUserInput
   }
 
@@ -21044,6 +21524,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -21051,6 +21532,7 @@ export namespace Prisma {
     eventsCreated?: EventUncheckedCreateNestedManyWithoutCreatedByInput
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
     certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -21064,6 +21546,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     createdBy: UserCreateNestedOneWithoutCreatedOrganizationsInput
@@ -21078,6 +21561,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdById: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -21127,6 +21611,55 @@ export namespace Prisma {
     create: XOR<EventCreateWithoutCheckInsInput, EventUncheckedCreateWithoutCheckInsInput>
   }
 
+  export type UserCreateWithoutCheckInsAddedInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    profile?: UserProfileCreateNestedOneWithoutUserInput
+    createdOrganizations?: OrganizationCreateNestedManyWithoutCreatedByInput
+    eventsCreated?: EventCreateNestedManyWithoutCreatedByInput
+    jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
+    experiences?: ExperienceCreateNestedManyWithoutUserInput
+    checkIns?: CheckInCreateNestedManyWithoutUserInput
+    certificates?: CertificateCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCheckInsAddedInput = {
+    id: string
+    name: string
+    email: string
+    emailVerified?: boolean
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
+    createdOrganizations?: OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
+    eventsCreated?: EventUncheckedCreateNestedManyWithoutCreatedByInput
+    jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
+    experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
+    checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    certificates?: CertificateUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCheckInsAddedInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCheckInsAddedInput, UserUncheckedCreateWithoutCheckInsAddedInput>
+  }
+
   export type UserUpsertWithoutCheckInsInput = {
     update: XOR<UserUpdateWithoutCheckInsInput, UserUncheckedUpdateWithoutCheckInsInput>
     create: XOR<UserCreateWithoutCheckInsInput, UserUncheckedCreateWithoutCheckInsInput>
@@ -21148,6 +21681,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -21155,6 +21689,7 @@ export namespace Prisma {
     eventsCreated?: EventUpdateManyWithoutCreatedByNestedInput
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUpdateManyWithoutUserNestedInput
   }
 
@@ -21168,6 +21703,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -21175,6 +21711,7 @@ export namespace Prisma {
     eventsCreated?: EventUncheckedUpdateManyWithoutCreatedByNestedInput
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
     certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -21194,6 +21731,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutCreatedOrganizationsNestedInput
@@ -21208,6 +21746,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21258,6 +21797,61 @@ export namespace Prisma {
     certificates?: CertificateUncheckedUpdateManyWithoutEventNestedInput
   }
 
+  export type UserUpsertWithoutCheckInsAddedInput = {
+    update: XOR<UserUpdateWithoutCheckInsAddedInput, UserUncheckedUpdateWithoutCheckInsAddedInput>
+    create: XOR<UserCreateWithoutCheckInsAddedInput, UserUncheckedCreateWithoutCheckInsAddedInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCheckInsAddedInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCheckInsAddedInput, UserUncheckedUpdateWithoutCheckInsAddedInput>
+  }
+
+  export type UserUpdateWithoutCheckInsAddedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    profile?: UserProfileUpdateOneWithoutUserNestedInput
+    createdOrganizations?: OrganizationUpdateManyWithoutCreatedByNestedInput
+    eventsCreated?: EventUpdateManyWithoutCreatedByNestedInput
+    jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
+    experiences?: ExperienceUpdateManyWithoutUserNestedInput
+    checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    certificates?: CertificateUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCheckInsAddedInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
+    createdOrganizations?: OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
+    eventsCreated?: EventUncheckedUpdateManyWithoutCreatedByNestedInput
+    jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
+    experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
+    checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    certificates?: CertificateUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type UserCreateWithoutCertificatesInput = {
     id: string
     name: string
@@ -21268,6 +21862,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -21276,6 +21871,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceCreateNestedManyWithoutUserInput
     checkIns?: CheckInCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInCreateNestedManyWithoutAddedByInput
   }
 
   export type UserUncheckedCreateWithoutCertificatesInput = {
@@ -21288,6 +21884,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     mykadNumber?: string | null
     mykadVerifiedAt?: Date | string | null
+    profileType?: $Enums.ProfileType
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -21296,6 +21893,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedCreateNestedManyWithoutCreatedByInput
     experiences?: ExperienceUncheckedCreateNestedManyWithoutUserInput
     checkIns?: CheckInUncheckedCreateNestedManyWithoutUserInput
+    checkInsAdded?: CheckInUncheckedCreateNestedManyWithoutAddedByInput
   }
 
   export type UserCreateOrConnectWithoutCertificatesInput = {
@@ -21308,6 +21906,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     createdBy: UserCreateNestedOneWithoutCreatedOrganizationsInput
@@ -21322,6 +21921,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdById: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -21392,6 +21992,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -21400,6 +22001,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUpdateManyWithoutAddedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCertificatesInput = {
@@ -21412,6 +22014,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
     mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    profileType?: EnumProfileTypeFieldUpdateOperationsInput | $Enums.ProfileType
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -21420,6 +22023,7 @@ export namespace Prisma {
     jobsCreated?: JobPostingUncheckedUpdateManyWithoutCreatedByNestedInput
     experiences?: ExperienceUncheckedUpdateManyWithoutUserNestedInput
     checkIns?: CheckInUncheckedUpdateManyWithoutUserNestedInput
+    checkInsAdded?: CheckInUncheckedUpdateManyWithoutAddedByNestedInput
   }
 
   export type OrganizationUpsertWithoutCertificatesInput = {
@@ -21438,6 +22042,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutCreatedOrganizationsNestedInput
@@ -21452,6 +22057,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21532,6 +22138,7 @@ export namespace Prisma {
     name: string
     type: $Enums.OrganizationType
     ssmNumber?: string | null
+    industry?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21580,6 +22187,19 @@ export namespace Prisma {
     eventId?: string | null
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CheckInCreateManyAddedByInput = {
+    id?: string
+    userId: string
+    organizationId: string
+    eventId?: string | null
+    type: $Enums.CheckInType
+    note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
     createdAt?: Date | string
   }
 
@@ -21673,6 +22293,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: EventUpdateManyWithoutOrganizationNestedInput
@@ -21687,6 +22308,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     events?: EventUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -21701,6 +22323,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: EnumOrganizationTypeFieldUpdateOperationsInput | $Enums.OrganizationType
     ssmNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    industry?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21829,9 +22452,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     organization?: OrganizationUpdateOneRequiredWithoutCheckInsNestedInput
     event?: EventUpdateOneWithoutCheckInsNestedInput
+    addedBy?: UserUpdateOneWithoutCheckInsAddedNestedInput
   }
 
   export type CheckInUncheckedUpdateWithoutUserInput = {
@@ -21840,6 +22465,8 @@ export namespace Prisma {
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -21849,6 +22476,41 @@ export namespace Prisma {
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CheckInUpdateWithoutAddedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutCheckInsNestedInput
+    organization?: OrganizationUpdateOneRequiredWithoutCheckInsNestedInput
+    event?: EventUpdateOneWithoutCheckInsNestedInput
+  }
+
+  export type CheckInUncheckedUpdateWithoutAddedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CheckInUncheckedUpdateManyWithoutAddedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -21926,6 +22588,8 @@ export namespace Prisma {
     eventId?: string | null
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
     createdAt?: Date | string
   }
 
@@ -22063,9 +22727,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCheckInsNestedInput
     event?: EventUpdateOneWithoutCheckInsNestedInput
+    addedBy?: UserUpdateOneWithoutCheckInsAddedNestedInput
   }
 
   export type CheckInUncheckedUpdateWithoutOrganizationInput = {
@@ -22074,6 +22740,8 @@ export namespace Prisma {
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -22083,6 +22751,8 @@ export namespace Prisma {
     eventId?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -22122,6 +22792,8 @@ export namespace Prisma {
     organizationId: string
     type: $Enums.CheckInType
     note?: string | null
+    verificationStatus?: $Enums.VerificationStatus
+    addedById?: string | null
     createdAt?: Date | string
   }
 
@@ -22154,9 +22826,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCheckInsNestedInput
     organization?: OrganizationUpdateOneRequiredWithoutCheckInsNestedInput
+    addedBy?: UserUpdateOneWithoutCheckInsAddedNestedInput
   }
 
   export type CheckInUncheckedUpdateWithoutEventInput = {
@@ -22165,6 +22839,8 @@ export namespace Prisma {
     organizationId?: StringFieldUpdateOperationsInput | string
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -22174,6 +22850,8 @@ export namespace Prisma {
     organizationId?: StringFieldUpdateOperationsInput | string
     type?: EnumCheckInTypeFieldUpdateOperationsInput | $Enums.CheckInType
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    addedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

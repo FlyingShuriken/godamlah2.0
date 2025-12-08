@@ -9,7 +9,7 @@ export default async function Home() {
 
   if (!session?.user) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+      <main className="bg-linear-to-br flex min-h-screen flex-col items-center justify-center from-slate-950 via-slate-900 to-slate-950 text-white">
         <div className="container flex max-w-lg flex-col items-center justify-center gap-8 px-4 py-16">
           <div className="space-y-2 text-center">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -66,7 +66,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
+      <main className="bg-linear-to-br min-h-screen from-slate-950 via-slate-900 to-slate-950">
         <nav className="border-b border-slate-800 bg-slate-900/40 backdrop-blur-sm">
           <div className="container flex items-center justify-between px-4 py-4">
             <h1 className="text-xl font-bold text-white">GodamLah</h1>

@@ -1,10 +1,23 @@
+import type { PrismaClient } from "../../../../generated/prisma";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 
 const organizationType = z.enum(["COMPANY", "ORGANIZER"]);
+type ProfileTypeValue = "USER" | "ORGANIZER" | "COMPANY";
 const jobStatus = z.enum(["DRAFT", "PUBLISHED", "CLOSED"]);
+
+const ensureProfileType = async (
+  db: PrismaClient,
+  userId: string,
+  allowed: ProfileTypeValue[],
+) => {
+  const user = await db.user.findUnique({ select: { profileType: true }, where: { id: userId } });
+  if (!user || !allowed.includes(user.profileType as ProfileTypeValue)) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Insufficient profile permissions" });
+  }
+};
 
 export const organizationRouter = createTRPCRouter({
   create: protectedProcedure
@@ -13,14 +26,23 @@ export const organizationRouter = createTRPCRouter({
         name: z.string().min(2).max(120),
         type: organizationType,
         ssmNumber: z.string().trim().max(64).optional(),
+        industry: z.string().trim().max(120).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      if (input.type === "ORGANIZER") {
+        await ensureProfileType(ctx.db, ctx.session.user.id, ["ORGANIZER", "COMPANY"]);
+      }
+      if (input.type === "COMPANY") {
+        await ensureProfileType(ctx.db, ctx.session.user.id, ["COMPANY", "ORGANIZER"]);
+      }
+
       return ctx.db.organization.create({
         data: {
           name: input.name,
           type: input.type,
           ssmNumber: input.ssmNumber,
+          industry: input.industry,
           createdById: ctx.session.user.id,
         },
       });
@@ -45,12 +67,18 @@ export const organizationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      await ensureProfileType(ctx.db, ctx.session.user.id, ["ORGANIZER", "COMPANY"]);
+
       const org = await ctx.db.organization.findFirst({
         where: { id: input.organizationId, createdById: ctx.session.user.id },
       });
 
       if (!org) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Organization not found or not owned" });
+      }
+
+      if (org.type !== "ORGANIZER") {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Only organizers can create events" });
       }
 
       return ctx.db.event.create({
@@ -88,12 +116,18 @@ export const organizationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      await ensureProfileType(ctx.db, ctx.session.user.id, ["COMPANY"]);
+
       const org = await ctx.db.organization.findFirst({
         where: { id: input.organizationId, createdById: ctx.session.user.id },
       });
 
       if (!org) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Organization not found or not owned" });
+      }
+
+      if (org.type !== "COMPANY") {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Only companies can create jobs" });
       }
 
       return ctx.db.jobPosting.create({
