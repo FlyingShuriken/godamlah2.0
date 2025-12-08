@@ -12,6 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { auth } from "@/server/better-auth";
+import { getSession } from "@/server/better-auth/server";
 import { db } from "@/server/db";
 
 /**
@@ -27,9 +28,12 @@ import { db } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await auth.api.getSession({
-    headers: opts.headers,
-  });
+  // Prefer our cookie-based session lookup to avoid origin restrictions, then fall back to auth API
+  const session =
+    (await getSession()) ??
+    (await auth.api.getSession({
+      headers: opts.headers,
+    }));
   return {
     db,
     session,
