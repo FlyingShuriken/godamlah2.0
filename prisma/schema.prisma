@@ -54,6 +54,9 @@ model User {
   image                String? //@db.Text
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @default(now()) @updatedAt
+  // MyKad authentication - the primary identifier for Malaysian IC-based login
+  mykadNumber          String?        @unique
+  mykadVerifiedAt      DateTime?
   sessions             Session[]
   accounts             Account[]
   profile              UserProfile?
@@ -65,6 +68,7 @@ model User {
   certificates         Certificate[]
 
   @@unique([email])
+  @@index([mykadNumber])
   @@map("user")
 }
 

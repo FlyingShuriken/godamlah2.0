@@ -2076,6 +2076,8 @@ export namespace Prisma {
     image: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    mykadNumber: string | null
+    mykadVerifiedAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -2086,6 +2088,8 @@ export namespace Prisma {
     image: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    mykadNumber: string | null
+    mykadVerifiedAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -2096,6 +2100,8 @@ export namespace Prisma {
     image: number
     createdAt: number
     updatedAt: number
+    mykadNumber: number
+    mykadVerifiedAt: number
     _all: number
   }
 
@@ -2108,6 +2114,8 @@ export namespace Prisma {
     image?: true
     createdAt?: true
     updatedAt?: true
+    mykadNumber?: true
+    mykadVerifiedAt?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -2118,6 +2126,8 @@ export namespace Prisma {
     image?: true
     createdAt?: true
     updatedAt?: true
+    mykadNumber?: true
+    mykadVerifiedAt?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -2128,6 +2138,8 @@ export namespace Prisma {
     image?: true
     createdAt?: true
     updatedAt?: true
+    mykadNumber?: true
+    mykadVerifiedAt?: true
     _all?: true
   }
 
@@ -2211,6 +2223,8 @@ export namespace Prisma {
     image: string | null
     createdAt: Date
     updatedAt: Date
+    mykadNumber: string | null
+    mykadVerifiedAt: Date | null
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -2238,6 +2252,8 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    mykadNumber?: boolean
+    mykadVerifiedAt?: boolean
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     profile?: boolean | User$profileArgs<ExtArgs>
@@ -2258,6 +2274,8 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    mykadNumber?: boolean
+    mykadVerifiedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2268,6 +2286,8 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    mykadNumber?: boolean
+    mykadVerifiedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -2278,9 +2298,11 @@ export namespace Prisma {
     image?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    mykadNumber?: boolean
+    mykadVerifiedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "mykadNumber" | "mykadVerifiedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -2317,6 +2339,8 @@ export namespace Prisma {
       image: string | null
       createdAt: Date
       updatedAt: Date
+      mykadNumber: string | null
+      mykadVerifiedAt: Date | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2756,6 +2780,8 @@ export namespace Prisma {
     readonly image: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
+    readonly mykadNumber: FieldRef<"User", 'String'>
+    readonly mykadVerifiedAt: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -14823,7 +14849,9 @@ export namespace Prisma {
     emailVerified: 'emailVerified',
     image: 'image',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    mykadNumber: 'mykadNumber',
+    mykadVerifiedAt: 'mykadVerifiedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -15156,6 +15184,8 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    mykadNumber?: StringNullableFilter<"User"> | string | null
+    mykadVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     profile?: XOR<UserProfileNullableScalarRelationFilter, UserProfileWhereInput> | null
@@ -15175,6 +15205,8 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    mykadNumber?: SortOrderInput | SortOrder
+    mykadVerifiedAt?: SortOrderInput | SortOrder
     sessions?: SessionOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     profile?: UserProfileOrderByWithRelationInput
@@ -15189,6 +15221,7 @@ export namespace Prisma {
   export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     email?: string
+    mykadNumber?: string
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
@@ -15197,6 +15230,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    mykadVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     profile?: XOR<UserProfileNullableScalarRelationFilter, UserProfileWhereInput> | null
@@ -15206,7 +15240,7 @@ export namespace Prisma {
     experiences?: ExperienceListRelationFilter
     checkIns?: CheckInListRelationFilter
     certificates?: CertificateListRelationFilter
-  }, "id" | "email">
+  }, "id" | "mykadNumber" | "email">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
@@ -15216,6 +15250,8 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    mykadNumber?: SortOrderInput | SortOrder
+    mykadVerifiedAt?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -15232,6 +15268,8 @@ export namespace Prisma {
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    mykadNumber?: StringNullableWithAggregatesFilter<"User"> | string | null
+    mykadVerifiedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   }
 
   export type SessionWhereInput = {
@@ -16042,6 +16080,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -16061,6 +16101,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -16080,6 +16122,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -16099,6 +16143,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -16118,6 +16164,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -16128,6 +16176,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -16138,6 +16188,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type SessionCreateInput = {
@@ -17048,6 +17100,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type SessionListRelationFilter = {
     every?: SessionWhereInput
     some?: SessionWhereInput
@@ -17146,6 +17209,8 @@ export namespace Prisma {
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    mykadNumber?: SortOrder
+    mykadVerifiedAt?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -17156,6 +17221,8 @@ export namespace Prisma {
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    mykadNumber?: SortOrder
+    mykadVerifiedAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -17166,6 +17233,8 @@ export namespace Prisma {
     image?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    mykadNumber?: SortOrder
+    mykadVerifiedAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -17226,6 +17295,20 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -17262,17 +17345,6 @@ export namespace Prisma {
     ipAddress?: SortOrder
     userAgent?: SortOrder
     userId?: SortOrder
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type AccountCountOrderByAggregateInput = {
@@ -17321,20 +17393,6 @@ export namespace Prisma {
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type VerificationCountOrderByAggregateInput = {
@@ -17880,6 +17938,10 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type SessionUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -18142,10 +18204,6 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutAccountsInput, UserUncheckedCreateWithoutAccountsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAccountsInput
     connect?: UserWhereUniqueInput
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type UserUpdateOneRequiredWithoutAccountsNestedInput = {
@@ -18798,6 +18856,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -18874,17 +18943,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -19604,6 +19662,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationCreateNestedManyWithoutCreatedByInput
@@ -19622,6 +19682,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -19656,6 +19718,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUpdateManyWithoutCreatedByNestedInput
@@ -19674,6 +19738,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -19692,6 +19758,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationCreateNestedManyWithoutCreatedByInput
@@ -19710,6 +19778,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
     createdOrganizations?: OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -19744,6 +19814,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUpdateManyWithoutCreatedByNestedInput
@@ -19762,6 +19834,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
     createdOrganizations?: OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -19780,6 +19854,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     createdOrganizations?: OrganizationCreateNestedManyWithoutCreatedByInput
@@ -19798,6 +19874,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     createdOrganizations?: OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -19832,6 +19910,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     createdOrganizations?: OrganizationUpdateManyWithoutCreatedByNestedInput
@@ -19850,6 +19930,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     createdOrganizations?: OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -19868,6 +19950,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -19886,6 +19970,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -20090,6 +20176,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20108,6 +20196,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20239,6 +20329,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -20257,6 +20349,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -20428,6 +20522,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20446,6 +20542,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20545,6 +20643,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -20563,6 +20663,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -20636,6 +20738,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20654,6 +20758,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20672,6 +20778,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -20690,6 +20798,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -20792,6 +20902,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -20810,6 +20922,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -20908,6 +21022,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -20926,6 +21042,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -21028,6 +21146,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -21046,6 +21166,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -21144,6 +21266,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     profile?: UserProfileCreateNestedOneWithoutUserInput
@@ -21162,6 +21286,8 @@ export namespace Prisma {
     image?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    mykadNumber?: string | null
+    mykadVerifiedAt?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     profile?: UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -21264,6 +21390,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     profile?: UserProfileUpdateOneWithoutUserNestedInput
@@ -21282,6 +21410,8 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    mykadNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    mykadVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     profile?: UserProfileUncheckedUpdateOneWithoutUserNestedInput

@@ -5,6 +5,15 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+    experimental: {
+        serverActions: {
+            allowedOrigins: [
+                "localhost:3000",
+                "q8ptjfxn-3000.asse.devtunnels.ms",
+            ],
+        },
+    },
+};
 
 export default config;

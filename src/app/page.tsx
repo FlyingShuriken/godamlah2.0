@@ -1,8 +1,6 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-
 import { DashboardClient } from "@/app/_components/dashboard";
-import { auth } from "@/server/better-auth";
+import { MyKadLoginForm } from "@/app/_components/mykad-login-form";
+import { signOut } from "@/server/better-auth/actions";
 import { getSession } from "@/server/better-auth/server";
 import { HydrateClient } from "@/trpc/server";
 
@@ -24,59 +22,43 @@ export default async function Home() {
             </p>
           </div>
 
-          <form
-            className="w-full space-y-3"
-            action={async (formData) => {
-              "use server";
-              const mykad = (formData.get("mykad") ?? "").toString().trim();
-              if (!/^[0-9]{6,12}$/.test(mykad)) {
-                throw new Error("Invalid MyKad number");
-              }
+          <div className="w-full space-y-6">
+            {/* QR Code placeholder - for future implementation */}
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+              <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                  />
+                </svg>
+                <span>Coming soon: QR Code scanner</span>
+              </div>
 
-              const email = `${mykad}@mock.mykad.local`;
-              const password = mykad; // mock-only
+              {/* MyKad manual input */}
+              <MyKadLoginForm className="space-y-3" />
+            </div>
 
-              await auth.api
-                .signUpEmail({
-                  body: { email, password, name: `MyKad ${mykad}` },
-                })
-                .catch(() => undefined); // ignore if already exists
-
-              const res = await auth.api.signInEmail({
-                body: { email, password },
-              });
-
-              if (!res?.token) {
-                throw new Error("Sign-in failed");
-              }
-
-              redirect("/");
-            }}
-          >
-            <label className="flex flex-col gap-1 text-sm text-slate-200">
-              MyKad IC Number (mock login)
-              <input
-                name="mykad"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={12}
-                placeholder="e.g. 900101015555"
-                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
-                required
-              />
-            </label>
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-emerald-500 px-6 py-3 text-base font-semibold text-slate-900 transition hover:bg-emerald-400"
-            >
-              Sign in with MyKad (mock)
-            </button>
-          </form>
-
-          <p className="text-xs text-slate-500">
-            Mock mode: we derive a temp account from your MyKad number. Replace
-            with QR-based flow later.
-          </p>
+            {/* Info section */}
+            <div className="rounded-lg bg-slate-800/30 px-4 py-3 text-xs text-slate-500">
+              <p className="font-medium text-slate-400">Mock Mode</p>
+              <p className="mt-1">
+                Enter any valid Malaysian IC number format (12 digits). In
+                production, you&apos;ll scan your MyKad&apos;s QR code for
+                verified authentication.
+              </p>
+              <p className="mt-2 text-slate-600">
+                Example: 900101-01-5555 (born Jan 1, 1990, male)
+              </p>
+            </div>
+          </div>
         </div>
       </main>
     );
@@ -88,15 +70,9 @@ export default async function Home() {
         <nav className="border-b border-slate-800 bg-slate-900/40 backdrop-blur-sm">
           <div className="container flex items-center justify-between px-4 py-4">
             <h1 className="text-xl font-bold text-white">GodamLah</h1>
-            <form>
+            <form action={signOut}>
               <button
-                formAction={async () => {
-                  "use server";
-                  await auth.api.signOut({
-                    headers: await headers(),
-                  });
-                  redirect("/");
-                }}
+                type="submit"
                 className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-600"
               >
                 Sign out
