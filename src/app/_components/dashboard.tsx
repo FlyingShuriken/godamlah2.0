@@ -40,7 +40,10 @@ export function DashboardClient({ userName }: { userName: string }) {
 
   const profileMutation = api.profile.upsert.useMutation({
     onSuccess: async () => {
-      await Promise.all([utils.profile.getMine.invalidate(), utils.profile.timeline.invalidate()]);
+      await Promise.all([
+        utils.profile.getMine.invalidate(),
+        utils.profile.timeline.invalidate(),
+      ]);
     },
   });
 
@@ -90,30 +93,35 @@ export function DashboardClient({ userName }: { userName: string }) {
     },
   });
 
-  const adminEventCheckInMutation = api.checkIn.adminCheckInToEvent.useMutation({
-    onSuccess: async () => {
-      await Promise.all([
-        utils.checkIn.myCheckIns.invalidate(),
-        utils.profile.timeline.invalidate(),
-      ]);
+  const adminEventCheckInMutation = api.checkIn.adminCheckInToEvent.useMutation(
+    {
+      onSuccess: async () => {
+        await Promise.all([
+          utils.checkIn.myCheckIns.invalidate(),
+          utils.profile.timeline.invalidate(),
+        ]);
+      },
     },
-  });
+  );
 
-  const adminEmploymentCheckInMutation = api.checkIn.adminCheckInEmployment.useMutation({
-    onSuccess: async () => {
-      await Promise.all([
-        utils.checkIn.myCheckIns.invalidate(),
-        utils.profile.timeline.invalidate(),
-      ]);
-    },
-  });
+  const adminEmploymentCheckInMutation =
+    api.checkIn.adminCheckInEmployment.useMutation({
+      onSuccess: async () => {
+        await Promise.all([
+          utils.checkIn.myCheckIns.invalidate(),
+          utils.profile.timeline.invalidate(),
+        ]);
+      },
+    });
 
   const [fullName, setFullName] = useState("");
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
   const [consentTalentPool, setConsentTalentPool] = useState(true);
-  const [profileTypeSelection, setProfileTypeSelection] = useState<"USER" | "ORGANIZER" | "COMPANY">("USER");
+  const [profileTypeSelection, setProfileTypeSelection] = useState<
+    "USER" | "ORGANIZER" | "COMPANY"
+  >("USER");
 
   const [orgName, setOrgName] = useState("");
   const [orgType, setOrgType] = useState("COMPANY");
@@ -149,7 +157,8 @@ export function DashboardClient({ userName }: { userName: string }) {
   const [adminEmploymentStart, setAdminEmploymentStart] = useState("");
   const [adminEmploymentEnd, setAdminEmploymentEnd] = useState("");
   const [adminEmploymentNote, setAdminEmploymentNote] = useState("");
-  const [adminEmploymentIsCurrent, setAdminEmploymentIsCurrent] = useState(true);
+  const [adminEmploymentIsCurrent, setAdminEmploymentIsCurrent] =
+    useState(true);
 
   useEffect(() => {
     const profile = profileQuery.data;
@@ -286,7 +295,9 @@ export function DashboardClient({ userName }: { userName: string }) {
       organizationId: employmentOrgId,
       title: employmentTitle,
       note: employmentNote || undefined,
-      startDate: employmentStart ? new Date(employmentStart).toISOString() : undefined,
+      startDate: employmentStart
+        ? new Date(employmentStart).toISOString()
+        : undefined,
     });
     setEmploymentNote("");
   };
@@ -304,13 +315,22 @@ export function DashboardClient({ userName }: { userName: string }) {
 
   const handleAdminEmploymentCheckIn = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminEmploymentOrgId || !adminEmploymentUserId || !adminEmploymentTitle) return;
+    if (
+      !adminEmploymentOrgId ||
+      !adminEmploymentUserId ||
+      !adminEmploymentTitle
+    )
+      return;
     adminEmploymentCheckInMutation.mutate({
       organizationId: adminEmploymentOrgId,
       userId: adminEmploymentUserId,
       title: adminEmploymentTitle,
-      startDate: adminEmploymentStart ? new Date(adminEmploymentStart).toISOString() : undefined,
-      endDate: adminEmploymentEnd ? new Date(adminEmploymentEnd).toISOString() : undefined,
+      startDate: adminEmploymentStart
+        ? new Date(adminEmploymentStart).toISOString()
+        : undefined,
+      endDate: adminEmploymentEnd
+        ? new Date(adminEmploymentEnd).toISOString()
+        : undefined,
       isCurrent: adminEmploymentIsCurrent,
       note: adminEmploymentNote || undefined,
     });
@@ -326,31 +346,45 @@ export function DashboardClient({ userName }: { userName: string }) {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-2 rounded-2xl bg-slate-900/60 p-6 shadow-lg shadow-black/20 ring-1 ring-slate-800">
+      <header className="flex flex-col gap-2 rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm text-slate-400">Welcome back</p>
-            <h1 className="text-2xl font-semibold text-white">{fullName || userName}</h1>
+            <h1 className="text-2xl font-semibold text-white">
+              {fullName || userName}
+            </h1>
           </div>
           {loading && <span className="text-xs text-amber-300">Syncing…</span>}
         </div>
         <p className="text-sm text-slate-300">
-          Capture verified attendance and employment, keep your profile current, and see quick job matches powered by your skills.
+          Capture verified attendance and employment, keep your profile current,
+          and see quick job matches powered by your skills.
         </p>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="lg:col-span-2 rounded-2xl bg-slate-900/60 p-6 shadow-lg shadow-black/20 ring-1 ring-slate-800">
+        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800 lg:col-span-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Profile & Visibility</h2>
-            {profileMutation.isPending && <span className="text-xs text-amber-300">Saving…</span>}
+            <h2 className="text-lg font-semibold text-white">
+              Profile & Visibility
+            </h2>
+            {profileMutation.isPending && (
+              <span className="text-xs text-amber-300">Saving…</span>
+            )}
           </div>
-          <form onSubmit={handleProfileTypeSave} className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-200">
+          <form
+            onSubmit={handleProfileTypeSave}
+            className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-200"
+          >
             <div className="flex items-center gap-2">
               <span className="text-slate-400">Profile type</span>
               <select
                 value={profileTypeSelection}
-                onChange={(e) => setProfileTypeSelection(e.target.value as "USER" | "ORGANIZER" | "COMPANY")}
+                onChange={(e) =>
+                  setProfileTypeSelection(
+                    e.target.value as "USER" | "ORGANIZER" | "COMPANY",
+                  )
+                }
                 className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               >
                 <option value="USER">User</option>
@@ -369,10 +403,15 @@ export function DashboardClient({ userName }: { userName: string }) {
               <span className="text-xs text-emerald-300">Updated</span>
             )}
             {setProfileTypeMutation.error && (
-              <span className="text-xs text-rose-300">{setProfileTypeMutation.error.message}</span>
+              <span className="text-xs text-rose-300">
+                {setProfileTypeMutation.error.message}
+              </span>
             )}
           </form>
-          <form onSubmit={handleProfileSave} className="mt-4 grid gap-4 md:grid-cols-2">
+          <form
+            onSubmit={handleProfileSave}
+            className="mt-4 grid gap-4 md:grid-cols-2"
+          >
             <label className="flex flex-col gap-1 text-sm text-slate-200 md:col-span-2">
               Full Name
               <input
@@ -428,7 +467,9 @@ export function DashboardClient({ userName }: { userName: string }) {
                 Save profile
               </button>
               {profileMutation.error && (
-                <span className="text-xs text-rose-300">{profileMutation.error.message}</span>
+                <span className="text-xs text-rose-300">
+                  {profileMutation.error.message}
+                </span>
               )}
               {profileMutation.isSuccess && (
                 <span className="text-xs text-emerald-300">Saved</span>
@@ -437,10 +478,12 @@ export function DashboardClient({ userName }: { userName: string }) {
           </form>
         </section>
 
-        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg shadow-black/20 ring-1 ring-slate-800">
+        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Organizations</h2>
-            {orgMutation.isPending && <span className="text-xs text-amber-300">Saving…</span>}
+            {orgMutation.isPending && (
+              <span className="text-xs text-amber-300">Saving…</span>
+            )}
           </div>
           <form onSubmit={handleOrgCreate} className="mt-4 space-y-3">
             <input
@@ -478,7 +521,9 @@ export function DashboardClient({ userName }: { userName: string }) {
             </button>
           </form>
           <div className="mt-4 space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Yours</p>
+            <p className="text-xs tracking-wide text-slate-500 uppercase">
+              Yours
+            </p>
             <div className="space-y-2">
               {organizationsQuery.data?.length ? (
                 organizationsQuery.data.map((org) => (
@@ -490,7 +535,11 @@ export function DashboardClient({ userName }: { userName: string }) {
                       <span className="font-medium">{org.name}</span>
                       <span className="text-xs text-slate-400">{org.type}</span>
                     </div>
-                    {org.ssmNumber && <p className="text-xs text-slate-500">SSM: {org.ssmNumber}</p>}
+                    {org.ssmNumber && (
+                      <p className="text-xs text-slate-500">
+                        SSM: {org.ssmNumber}
+                      </p>
+                    )}
                   </div>
                 ))
               ) : (
@@ -502,10 +551,12 @@ export function DashboardClient({ userName }: { userName: string }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg shadow-black/20 ring-1 ring-slate-800">
+        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Create Event</h2>
-            {eventMutation.isPending && <span className="text-xs text-amber-300">Saving…</span>}
+            {eventMutation.isPending && (
+              <span className="text-xs text-amber-300">Saving…</span>
+            )}
           </div>
           <form onSubmit={handleEventCreate} className="mt-4 space-y-3">
             <select
@@ -559,16 +610,25 @@ export function DashboardClient({ userName }: { userName: string }) {
             </button>
           </form>
           <div className="mt-4 space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Upcoming</p>
+            <p className="text-xs tracking-wide text-slate-500 uppercase">
+              Upcoming
+            </p>
             {eventsQuery.data?.length ? (
               <ul className="space-y-2">
                 {eventsQuery.data.map((evt) => (
-                  <li key={evt.id} className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200">
+                  <li
+                    key={evt.id}
+                    className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{evt.title}</span>
-                      <span className="text-xs text-slate-400">{formatDateTime(evt.startsAt)}</span>
+                      <span className="text-xs text-slate-400">
+                        {formatDateTime(evt.startsAt)}
+                      </span>
                     </div>
-                    {evt.location && <p className="text-xs text-slate-500">{evt.location}</p>}
+                    {evt.location && (
+                      <p className="text-xs text-slate-500">{evt.location}</p>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -578,18 +638,22 @@ export function DashboardClient({ userName }: { userName: string }) {
           </div>
         </section>
 
-        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg shadow-black/20 ring-1 ring-slate-800">
+        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Check-ins</h2>
-            {(checkInEventMutation.isPending || checkInEmploymentMutation.isPending) && (
+            {(checkInEventMutation.isPending ||
+              checkInEmploymentMutation.isPending) && (
               <span className="text-xs text-amber-300">Recording…</span>
             )}
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            Self check-ins are marked Unverified until an organizer/company verifies them.
+            Self check-ins are marked Unverified until an organizer/company
+            verifies them.
           </p>
           <form onSubmit={handleEventCheckIn} className="mt-4 space-y-3">
-            <p className="text-sm font-medium text-slate-200">Event attendance</p>
+            <p className="text-sm font-medium text-slate-200">
+              Event attendance
+            </p>
             <select
               value={eventCheckInId}
               onChange={(e) => setEventCheckInId(e.target.value)}
@@ -660,8 +724,12 @@ export function DashboardClient({ userName }: { userName: string }) {
 
           <div className="mt-8 border-t border-slate-800 pt-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Admin check-in (Organizer)</h3>
-              {adminEventCheckInMutation.isPending && <span className="text-xs text-amber-300">Recording…</span>}
+              <h3 className="text-sm font-semibold text-white">
+                Admin check-in (Organizer)
+              </h3>
+              {adminEventCheckInMutation.isPending && (
+                <span className="text-xs text-amber-300">Recording…</span>
+              )}
             </div>
             <form onSubmit={handleAdminEventCheckIn} className="mt-3 space-y-3">
               <select
@@ -700,10 +768,17 @@ export function DashboardClient({ userName }: { userName: string }) {
 
           <div className="mt-8 border-t border-slate-800 pt-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Admin employment (Company)</h3>
-              {adminEmploymentCheckInMutation.isPending && <span className="text-xs text-amber-300">Recording…</span>}
+              <h3 className="text-sm font-semibold text-white">
+                Admin employment (Company)
+              </h3>
+              {adminEmploymentCheckInMutation.isPending && (
+                <span className="text-xs text-amber-300">Recording…</span>
+              )}
             </div>
-            <form onSubmit={handleAdminEmploymentCheckIn} className="mt-3 space-y-3">
+            <form
+              onSubmit={handleAdminEmploymentCheckIn}
+              className="mt-3 space-y-3"
+            >
               <select
                 value={adminEmploymentOrgId}
                 onChange={(e) => setAdminEmploymentOrgId(e.target.value)}
@@ -748,7 +823,9 @@ export function DashboardClient({ userName }: { userName: string }) {
                 <input
                   type="checkbox"
                   checked={adminEmploymentIsCurrent}
-                  onChange={(e) => setAdminEmploymentIsCurrent(e.target.checked)}
+                  onChange={(e) =>
+                    setAdminEmploymentIsCurrent(e.target.checked)
+                  }
                   className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-emerald-500 focus:ring-emerald-500"
                 />
                 Currently employed
@@ -770,14 +847,25 @@ export function DashboardClient({ userName }: { userName: string }) {
           </div>
 
           <div className="mt-4 space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Recent check-ins</p>
+            <p className="text-xs tracking-wide text-slate-500 uppercase">
+              Recent check-ins
+            </p>
             {checkIns?.length ? (
               <ul className="space-y-2">
                 {checkIns.slice(0, 5).map((ci) => (
-                  <li key={ci.id} className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200">
+                  <li
+                    key={ci.id}
+                    className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
+                  >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">{ci.type === "EVENT" ? ci.event?.title ?? "Event" : "Employment"}</span>
-                      <span className="text-xs text-slate-400">{formatDateTime(ci.createdAt)}</span>
+                      <span className="font-medium">
+                        {ci.type === "EVENT"
+                          ? (ci.event?.title ?? "Event")
+                          : "Employment"}
+                      </span>
+                      <span className="text-xs text-slate-400">
+                        {formatDateTime(ci.createdAt)}
+                      </span>
                     </div>
                     <p className="text-xs text-slate-500">
                       {ci.organization?.name ?? ""}
@@ -785,7 +873,9 @@ export function DashboardClient({ userName }: { userName: string }) {
                     </p>
                     <div className="text-[11px] text-slate-400">
                       Status: {ci.verificationStatus}
-                      {ci.addedBy?.name ? ` · Verified by ${ci.addedBy.name}` : ""}
+                      {ci.addedBy?.name
+                        ? ` · Verified by ${ci.addedBy.name}`
+                        : ""}
                     </div>
                   </li>
                 ))}
@@ -796,10 +886,12 @@ export function DashboardClient({ userName }: { userName: string }) {
           </div>
         </section>
 
-        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg shadow-black/20 ring-1 ring-slate-800">
+        <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Job Posting</h2>
-            {jobMutation.isPending && <span className="text-xs text-amber-300">Saving…</span>}
+            {jobMutation.isPending && (
+              <span className="text-xs text-amber-300">Saving…</span>
+            )}
           </div>
           <form onSubmit={handleJobCreate} className="mt-4 space-y-3">
             <select
@@ -842,39 +934,63 @@ export function DashboardClient({ userName }: { userName: string }) {
           </form>
 
           <div className="mt-4 space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Recommended jobs for you</p>
+            <p className="text-xs tracking-wide text-slate-500 uppercase">
+              Recommended jobs for you
+            </p>
             {jobMatches?.length ? (
               <ul className="space-y-2">
                 {jobMatches.slice(0, 5).map(({ job, overlap, missing }) => (
-                  <li key={job.id} className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200">
+                  <li
+                    key={job.id}
+                    className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{job.title}</span>
-                      <span className="text-xs text-slate-400">{job.organizationId}</span>
+                      <span className="text-xs text-slate-400">
+                        {job.organizationId}
+                      </span>
                     </div>
-                    <p className="text-xs text-slate-400 line-clamp-2">{job.description}</p>
-                    <p className="text-xs text-emerald-300">Match on: {overlap.join(", ") || "N/A"}</p>
+                    <p className="line-clamp-2 text-xs text-slate-400">
+                      {job.description}
+                    </p>
+                    <p className="text-xs text-emerald-300">
+                      Match on: {overlap.join(", ") || "N/A"}
+                    </p>
                     {missing.length > 0 && (
-                      <p className="text-xs text-slate-500">Missing: {missing.join(", ")}</p>
+                      <p className="text-xs text-slate-500">
+                        Missing: {missing.join(", ")}
+                      </p>
                     )}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-slate-400">No matches yet. Add skills to your profile.</p>
+              <p className="text-sm text-slate-400">
+                No matches yet. Add skills to your profile.
+              </p>
             )}
           </div>
 
           <div className="mt-4 space-y-2">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Upcoming events for you</p>
+            <p className="text-xs tracking-wide text-slate-500 uppercase">
+              Upcoming events for you
+            </p>
             {eventMatches?.length ? (
               <ul className="space-y-2">
                 {eventMatches.slice(0, 5).map(({ event }) => (
-                  <li key={event.id} className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200">
+                  <li
+                    key={event.id}
+                    className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{event.title}</span>
-                      <span className="text-xs text-slate-400">{formatDateTime(event.startsAt)}</span>
+                      <span className="text-xs text-slate-400">
+                        {formatDateTime(event.startsAt)}
+                      </span>
                     </div>
-                    <p className="text-xs text-slate-500">{event.location ?? "TBA"}</p>
+                    <p className="text-xs text-slate-500">
+                      {event.location ?? "TBA"}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -885,7 +1001,7 @@ export function DashboardClient({ userName }: { userName: string }) {
         </section>
       </div>
 
-      <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg shadow-black/20 ring-1 ring-slate-800">
+      <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">Timeline</h2>
           <p className="text-xs text-slate-400">Verified from check-ins</p>
@@ -893,10 +1009,15 @@ export function DashboardClient({ userName }: { userName: string }) {
         {experiences?.length ? (
           <ul className="mt-4 space-y-3">
             {experiences.map((exp) => (
-              <li key={exp.id} className="rounded-lg border border-slate-800 bg-slate-950/40 px-4 py-3 text-sm text-slate-200">
+              <li
+                key={exp.id}
+                className="rounded-lg border border-slate-800 bg-slate-950/40 px-4 py-3 text-sm text-slate-200"
+              >
                 <div className="flex items-center justify-between">
                   <div className="font-medium">{exp.title}</div>
-                  <span className="text-xs text-emerald-300">{exp.verificationStatus}</span>
+                  <span className="text-xs text-emerald-300">
+                    {exp.verificationStatus}
+                  </span>
                 </div>
                 <div className="text-xs text-slate-400">
                   {exp.organization?.name ?? ""}
@@ -904,13 +1025,19 @@ export function DashboardClient({ userName }: { userName: string }) {
                 </div>
                 <div className="text-xs text-slate-500">
                   {formatDate(exp.startDate)}
-                  {exp.endDate ? ` → ${formatDate(exp.endDate)}` : exp.isCurrent ? " · Ongoing" : ""}
+                  {exp.endDate
+                    ? ` → ${formatDate(exp.endDate)}`
+                    : exp.isCurrent
+                      ? " · Ongoing"
+                      : ""}
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mt-4 text-sm text-slate-400">No experiences recorded yet.</p>
+          <p className="mt-4 text-sm text-slate-400">
+            No experiences recorded yet.
+          </p>
         )}
       </section>
     </div>

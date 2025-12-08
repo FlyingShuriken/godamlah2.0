@@ -87,10 +87,15 @@ export const checkInRouter = createTRPCRouter({
       });
 
       if (!org) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Organization not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Organization not found",
+        });
       }
 
-      const startDate = input.startDate ? new Date(input.startDate) : new Date();
+      const startDate = input.startDate
+        ? new Date(input.startDate)
+        : new Date();
 
       return ctx.db.$transaction(async (tx) => {
         const checkIn = await tx.checkIn.create({
@@ -142,11 +147,17 @@ export const checkInRouter = createTRPCRouter({
       }
 
       if (event.organization.createdById !== adminId) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Not event owner" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Not event owner",
+        });
       }
 
       if (event.organization.type !== "ORGANIZER") {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Only organizers can check in attendees" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only organizers can check in attendees",
+        });
       }
 
       return ctx.db.$transaction(async (tx) => {
@@ -227,14 +238,22 @@ export const checkInRouter = createTRPCRouter({
       });
 
       if (!org) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Organization not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Organization not found",
+        });
       }
 
       if (org.createdById !== adminId || org.type !== "COMPANY") {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Not company owner" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Not company owner",
+        });
       }
 
-      const startDate = input.startDate ? new Date(input.startDate) : new Date();
+      const startDate = input.startDate
+        ? new Date(input.startDate)
+        : new Date();
       const endDate = input.endDate ? new Date(input.endDate) : null;
       const isCurrent = input.isCurrent ?? !endDate;
 

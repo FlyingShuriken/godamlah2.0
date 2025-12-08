@@ -13,9 +13,15 @@ const ensureProfileType = async (
   userId: string,
   allowed: ProfileTypeValue[],
 ) => {
-  const user = await db.user.findUnique({ select: { profileType: true }, where: { id: userId } });
+  const user = await db.user.findUnique({
+    select: { profileType: true },
+    where: { id: userId },
+  });
   if (!user || !allowed.includes(user.profileType as ProfileTypeValue)) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: "Insufficient profile permissions" });
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Insufficient profile permissions",
+    });
   }
 };
 
@@ -31,10 +37,16 @@ export const organizationRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       if (input.type === "ORGANIZER") {
-        await ensureProfileType(ctx.db, ctx.session.user.id, ["ORGANIZER", "COMPANY"]);
+        await ensureProfileType(ctx.db, ctx.session.user.id, [
+          "ORGANIZER",
+          "COMPANY",
+        ]);
       }
       if (input.type === "COMPANY") {
-        await ensureProfileType(ctx.db, ctx.session.user.id, ["COMPANY", "ORGANIZER"]);
+        await ensureProfileType(ctx.db, ctx.session.user.id, [
+          "COMPANY",
+          "ORGANIZER",
+        ]);
       }
 
       return ctx.db.organization.create({
@@ -67,18 +79,27 @@ export const organizationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await ensureProfileType(ctx.db, ctx.session.user.id, ["ORGANIZER", "COMPANY"]);
+      await ensureProfileType(ctx.db, ctx.session.user.id, [
+        "ORGANIZER",
+        "COMPANY",
+      ]);
 
       const org = await ctx.db.organization.findFirst({
         where: { id: input.organizationId, createdById: ctx.session.user.id },
       });
 
       if (!org) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Organization not found or not owned" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Organization not found or not owned",
+        });
       }
 
       if (org.type !== "ORGANIZER") {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Only organizers can create events" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only organizers can create events",
+        });
       }
 
       return ctx.db.event.create({
@@ -95,7 +116,9 @@ export const organizationRouter = createTRPCRouter({
     }),
 
   listEvents: protectedProcedure
-    .input(z.object({ organizationId: z.string().cuid().optional() }).optional())
+    .input(
+      z.object({ organizationId: z.string().cuid().optional() }).optional(),
+    )
     .query(({ ctx, input }) => {
       return ctx.db.event.findMany({
         where: input?.organizationId
@@ -123,11 +146,17 @@ export const organizationRouter = createTRPCRouter({
       });
 
       if (!org) {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Organization not found or not owned" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Organization not found or not owned",
+        });
       }
 
       if (org.type !== "COMPANY") {
-        throw new TRPCError({ code: "UNAUTHORIZED", message: "Only companies can create jobs" });
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only companies can create jobs",
+        });
       }
 
       return ctx.db.jobPosting.create({
@@ -143,12 +172,23 @@ export const organizationRouter = createTRPCRouter({
     }),
 
   listJobs: protectedProcedure
-    .input(z.object({ status: jobStatus.optional(), organizationId: z.string().cuid().optional() }).optional())
+    .input(
+      z
+        .object({
+          status: jobStatus.optional(),
+          organizationId: z.string().cuid().optional(),
+        })
+        .optional(),
+    )
     .query(({ ctx, input }) => {
       return ctx.db.jobPosting.findMany({
         where: {
-          ...(input?.status ? { status: input.status } : { status: "PUBLISHED" }),
-          ...(input?.organizationId ? { organizationId: input.organizationId } : {}),
+          ...(input?.status
+            ? { status: input.status }
+            : { status: "PUBLISHED" }),
+          ...(input?.organizationId
+            ? { organizationId: input.organizationId }
+            : {}),
         },
         orderBy: { createdAt: "desc" },
       });

@@ -38,7 +38,8 @@ export const profileRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      const normalizedSkills = input.skills?.filter(Boolean).map((s) => s.trim()) ?? [];
+      const normalizedSkills =
+        input.skills?.filter(Boolean).map((s) => s.trim()) ?? [];
 
       const profile = await ctx.db.userProfile.upsert({
         where: { userId },
@@ -48,7 +49,10 @@ export const profileRouter = createTRPCRouter({
           bio: input.bio,
           skills: normalizedSkills,
           consentTalentPool:
-            input.consentTalentPool ?? (await ctx.db.userProfile.findUnique({ where: { userId } }))?.consentTalentPool ?? false,
+            input.consentTalentPool ??
+            (await ctx.db.userProfile.findUnique({ where: { userId } }))
+              ?.consentTalentPool ??
+            false,
           visibility: input.visibility,
         },
         create: {
@@ -82,10 +86,7 @@ export const profileRouter = createTRPCRouter({
 
     return ctx.db.experience.findMany({
       where: { userId },
-      orderBy: [
-        { startDate: "desc" },
-        { createdAt: "desc" },
-      ],
+      orderBy: [{ startDate: "desc" }, { createdAt: "desc" }],
       include: {
         organization: true,
         event: true,

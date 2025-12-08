@@ -66,7 +66,7 @@ model User {
   sessions             Session[]
   accounts             Account[]
   profile              UserProfile?
-  profileType         ProfileType    @default(USER)
+  profileType          ProfileType    @default(USER)
   createdOrganizations Organization[] @relation("OrganizationCreator")
   eventsCreated        Event[]        @relation("EventCreator")
   jobsCreated          JobPosting[]   @relation("JobCreator")
@@ -212,30 +212,30 @@ model Experience {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  @@index([userId, type])
   @@unique([userId, eventId, type])
   @@unique([userId, organizationId, type])
+  @@index([userId, type])
 }
 
 model CheckIn {
-  id             String       @id @default(cuid())
-  user           User         @relation("UserCheckIns", fields: [userId], references: [id], onDelete: Cascade)
-  userId         String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String
-  event          Event?       @relation(fields: [eventId], references: [id], onDelete: SetNull)
-  eventId        String?
-  type           CheckInType
-  note           String?
+  id                 String             @id @default(cuid())
+  user               User               @relation("UserCheckIns", fields: [userId], references: [id], onDelete: Cascade)
+  userId             String
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     String
+  event              Event?             @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  eventId            String?
+  type               CheckInType
+  note               String?
   verificationStatus VerificationStatus @default(UNVERIFIED)
-  addedBy         User?         @relation("CheckInAddedBy", fields: [addedById], references: [id])
-  addedById       String?
-  createdAt      DateTime     @default(now())
+  addedBy            User?              @relation("CheckInAddedBy", fields: [addedById], references: [id])
+  addedById          String?
+  createdAt          DateTime           @default(now())
 
-  @@index([userId, type])
-  @@index([organizationId, createdAt])
   @@unique([userId, eventId, type])
   @@unique([userId, organizationId, type])
+  @@index([userId, type])
+  @@index([organizationId, createdAt])
 }
 
 model Certificate {
