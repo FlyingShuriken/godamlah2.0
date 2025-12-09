@@ -64,7 +64,7 @@ export const matchingRouter = createTRPCRouter({
 
   suggestEvents: protectedProcedure
     .input(
-      z.object({ organizationId: z.string().cuid().optional() }).optional(),
+      z.object({ organizationId: z.string().optional() }).optional(),
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
@@ -118,7 +118,7 @@ export const matchingRouter = createTRPCRouter({
     }),
 
   suggestCandidates: protectedProcedure
-    .input(z.object({ jobId: z.string().cuid() }))
+    .input(z.object({ jobId: z.string() }))
     .query(async ({ ctx, input }) => {
       const job = await ctx.db.jobPosting.findUnique({
         where: { id: input.jobId },
