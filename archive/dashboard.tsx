@@ -747,7 +747,7 @@ export function DashboardClient({ userName }: { userName: string }) {
               <input
                 value={adminEventUserId}
                 onChange={(e) => setAdminEventUserId(e.target.value)}
-                placeholder="User ID (cuid)"
+                placeholder="User ID"
                 className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               />
               <input
@@ -796,7 +796,7 @@ export function DashboardClient({ userName }: { userName: string }) {
               <input
                 value={adminEmploymentUserId}
                 onChange={(e) => setAdminEmploymentUserId(e.target.value)}
-                placeholder="User ID (cuid)"
+                placeholder="User ID"
                 className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               />
               <input
