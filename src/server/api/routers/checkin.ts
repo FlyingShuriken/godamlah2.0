@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { aiService } from "@/server/services/ai";
 
 export const checkInRouter = createTRPCRouter({
   /**
@@ -59,6 +60,7 @@ export const checkInRouter = createTRPCRouter({
               endDate: event.endsAt,
               isCurrent: false,
               verificationStatus: "UNVERIFIED",
+              skills: event.skills,
             },
           });
         }
@@ -97,6 +99,8 @@ export const checkInRouter = createTRPCRouter({
         ? new Date(input.startDate)
         : new Date();
 
+      const extractedSkills = await aiService.extractSkills(input.title);
+
       return ctx.db.$transaction(async (tx) => {
         const checkIn = await tx.checkIn.create({
           data: {
@@ -117,6 +121,7 @@ export const checkInRouter = createTRPCRouter({
             startDate,
             isCurrent: true,
             verificationStatus: "UNVERIFIED",
+            skills: extractedSkills,
           },
         });
 
@@ -198,6 +203,7 @@ export const checkInRouter = createTRPCRouter({
             startDate: event.startsAt,
             endDate: event.endsAt,
             title: event.title,
+            skills: event.skills,
           },
           create: {
             userId: input.userId,
@@ -209,6 +215,7 @@ export const checkInRouter = createTRPCRouter({
             endDate: event.endsAt,
             isCurrent: false,
             verificationStatus: "VERIFIED",
+            skills: event.skills,
           },
         });
 
@@ -257,6 +264,8 @@ export const checkInRouter = createTRPCRouter({
       const endDate = input.endDate ? new Date(input.endDate) : null;
       const isCurrent = input.isCurrent ?? !endDate;
 
+      const extractedSkills = await aiService.extractSkills(input.title);
+
       return ctx.db.$transaction(async (tx) => {
         const checkIn = await tx.checkIn.upsert({
           where: {
@@ -295,6 +304,7 @@ export const checkInRouter = createTRPCRouter({
             endDate,
             isCurrent,
             verificationStatus: "VERIFIED",
+            skills: extractedSkills,
           },
           create: {
             userId: input.userId,
@@ -305,6 +315,7 @@ export const checkInRouter = createTRPCRouter({
             endDate,
             isCurrent,
             verificationStatus: "VERIFIED",
+            skills: extractedSkills,
           },
         });
 
