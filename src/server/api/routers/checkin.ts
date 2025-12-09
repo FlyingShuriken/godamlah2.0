@@ -11,7 +11,7 @@ export const checkInRouter = createTRPCRouter({
   checkInToEvent: protectedProcedure
     .input(
       z.object({
-        eventId: z.string().cuid(),
+        eventId: z.string(),
         note: z.string().max(280).optional(),
       }),
     )
@@ -75,7 +75,7 @@ export const checkInRouter = createTRPCRouter({
   checkInEmployment: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().cuid(),
+        organizationId: z.string(),
         title: z.string().min(2).max(140),
         note: z.string().max(280).optional(),
         startDate: z.string().datetime().optional(),
@@ -135,8 +135,8 @@ export const checkInRouter = createTRPCRouter({
   adminCheckInToEvent: protectedProcedure
     .input(
       z.object({
-        eventId: z.string().cuid(),
-        userId: z.string().cuid(),
+        eventId: z.string(),
+        userId: z.string(),
         note: z.string().max(280).optional(),
       }),
     )
@@ -229,8 +229,8 @@ export const checkInRouter = createTRPCRouter({
   adminCheckInEmployment: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().cuid(),
-        userId: z.string().cuid(),
+        organizationId: z.string(),
+        userId: z.string(),
         title: z.string().min(2).max(140),
         startDate: z.string().datetime().optional(),
         endDate: z.string().datetime().optional(),
