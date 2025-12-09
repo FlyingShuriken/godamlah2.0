@@ -939,30 +939,37 @@ export function DashboardClient({ userName }: { userName: string }) {
             </p>
             {jobMatches?.length ? (
               <ul className="space-y-2">
-                {jobMatches.slice(0, 5).map(({ job, overlap, missing }) => (
-                  <li
-                    key={job.id}
-                    className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{job.title}</span>
-                      <span className="text-xs text-slate-400">
-                        {job.organizationId}
-                      </span>
-                    </div>
-                    <p className="line-clamp-2 text-xs text-slate-400">
-                      {job.description}
-                    </p>
-                    <p className="text-xs text-emerald-300">
-                      Match on: {overlap.join(", ") || "N/A"}
-                    </p>
-                    {missing.length > 0 && (
-                      <p className="text-xs text-slate-500">
-                        Missing: {missing.join(", ")}
+                {jobMatches
+                  .slice(0, 5)
+                  .map(({ job, overlap, missing, score }) => (
+                    <li
+                      key={job.id}
+                      className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{job.title}</span>
+                        <span className="text-xs font-bold text-emerald-400">
+                          {score}% Match
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-400">
+                          {job.organization.name}
+                        </span>
+                      </div>
+                      <p className="line-clamp-2 text-xs text-slate-400">
+                        {job.description}
                       </p>
-                    )}
-                  </li>
-                ))}
+                      <p className="text-xs text-emerald-300">
+                        Match on: {overlap.join(", ") || "N/A"}
+                      </p>
+                      {missing.length > 0 && (
+                        <p className="text-xs text-slate-500">
+                          Missing: {missing.join(", ")}
+                        </p>
+                      )}
+                    </li>
+                  ))}
               </ul>
             ) : (
               <p className="text-sm text-slate-400">
@@ -977,7 +984,7 @@ export function DashboardClient({ userName }: { userName: string }) {
             </p>
             {eventMatches?.length ? (
               <ul className="space-y-2">
-                {eventMatches.slice(0, 5).map(({ event }) => (
+                {eventMatches.slice(0, 5).map(({ event, score }) => (
                   <li
                     key={event.id}
                     className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
@@ -991,6 +998,11 @@ export function DashboardClient({ userName }: { userName: string }) {
                     <p className="text-xs text-slate-500">
                       {event.location ?? "TBA"}
                     </p>
+                    {score > 0 && (
+                      <p className="text-xs text-emerald-300">
+                        Match score: {score}%
+                      </p>
+                    )}
                   </li>
                 ))}
               </ul>

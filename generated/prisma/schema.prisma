@@ -165,6 +165,7 @@ model Event {
   title          String
   description    String?
   location       String?
+  skills         String[]
   startsAt       DateTime
   endsAt         DateTime?
   createdBy      User          @relation("EventCreator", fields: [createdById], references: [id])
@@ -207,6 +208,7 @@ model Experience {
   startDate          DateTime?
   endDate            DateTime?
   isCurrent          Boolean            @default(false)
+  skills             String[]
   verificationStatus VerificationStatus @default(UNVERIFIED)
   notes              String?
   createdAt          DateTime           @default(now())

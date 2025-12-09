@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { aiService } from "@/server/services/ai";
 
 const organizationType = z.enum(["COMPANY", "ORGANIZER"]);
 type ProfileTypeValue = "USER" | "ORGANIZER" | "COMPANY";
@@ -102,12 +103,17 @@ export const organizationRouter = createTRPCRouter({
         });
       }
 
+      const extractedSkills = await aiService.extractSkills(
+        `${input.title} ${input.description ?? ""}`,
+      );
+
       return ctx.db.event.create({
         data: {
           organizationId: input.organizationId,
           title: input.title,
           description: input.description,
           location: input.location,
+          skills: extractedSkills,
           startsAt: new Date(input.startsAt),
           endsAt: input.endsAt ? new Date(input.endsAt) : null,
           createdById: ctx.session.user.id,
