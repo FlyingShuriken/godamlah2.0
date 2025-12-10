@@ -128,7 +128,11 @@ export const matchingRouter = createTRPCRouter({
       }
 
       // Ensure user has permission to view candidates for this job
-      if (job.createdById !== ctx.session.user.id) {
+      // Allow if user is the job creator OR the organization creator
+      const isJobCreator = job.createdById === ctx.session.user.id;
+      const isOrgCreator = job.organization.createdById === ctx.session.user.id;
+
+      if (!isJobCreator && !isOrgCreator) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Not authorized to view candidates for this job",

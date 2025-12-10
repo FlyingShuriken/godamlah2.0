@@ -188,17 +188,26 @@ export const organizationRouter = createTRPCRouter({
         })
         .optional(),
     )
-    .query(({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
+      // Get user's organizations
+      const userOrgs = await ctx.db.organization.findMany({
+        where: { createdById: ctx.session.user.id },
+        select: { id: true },
+      });
+      const userOrgIds = userOrgs.map((org) => org.id);
+
       return ctx.db.jobPosting.findMany({
         where: {
           ...(input?.status
             ? { status: input.status }
             : { status: "PUBLISHED" }),
-          ...(input?.organizationId
-            ? { organizationId: input.organizationId }
-            : {}),
+          // Filter by specific org if provided, otherwise show all user's orgs
+          organizationId: input?.organizationId
+            ? input.organizationId
+            : { in: userOrgIds },
         },
         orderBy: { createdAt: "desc" },
+        include: { organization: true },
       });
     }),
 });

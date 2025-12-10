@@ -227,12 +227,14 @@ const orgSignUpSchema = z.object({
   orgName: z.string().min(1, "Organization name is required"),
   ssmNumber: z.string().min(1, "SSM/Registration number is required"),
   orgType: z.enum(["COMPANY", "ORGANIZER"], {
-    errorMap: () => ({ message: "Organization type must be COMPANY or ORGANIZER" }),
+    errorMap: () => ({
+      message: "Organization type must be COMPANY or ORGANIZER",
+    }),
   }),
 });
 
 /**
- * Sign up as an organization (Company or Event Organizer)
+ * Sign up or sign in as an organization (Company or Event Organizer)
  */
 export async function signUpAsOrganization(
   _prevState: AuthResult | null,
@@ -257,47 +259,65 @@ export async function signUpAsOrganization(
       };
     }
 
-    const { orgName: validOrgName, ssmNumber: validSsmNumber, orgType: validOrgType } = parsed.data;
+    const {
+      orgName: validOrgName,
+      ssmNumber: validSsmNumber,
+      orgType: validOrgType,
+    } = parsed.data;
 
     const incomingHeaders = await headers();
-
-    // Create a user account for the organization
-    const userId = generateId();
     const orgEmail = `${validSsmNumber}@org.internal`;
 
-    const user = await db.user.create({
-      data: {
-        id: userId,
-        email: orgEmail,
-        name: validOrgName,
-        emailVerified: false,
-      },
+    // Check if organization with this SSM already exists
+    const existingOrg = await db.organization.findFirst({
+      where: { ssmNumber: validSsmNumber },
+      include: { createdBy: true },
     });
 
-    // Create the organization
-    await db.organization.create({
-      data: {
-        id: generateId(),
-        name: validOrgName,
-        type: validOrgType,
-        ssmNumber: validSsmNumber,
-        createdById: userId,
-      },
-    });
+    let user;
 
-    // Create user profile with the profile type
-    await db.userProfile.create({
-      data: {
-        userId,
-        fullName: validOrgName,
-      },
-    });
+    if (existingOrg) {
+      // Existing organization - verify name matches and sign in
+      if (existingOrg.name.toLowerCase() !== validOrgName.toLowerCase()) {
+        return {
+          success: false,
+          error: "Organization name does not match the registered SSM number",
+        };
+      }
+      user = existingOrg.createdBy;
+    } else {
+      // New organization - create user and organization
+      const userId = generateId();
 
-    // Update user's profileType
-    await db.user.update({
-      where: { id: userId },
-      data: { profileType: validOrgType },
-    });
+      user = await db.user.create({
+        data: {
+          id: userId,
+          email: orgEmail,
+          name: validOrgName,
+          emailVerified: false,
+          profileType: validOrgType,
+        },
+      });
+
+      // Create the organization
+      await db.organization.create({
+        data: {
+          id: generateId(),
+          name: validOrgName,
+          type: validOrgType,
+          ssmNumber: validSsmNumber,
+          createdById: userId,
+        },
+      });
+
+      // Create user profile with the profile type
+      await db.userProfile.create({
+        data: {
+          userId,
+          fullName: validOrgName,
+        },
+      });
+    }
 
     // Create session
     const sessionToken = generateSecureToken();
