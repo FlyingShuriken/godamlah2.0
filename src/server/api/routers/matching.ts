@@ -63,9 +63,7 @@ export const matchingRouter = createTRPCRouter({
   }),
 
   suggestEvents: protectedProcedure
-    .input(
-      z.object({ organizationId: z.string().optional() }).optional(),
-    )
+    .input(z.object({ organizationId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
@@ -174,4 +172,74 @@ export const matchingRouter = createTRPCRouter({
 
       return scored.sort((a, b) => b.score - a.score).slice(0, 20);
     }),
+
+  careerInsights: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    // 1. Fetch user skills
+    const [profile, experiences] = await Promise.all([
+      ctx.db.userProfile.findUnique({ where: { userId } }),
+      ctx.db.experience.findMany({
+        where: { userId },
+        select: { skills: true },
+      }),
+    ]);
+
+    const userSkills = new Set<string>();
+    if (profile?.skills) profile.skills.forEach((s) => userSkills.add(s));
+    experiences.forEach((exp) => exp.skills.forEach((s) => userSkills.add(s)));
+    const userSkillsArray = Array.from(userSkills);
+    const userSkillsLower = new Set(
+      userSkillsArray.map((s) => s.toLowerCase()),
+    );
+
+    // 2. Fetch all published jobs
+    const jobs = await ctx.db.jobPosting.findMany({
+      where: { status: "PUBLISHED" },
+      select: { title: true, skills: true },
+    });
+
+    // 3. Analyze "Reach" jobs (30% - 75% match)
+    // These are jobs the user is qualified for but missing some skills
+    const missingSkillsCount = new Map<string, number>();
+    const potentialRolesCount = new Map<string, number>();
+
+    jobs.forEach((job) => {
+      const score = aiService.calculateMatchScore(userSkillsArray, job.skills);
+
+      if (score >= 30 && score < 80) {
+        // This is a "Reach" job
+        potentialRolesCount.set(
+          job.title,
+          (potentialRolesCount.get(job.title) ?? 0) + 1,
+        );
+
+        // Identify missing skills
+        job.skills.forEach((skill) => {
+          if (!userSkillsLower.has(skill.toLowerCase())) {
+            missingSkillsCount.set(
+              skill,
+              (missingSkillsCount.get(skill) ?? 0) + 1,
+            );
+          }
+        });
+      }
+    });
+
+    // 4. Sort and format results
+    const recommendedSkills = Array.from(missingSkillsCount.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([skill, count]) => ({ skill, count }));
+
+    const potentialRoles = Array.from(potentialRolesCount.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([role, count]) => ({ role, count }));
+
+    return {
+      recommendedSkills,
+      potentialRoles,
+    };
+  }),
 });
