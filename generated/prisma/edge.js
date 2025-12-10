@@ -319,7 +319,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/choijs/projects/mykad-godamlah2/generated/prisma",
+      "value": "C:\\Users\\Admin\\OneDrive\\Documents\\GitHub\\godamlah2.0\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -328,12 +328,20 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "windows"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "darwin-arm64"
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/choijs/projects/mykad-godamlah2/prisma/schema.prisma",
+    "sourceFilePath": "C:\\Users\\Admin\\OneDrive\\Documents\\GitHub\\godamlah2.0\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -347,6 +355,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
