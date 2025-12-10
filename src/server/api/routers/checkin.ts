@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { aiService } from "@/server/services/ai";
 
 export const checkInRouter = createTRPCRouter({
   /**
@@ -10,7 +11,7 @@ export const checkInRouter = createTRPCRouter({
   checkInToEvent: protectedProcedure
     .input(
       z.object({
-        eventId: z.string().cuid(),
+        eventId: z.string(),
         note: z.string().max(280).optional(),
       }),
     )
@@ -59,6 +60,7 @@ export const checkInRouter = createTRPCRouter({
               endDate: event.endsAt,
               isCurrent: false,
               verificationStatus: "UNVERIFIED",
+              skills: event.skills,
             },
           });
         }
@@ -73,7 +75,7 @@ export const checkInRouter = createTRPCRouter({
   checkInEmployment: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().cuid(),
+        organizationId: z.string(),
         title: z.string().min(2).max(140),
         note: z.string().max(280).optional(),
         startDate: z.string().datetime().optional(),
@@ -97,6 +99,8 @@ export const checkInRouter = createTRPCRouter({
         ? new Date(input.startDate)
         : new Date();
 
+      const extractedSkills = await aiService.extractSkills(input.title);
+
       return ctx.db.$transaction(async (tx) => {
         const checkIn = await tx.checkIn.create({
           data: {
@@ -117,6 +121,7 @@ export const checkInRouter = createTRPCRouter({
             startDate,
             isCurrent: true,
             verificationStatus: "UNVERIFIED",
+            skills: extractedSkills,
           },
         });
 
@@ -130,8 +135,8 @@ export const checkInRouter = createTRPCRouter({
   adminCheckInToEvent: protectedProcedure
     .input(
       z.object({
-        eventId: z.string().cuid(),
-        userId: z.string().cuid(),
+        eventId: z.string(),
+        userId: z.string(),
         note: z.string().max(280).optional(),
       }),
     )
@@ -198,6 +203,7 @@ export const checkInRouter = createTRPCRouter({
             startDate: event.startsAt,
             endDate: event.endsAt,
             title: event.title,
+            skills: event.skills,
           },
           create: {
             userId: input.userId,
@@ -209,6 +215,7 @@ export const checkInRouter = createTRPCRouter({
             endDate: event.endsAt,
             isCurrent: false,
             verificationStatus: "VERIFIED",
+            skills: event.skills,
           },
         });
 
@@ -222,8 +229,8 @@ export const checkInRouter = createTRPCRouter({
   adminCheckInEmployment: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().cuid(),
-        userId: z.string().cuid(),
+        organizationId: z.string(),
+        userId: z.string(),
         title: z.string().min(2).max(140),
         startDate: z.string().datetime().optional(),
         endDate: z.string().datetime().optional(),
@@ -256,6 +263,8 @@ export const checkInRouter = createTRPCRouter({
         : new Date();
       const endDate = input.endDate ? new Date(input.endDate) : null;
       const isCurrent = input.isCurrent ?? !endDate;
+
+      const extractedSkills = await aiService.extractSkills(input.title);
 
       return ctx.db.$transaction(async (tx) => {
         const checkIn = await tx.checkIn.upsert({
@@ -295,6 +304,7 @@ export const checkInRouter = createTRPCRouter({
             endDate,
             isCurrent,
             verificationStatus: "VERIFIED",
+            skills: extractedSkills,
           },
           create: {
             userId: input.userId,
@@ -305,6 +315,7 @@ export const checkInRouter = createTRPCRouter({
             endDate,
             isCurrent,
             verificationStatus: "VERIFIED",
+            skills: extractedSkills,
           },
         });
 

@@ -37,6 +37,7 @@ export function DashboardClient({ userName }: { userName: string }) {
   const eventsQuery = api.organization.listEvents.useQuery();
   const jobMatchesQuery = api.matching.suggestJobs.useQuery();
   const eventMatchesQuery = api.matching.suggestEvents.useQuery();
+  const careerInsightsQuery = api.matching.careerInsights.useQuery();
 
   const profileMutation = api.profile.upsert.useMutation({
     onSuccess: async () => {
@@ -747,7 +748,7 @@ export function DashboardClient({ userName }: { userName: string }) {
               <input
                 value={adminEventUserId}
                 onChange={(e) => setAdminEventUserId(e.target.value)}
-                placeholder="User ID (cuid)"
+                placeholder="User ID"
                 className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               />
               <input
@@ -796,7 +797,7 @@ export function DashboardClient({ userName }: { userName: string }) {
               <input
                 value={adminEmploymentUserId}
                 onChange={(e) => setAdminEmploymentUserId(e.target.value)}
-                placeholder="User ID (cuid)"
+                placeholder="User ID"
                 className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               />
               <input
@@ -939,30 +940,37 @@ export function DashboardClient({ userName }: { userName: string }) {
             </p>
             {jobMatches?.length ? (
               <ul className="space-y-2">
-                {jobMatches.slice(0, 5).map(({ job, overlap, missing }) => (
-                  <li
-                    key={job.id}
-                    className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{job.title}</span>
-                      <span className="text-xs text-slate-400">
-                        {job.organizationId}
-                      </span>
-                    </div>
-                    <p className="line-clamp-2 text-xs text-slate-400">
-                      {job.description}
-                    </p>
-                    <p className="text-xs text-emerald-300">
-                      Match on: {overlap.join(", ") || "N/A"}
-                    </p>
-                    {missing.length > 0 && (
-                      <p className="text-xs text-slate-500">
-                        Missing: {missing.join(", ")}
+                {jobMatches
+                  .slice(0, 5)
+                  .map(({ job, overlap, missing, score }) => (
+                    <li
+                      key={job.id}
+                      className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{job.title}</span>
+                        <span className="text-xs font-bold text-emerald-400">
+                          {score}% Match
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-400">
+                          {job.organization.name}
+                        </span>
+                      </div>
+                      <p className="line-clamp-2 text-xs text-slate-400">
+                        {job.description}
                       </p>
-                    )}
-                  </li>
-                ))}
+                      <p className="text-xs text-emerald-300">
+                        Match on: {overlap.join(", ") || "N/A"}
+                      </p>
+                      {missing.length > 0 && (
+                        <p className="text-xs text-slate-500">
+                          Missing: {missing.join(", ")}
+                        </p>
+                      )}
+                    </li>
+                  ))}
               </ul>
             ) : (
               <p className="text-sm text-slate-400">
@@ -977,7 +985,7 @@ export function DashboardClient({ userName }: { userName: string }) {
             </p>
             {eventMatches?.length ? (
               <ul className="space-y-2">
-                {eventMatches.slice(0, 5).map(({ event }) => (
+                {eventMatches.slice(0, 5).map(({ event, score }) => (
                   <li
                     key={event.id}
                     className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
@@ -991,11 +999,75 @@ export function DashboardClient({ userName }: { userName: string }) {
                     <p className="text-xs text-slate-500">
                       {event.location ?? "TBA"}
                     </p>
+                    {score > 0 && (
+                      <p className="text-xs text-emerald-300">
+                        Match score: {score}%
+                      </p>
+                    )}
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="text-sm text-slate-400">No upcoming events yet.</p>
+            )}
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <p className="text-xs tracking-wide text-slate-500 uppercase">
+              Career Insights
+            </p>
+            {careerInsightsQuery.data ? (
+              <div className="space-y-4">
+                {careerInsightsQuery.data.recommendedSkills.length > 0 && (
+                  <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2">
+                    <p className="mb-2 text-xs font-medium text-slate-300">
+                      Top skills to learn next
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {careerInsightsQuery.data.recommendedSkills.map(
+                        ({ skill }) => (
+                          <span
+                            key={skill}
+                            className="rounded-full bg-indigo-500/20 px-2 py-1 text-xs text-indigo-300"
+                          >
+                            {skill}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {careerInsightsQuery.data.potentialRoles.length > 0 && (
+                  <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2">
+                    <p className="mb-2 text-xs font-medium text-slate-300">
+                      Potential next roles
+                    </p>
+                    <ul className="space-y-1">
+                      {careerInsightsQuery.data.potentialRoles.map(
+                        ({ role }) => (
+                          <li
+                            key={role}
+                            className="flex items-center gap-2 text-xs text-slate-400"
+                          >
+                            <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                            {role}
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {careerInsightsQuery.data.recommendedSkills.length === 0 &&
+                  careerInsightsQuery.data.potentialRoles.length === 0 && (
+                    <p className="text-sm text-slate-400">
+                      Add more skills to see career insights.
+                    </p>
+                  )}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">Loading insights...</p>
             )}
           </div>
         </section>

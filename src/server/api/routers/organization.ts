@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { aiService } from "@/server/services/ai";
 
 const organizationType = z.enum(["COMPANY", "ORGANIZER"]);
 type ProfileTypeValue = "USER" | "ORGANIZER" | "COMPANY";
@@ -70,7 +71,7 @@ export const organizationRouter = createTRPCRouter({
   createEvent: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().cuid(),
+        organizationId: z.string(),
         title: z.string().min(2).max(140),
         description: z.string().max(500).optional(),
         location: z.string().max(140).optional(),
@@ -102,12 +103,17 @@ export const organizationRouter = createTRPCRouter({
         });
       }
 
+      const extractedSkills = await aiService.extractSkills(
+        `${input.title} ${input.description ?? ""}`,
+      );
+
       return ctx.db.event.create({
         data: {
           organizationId: input.organizationId,
           title: input.title,
           description: input.description,
           location: input.location,
+          skills: extractedSkills,
           startsAt: new Date(input.startsAt),
           endsAt: input.endsAt ? new Date(input.endsAt) : null,
           createdById: ctx.session.user.id,
@@ -116,9 +122,7 @@ export const organizationRouter = createTRPCRouter({
     }),
 
   listEvents: protectedProcedure
-    .input(
-      z.object({ organizationId: z.string().cuid().optional() }).optional(),
-    )
+    .input(z.object({ organizationId: z.string().optional() }).optional())
     .query(({ ctx, input }) => {
       return ctx.db.event.findMany({
         where: input?.organizationId
@@ -131,7 +135,7 @@ export const organizationRouter = createTRPCRouter({
   createJob: protectedProcedure
     .input(
       z.object({
-        organizationId: z.string().cuid(),
+        organizationId: z.string(),
         title: z.string().min(2).max(140),
         description: z.string().max(500).optional(),
         skills: z.array(z.string().trim().min(1)).max(30),
@@ -176,7 +180,7 @@ export const organizationRouter = createTRPCRouter({
       z
         .object({
           status: jobStatus.optional(),
-          organizationId: z.string().cuid().optional(),
+          organizationId: z.string().optional(),
         })
         .optional(),
     )

@@ -9129,6 +9129,7 @@ export namespace Prisma {
     title: number
     description: number
     location: number
+    skills: number
     startsAt: number
     endsAt: number
     createdById: number
@@ -9170,6 +9171,7 @@ export namespace Prisma {
     title?: true
     description?: true
     location?: true
+    skills?: true
     startsAt?: true
     endsAt?: true
     createdById?: true
@@ -9256,6 +9258,7 @@ export namespace Prisma {
     title: string
     description: string | null
     location: string | null
+    skills: string[]
     startsAt: Date
     endsAt: Date | null
     createdById: string
@@ -9286,6 +9289,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     location?: boolean
+    skills?: boolean
     startsAt?: boolean
     endsAt?: boolean
     createdById?: boolean
@@ -9305,6 +9309,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     location?: boolean
+    skills?: boolean
     startsAt?: boolean
     endsAt?: boolean
     createdById?: boolean
@@ -9320,6 +9325,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     location?: boolean
+    skills?: boolean
     startsAt?: boolean
     endsAt?: boolean
     createdById?: boolean
@@ -9335,6 +9341,7 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     location?: boolean
+    skills?: boolean
     startsAt?: boolean
     endsAt?: boolean
     createdById?: boolean
@@ -9342,7 +9349,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "title" | "description" | "location" | "startsAt" | "endsAt" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "organizationId" | "title" | "description" | "location" | "skills" | "startsAt" | "endsAt" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["event"]>
   export type EventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -9375,6 +9382,7 @@ export namespace Prisma {
       title: string
       description: string | null
       location: string | null
+      skills: string[]
       startsAt: Date
       endsAt: Date | null
       createdById: string
@@ -9813,6 +9821,7 @@ export namespace Prisma {
     readonly title: FieldRef<"Event", 'String'>
     readonly description: FieldRef<"Event", 'String'>
     readonly location: FieldRef<"Event", 'String'>
+    readonly skills: FieldRef<"Event", 'String[]'>
     readonly startsAt: FieldRef<"Event", 'DateTime'>
     readonly endsAt: FieldRef<"Event", 'DateTime'>
     readonly createdById: FieldRef<"Event", 'String'>
@@ -11470,6 +11479,7 @@ export namespace Prisma {
     startDate: number
     endDate: number
     isCurrent: number
+    skills: number
     verificationStatus: number
     notes: number
     createdAt: number
@@ -11520,6 +11530,7 @@ export namespace Prisma {
     startDate?: true
     endDate?: true
     isCurrent?: true
+    skills?: true
     verificationStatus?: true
     notes?: true
     createdAt?: true
@@ -11609,6 +11620,7 @@ export namespace Prisma {
     startDate: Date | null
     endDate: Date | null
     isCurrent: boolean
+    skills: string[]
     verificationStatus: $Enums.VerificationStatus
     notes: string | null
     createdAt: Date
@@ -11642,6 +11654,7 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
+    skills?: boolean
     verificationStatus?: boolean
     notes?: boolean
     createdAt?: boolean
@@ -11661,6 +11674,7 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
+    skills?: boolean
     verificationStatus?: boolean
     notes?: boolean
     createdAt?: boolean
@@ -11680,6 +11694,7 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
+    skills?: boolean
     verificationStatus?: boolean
     notes?: boolean
     createdAt?: boolean
@@ -11699,13 +11714,14 @@ export namespace Prisma {
     startDate?: boolean
     endDate?: boolean
     isCurrent?: boolean
+    skills?: boolean
     verificationStatus?: boolean
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ExperienceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "organizationId" | "eventId" | "type" | "title" | "startDate" | "endDate" | "isCurrent" | "verificationStatus" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["experience"]>
+  export type ExperienceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "organizationId" | "eventId" | "type" | "title" | "startDate" | "endDate" | "isCurrent" | "skills" | "verificationStatus" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["experience"]>
   export type ExperienceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     organization?: boolean | Experience$organizationArgs<ExtArgs>
@@ -11739,6 +11755,7 @@ export namespace Prisma {
       startDate: Date | null
       endDate: Date | null
       isCurrent: boolean
+      skills: string[]
       verificationStatus: $Enums.VerificationStatus
       notes: string | null
       createdAt: Date
@@ -12178,6 +12195,7 @@ export namespace Prisma {
     readonly startDate: FieldRef<"Experience", 'DateTime'>
     readonly endDate: FieldRef<"Experience", 'DateTime'>
     readonly isCurrent: FieldRef<"Experience", 'Boolean'>
+    readonly skills: FieldRef<"Experience", 'String[]'>
     readonly verificationStatus: FieldRef<"Experience", 'VerificationStatus'>
     readonly notes: FieldRef<"Experience", 'String'>
     readonly createdAt: FieldRef<"Experience", 'DateTime'>
@@ -15068,6 +15086,7 @@ export namespace Prisma {
     title: 'title',
     description: 'description',
     location: 'location',
+    skills: 'skills',
     startsAt: 'startsAt',
     endsAt: 'endsAt',
     createdById: 'createdById',
@@ -15103,6 +15122,7 @@ export namespace Prisma {
     startDate: 'startDate',
     endDate: 'endDate',
     isCurrent: 'isCurrent',
+    skills: 'skills',
     verificationStatus: 'verificationStatus',
     notes: 'notes',
     createdAt: 'createdAt',
@@ -15823,6 +15843,7 @@ export namespace Prisma {
     title?: StringFilter<"Event"> | string
     description?: StringNullableFilter<"Event"> | string | null
     location?: StringNullableFilter<"Event"> | string | null
+    skills?: StringNullableListFilter<"Event">
     startsAt?: DateTimeFilter<"Event"> | Date | string
     endsAt?: DateTimeNullableFilter<"Event"> | Date | string | null
     createdById?: StringFilter<"Event"> | string
@@ -15841,6 +15862,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    skills?: SortOrder
     startsAt?: SortOrder
     endsAt?: SortOrderInput | SortOrder
     createdById?: SortOrder
@@ -15862,6 +15884,7 @@ export namespace Prisma {
     title?: StringFilter<"Event"> | string
     description?: StringNullableFilter<"Event"> | string | null
     location?: StringNullableFilter<"Event"> | string | null
+    skills?: StringNullableListFilter<"Event">
     startsAt?: DateTimeFilter<"Event"> | Date | string
     endsAt?: DateTimeNullableFilter<"Event"> | Date | string | null
     createdById?: StringFilter<"Event"> | string
@@ -15880,6 +15903,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    skills?: SortOrder
     startsAt?: SortOrder
     endsAt?: SortOrderInput | SortOrder
     createdById?: SortOrder
@@ -15899,6 +15923,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Event"> | string
     description?: StringNullableWithAggregatesFilter<"Event"> | string | null
     location?: StringNullableWithAggregatesFilter<"Event"> | string | null
+    skills?: StringNullableListFilter<"Event">
     startsAt?: DateTimeWithAggregatesFilter<"Event"> | Date | string
     endsAt?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     createdById?: StringWithAggregatesFilter<"Event"> | string
@@ -15997,6 +16022,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"Experience"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Experience"> | Date | string | null
     isCurrent?: BoolFilter<"Experience"> | boolean
+    skills?: StringNullableListFilter<"Experience">
     verificationStatus?: EnumVerificationStatusFilter<"Experience"> | $Enums.VerificationStatus
     notes?: StringNullableFilter<"Experience"> | string | null
     createdAt?: DateTimeFilter<"Experience"> | Date | string
@@ -16016,6 +16042,7 @@ export namespace Prisma {
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     isCurrent?: SortOrder
+    skills?: SortOrder
     verificationStatus?: SortOrder
     notes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -16040,6 +16067,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"Experience"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Experience"> | Date | string | null
     isCurrent?: BoolFilter<"Experience"> | boolean
+    skills?: StringNullableListFilter<"Experience">
     verificationStatus?: EnumVerificationStatusFilter<"Experience"> | $Enums.VerificationStatus
     notes?: StringNullableFilter<"Experience"> | string | null
     createdAt?: DateTimeFilter<"Experience"> | Date | string
@@ -16059,6 +16087,7 @@ export namespace Prisma {
     startDate?: SortOrderInput | SortOrder
     endDate?: SortOrderInput | SortOrder
     isCurrent?: SortOrder
+    skills?: SortOrder
     verificationStatus?: SortOrder
     notes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -16081,6 +16110,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableWithAggregatesFilter<"Experience"> | Date | string | null
     endDate?: DateTimeNullableWithAggregatesFilter<"Experience"> | Date | string | null
     isCurrent?: BoolWithAggregatesFilter<"Experience"> | boolean
+    skills?: StringNullableListFilter<"Experience">
     verificationStatus?: EnumVerificationStatusWithAggregatesFilter<"Experience"> | $Enums.VerificationStatus
     notes?: StringNullableWithAggregatesFilter<"Experience"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Experience"> | Date | string
@@ -16821,6 +16851,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -16838,6 +16869,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdById: string
@@ -16853,6 +16885,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16870,6 +16903,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdById?: StringFieldUpdateOperationsInput | string
@@ -16886,6 +16920,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdById: string
@@ -16898,6 +16933,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16910,6 +16946,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdById?: StringFieldUpdateOperationsInput | string
@@ -17006,6 +17043,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -17025,6 +17063,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -17038,6 +17077,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17057,6 +17097,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17073,6 +17114,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -17086,6 +17128,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17102,6 +17145,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17773,6 +17817,7 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     location?: SortOrder
+    skills?: SortOrder
     startsAt?: SortOrder
     endsAt?: SortOrder
     createdById?: SortOrder
@@ -17903,6 +17948,7 @@ export namespace Prisma {
     startDate?: SortOrder
     endDate?: SortOrder
     isCurrent?: SortOrder
+    skills?: SortOrder
     verificationStatus?: SortOrder
     notes?: SortOrder
     createdAt?: SortOrder
@@ -18781,6 +18827,10 @@ export namespace Prisma {
     deleteMany?: CertificateScalarWhereInput | CertificateScalarWhereInput[]
   }
 
+  export type EventCreateskillsInput = {
+    set: string[]
+  }
+
   export type OrganizationCreateNestedOneWithoutEventsInput = {
     create?: XOR<OrganizationCreateWithoutEventsInput, OrganizationUncheckedCreateWithoutEventsInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutEventsInput
@@ -18833,6 +18883,11 @@ export namespace Prisma {
     connectOrCreate?: CertificateCreateOrConnectWithoutEventInput | CertificateCreateOrConnectWithoutEventInput[]
     createMany?: CertificateCreateManyEventInputEnvelope
     connect?: CertificateWhereUniqueInput | CertificateWhereUniqueInput[]
+  }
+
+  export type EventUpdateskillsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type OrganizationUpdateOneRequiredWithoutEventsNestedInput = {
@@ -18976,6 +19031,10 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutJobsCreatedInput, UserUpdateWithoutJobsCreatedInput>, UserUncheckedUpdateWithoutJobsCreatedInput>
   }
 
+  export type ExperienceCreateskillsInput = {
+    set: string[]
+  }
+
   export type UserCreateNestedOneWithoutExperiencesInput = {
     create?: XOR<UserCreateWithoutExperiencesInput, UserUncheckedCreateWithoutExperiencesInput>
     connectOrCreate?: UserCreateOrConnectWithoutExperiencesInput
@@ -18996,6 +19055,11 @@ export namespace Prisma {
 
   export type EnumExperienceTypeFieldUpdateOperationsInput = {
     set?: $Enums.ExperienceType
+  }
+
+  export type ExperienceUpdateskillsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type EnumVerificationStatusFieldUpdateOperationsInput = {
@@ -19550,6 +19614,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -19566,6 +19631,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -19624,6 +19690,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -19641,6 +19708,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -19906,6 +19974,7 @@ export namespace Prisma {
     title?: StringFilter<"Event"> | string
     description?: StringNullableFilter<"Event"> | string | null
     location?: StringNullableFilter<"Event"> | string | null
+    skills?: StringNullableListFilter<"Event">
     startsAt?: DateTimeFilter<"Event"> | Date | string
     endsAt?: DateTimeNullableFilter<"Event"> | Date | string | null
     createdById?: StringFilter<"Event"> | string
@@ -19973,6 +20042,7 @@ export namespace Prisma {
     startDate?: DateTimeNullableFilter<"Experience"> | Date | string | null
     endDate?: DateTimeNullableFilter<"Experience"> | Date | string | null
     isCurrent?: BoolFilter<"Experience"> | boolean
+    skills?: StringNullableListFilter<"Experience">
     verificationStatus?: EnumVerificationStatusFilter<"Experience"> | $Enums.VerificationStatus
     notes?: StringNullableFilter<"Experience"> | string | null
     createdAt?: DateTimeFilter<"Experience"> | Date | string
@@ -20422,6 +20492,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -20437,6 +20508,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdById: string
@@ -20496,6 +20568,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -20513,6 +20586,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -20849,6 +20923,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -20866,6 +20941,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -21325,6 +21401,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -21341,6 +21418,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdById: string
@@ -21467,6 +21545,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21483,6 +21562,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdById?: StringFieldUpdateOperationsInput | string
@@ -21581,6 +21661,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -21597,6 +21678,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdById: string
@@ -21772,6 +21854,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21788,6 +21871,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdById?: StringFieldUpdateOperationsInput | string
@@ -21941,6 +22025,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -21957,6 +22042,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdById: string
@@ -22083,6 +22169,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22099,6 +22186,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdById?: StringFieldUpdateOperationsInput | string
@@ -22149,6 +22237,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdAt?: Date | string
@@ -22175,6 +22264,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -22333,6 +22423,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22349,6 +22440,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22364,6 +22456,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22410,6 +22503,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22427,6 +22521,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22442,6 +22537,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22549,6 +22645,7 @@ export namespace Prisma {
     title: string
     description?: string | null
     location?: string | null
+    skills?: EventCreateskillsInput | string[]
     startsAt: Date | string
     endsAt?: Date | string | null
     createdById: string
@@ -22576,6 +22673,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -22608,6 +22706,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22623,6 +22722,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdById?: StringFieldUpdateOperationsInput | string
@@ -22638,6 +22738,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    skills?: EventUpdateskillsInput | string[]
     startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
     endsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdById?: StringFieldUpdateOperationsInput | string
@@ -22685,6 +22786,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22702,6 +22804,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22717,6 +22820,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22806,6 +22910,7 @@ export namespace Prisma {
     startDate?: Date | string | null
     endDate?: Date | string | null
     isCurrent?: boolean
+    skills?: ExperienceCreateskillsInput | string[]
     verificationStatus?: $Enums.VerificationStatus
     notes?: string | null
     createdAt?: Date | string
@@ -22862,6 +22967,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22879,6 +22985,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22894,6 +23001,7 @@ export namespace Prisma {
     startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     isCurrent?: BoolFieldUpdateOperationsInput | boolean
+    skills?: ExperienceUpdateskillsInput | string[]
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
