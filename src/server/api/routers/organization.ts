@@ -122,9 +122,7 @@ export const organizationRouter = createTRPCRouter({
     }),
 
   listEvents: protectedProcedure
-    .input(
-      z.object({ organizationId: z.string().optional() }).optional(),
-    )
+    .input(z.object({ organizationId: z.string().optional() }).optional())
     .query(({ ctx, input }) => {
       return ctx.db.event.findMany({
         where: input?.organizationId

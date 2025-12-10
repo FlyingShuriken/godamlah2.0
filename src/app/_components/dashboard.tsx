@@ -37,6 +37,7 @@ export function DashboardClient({ userName }: { userName: string }) {
   const eventsQuery = api.organization.listEvents.useQuery();
   const jobMatchesQuery = api.matching.suggestJobs.useQuery();
   const eventMatchesQuery = api.matching.suggestEvents.useQuery();
+  const careerInsightsQuery = api.matching.careerInsights.useQuery();
 
   const profileMutation = api.profile.upsert.useMutation({
     onSuccess: async () => {
@@ -1008,6 +1009,65 @@ export function DashboardClient({ userName }: { userName: string }) {
               </ul>
             ) : (
               <p className="text-sm text-slate-400">No upcoming events yet.</p>
+            )}
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <p className="text-xs tracking-wide text-slate-500 uppercase">
+              Career Insights
+            </p>
+            {careerInsightsQuery.data ? (
+              <div className="space-y-4">
+                {careerInsightsQuery.data.recommendedSkills.length > 0 && (
+                  <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2">
+                    <p className="mb-2 text-xs font-medium text-slate-300">
+                      Top skills to learn next
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {careerInsightsQuery.data.recommendedSkills.map(
+                        ({ skill }) => (
+                          <span
+                            key={skill}
+                            className="rounded-full bg-indigo-500/20 px-2 py-1 text-xs text-indigo-300"
+                          >
+                            {skill}
+                          </span>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {careerInsightsQuery.data.potentialRoles.length > 0 && (
+                  <div className="rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2">
+                    <p className="mb-2 text-xs font-medium text-slate-300">
+                      Potential next roles
+                    </p>
+                    <ul className="space-y-1">
+                      {careerInsightsQuery.data.potentialRoles.map(
+                        ({ role }) => (
+                          <li
+                            key={role}
+                            className="flex items-center gap-2 text-xs text-slate-400"
+                          >
+                            <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                            {role}
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {careerInsightsQuery.data.recommendedSkills.length === 0 &&
+                  careerInsightsQuery.data.potentialRoles.length === 0 && (
+                    <p className="text-sm text-slate-400">
+                      Add more skills to see career insights.
+                    </p>
+                  )}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">Loading insights...</p>
             )}
           </div>
         </section>
