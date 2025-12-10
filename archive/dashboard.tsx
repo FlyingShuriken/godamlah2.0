@@ -153,7 +153,9 @@ export function DashboardClient({ userName }: { userName: string }) {
   const [certOrgId, setCertOrgId] = useState("");
   const [certUserId, setCertUserId] = useState("");
   const [certTitle, setCertTitle] = useState("");
-  const [certType, setCertType] = useState<"ATTENDANCE" | "ACHIEVEMENT" | "CERTIFICATION" | "EMPLOYMENT">("ACHIEVEMENT");
+  const [certType, setCertType] = useState<
+    "ATTENDANCE" | "ACHIEVEMENT" | "CERTIFICATION" | "EMPLOYMENT"
+  >("ACHIEVEMENT");
   const [certDescription, setCertDescription] = useState("");
 
   const issueCertificateMutation = api.certificate.issue.useMutation({
@@ -1240,7 +1242,9 @@ export function DashboardClient({ userName }: { userName: string }) {
                       ID: {cert.id.slice(-8)}
                     </span>
                     <button
-                      onClick={() => window.open(`/verify/${cert.hash}`, "_blank")}
+                      onClick={() =>
+                        window.open(`/verify/${cert.hash}`, "_blank")
+                      }
                       className="text-xs font-medium text-sky-400 hover:text-sky-300"
                     >
                       Verify Credential →

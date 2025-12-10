@@ -63,9 +63,7 @@ export const matchingRouter = createTRPCRouter({
   }),
 
   suggestEvents: protectedProcedure
-    .input(
-      z.object({ organizationId: z.string().optional() }).optional(),
-    )
+    .input(z.object({ organizationId: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
@@ -115,64 +113,6 @@ export const matchingRouter = createTRPCRouter({
           return a.event.startsAt.getTime() - b.event.startsAt.getTime();
         })
         .slice(0, 20);
-    }),
-
-  suggestCandidates: protectedProcedure
-    .input(z.object({ jobId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const job = await ctx.db.jobPosting.findUnique({
-        where: { id: input.jobId },
-        include: { organization: true },
-      });
-
-      if (!job) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
-      }
-
-      // Ensure user has permission to view candidates for this job
-      if (job.createdById !== ctx.session.user.id) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Not authorized to view candidates for this job",
-        });
-      }
-
-      // Fetch users in talent pool
-      const profiles = await ctx.db.userProfile.findMany({
-        where: { visibility: "TALENT_POOL" },
-        include: {
-          user: {
-            include: {
-              experiences: {
-                where: { verificationStatus: "VERIFIED" },
-                select: { skills: true },
-              },
-            },
-          },
-        },
-      });
-
-      const scored = profiles.map((profile) => {
-        const userSkills = new Set<string>(profile.skills);
-        profile.user.experiences.forEach((exp) =>
-          exp.skills.forEach((s) => userSkills.add(s)),
-        );
-        const userSkillsArray = Array.from(userSkills);
-
-        const score = aiService.calculateMatchScore(
-          userSkillsArray,
-          job.skills,
-        );
-
-        return {
-          user: profile.user,
-          profile,
-          score,
-          skills: userSkillsArray,
-        };
-      });
-
-      return scored.sort((a, b) => b.score - a.score).slice(0, 20);
     }),
 
   suggestCandidates: protectedProcedure
