@@ -2,6 +2,7 @@ import { checkInRouter } from "@/server/api/routers/checkin";
 import { matchingRouter } from "@/server/api/routers/matching";
 import { organizationRouter } from "@/server/api/routers/organization";
 import { profileRouter } from "@/server/api/routers/profile";
+import { certificateRouter } from "@/server/api/routers/certificate";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   organization: organizationRouter,
   checkIn: checkInRouter,
   matching: matchingRouter,
+  certificate: certificateRouter,
 });
 
 // export type definition of API
