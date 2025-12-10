@@ -28,12 +28,12 @@ import { db } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  // Prefer our cookie-based session lookup to avoid origin restrictions, then fall back to auth API
+  // Prefer header-based session lookup (fast for HTTP requests), then fall back
+  // to the cookie+DB lookup. This avoids hitting the DB when the request
+  // already contains session headers and the DB might be slow or unavailable.
   const session =
-    (await getSession()) ??
-    (await auth.api.getSession({
-      headers: opts.headers,
-    }));
+    (await auth.api.getSession({ headers: opts.headers })) ??
+    (await getSession());
   return {
     db,
     session,
@@ -84,25 +84,14 @@ export const createCallerFactory = t.createCallerFactory;
 export const createTRPCRouter = t.router;
 
 /**
- * Middleware for timing procedure execution and adding an artificial delay in development.
- *
- * You can remove this if you don't like it, but it can help catch unwanted waterfalls by simulating
- * network latency that would occur in production but not in local development.
+ * Middleware for timing procedure execution.
+ * Logs execution time for debugging purposes.
  */
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
-
-  if (t._config.isDev) {
-    // artificial delay in dev
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  }
-
   const result = await next();
-
   const end = Date.now();
   console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
-
   return result;
 });
 
