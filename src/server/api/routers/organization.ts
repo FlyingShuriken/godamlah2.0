@@ -77,6 +77,7 @@ export const organizationRouter = createTRPCRouter({
         location: z.string().max(140).optional(),
         startsAt: z.string().datetime(),
         endsAt: z.string().datetime().optional(),
+        skills: z.array(z.string()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -103,9 +104,12 @@ export const organizationRouter = createTRPCRouter({
         });
       }
 
-      const extractedSkills = await aiService.extractSkills(
-        `${input.title} ${input.description ?? ""}`,
-      );
+      let skills = input.skills;
+      if (!skills || skills.length === 0) {
+        skills = await aiService.extractSkills(
+          `${input.title} ${input.description ?? ""}`,
+        );
+      }
 
       return ctx.db.event.create({
         data: {
@@ -113,7 +117,7 @@ export const organizationRouter = createTRPCRouter({
           title: input.title,
           description: input.description,
           location: input.location,
-          skills: extractedSkills,
+          skills: skills,
           startsAt: new Date(input.startsAt),
           endsAt: input.endsAt ? new Date(input.endsAt) : null,
           createdById: ctx.session.user.id,
