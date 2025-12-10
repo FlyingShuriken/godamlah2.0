@@ -55,9 +55,9 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   // Load candidates if in talent pool mode
-  const candidatesQuery = api.matching.suggestCandidates.useQuery(
-    selectedJob?.id ?? "",
-  );
+  const candidatesQuery = api.matching.suggestCandidates.useQuery({
+    jobId: selectedJob?.id ?? "",
+  });
 
   // Mutations
   const createJobMutation = api.organization.createJob.useMutation({
@@ -76,11 +76,12 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
     },
   });
 
-  const updateEventMutation = api.organization.updateEvent.useMutation({
-    onSuccess: async () => {
-      await utils.organization.listEvents.invalidate();
-    },
-  });
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+  // const updateEventMutation = api.organization.updateEvent.useMutation({
+  //   onSuccess: async () => {
+  //     await utils.organization.listEvents.invalidate();
+  //   },
+  // });
 
   const adminEmploymentCheckInMutation =
     api.checkIn.adminCheckInEmployment.useMutation({
@@ -160,7 +161,10 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
           ? new Date(eventForm.end).toISOString()
           : undefined,
         skills: eventForm.skills
-          ? eventForm.skills.split(",").map((s) => s.trim()).filter(Boolean)
+          ? eventForm.skills
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
           : undefined,
       },
       {
@@ -178,36 +182,36 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
     );
   };
 
-  const handleUpdateEvent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingId || !eventForm.title || !eventForm.start) return;
+  // const handleUpdateEvent = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!editingId || !eventForm.title || !eventForm.start) return;
 
-    updateEventMutation.mutate(
-      {
-        id: editingId,
-        title: eventForm.title,
-        location: eventForm.location || undefined,
-        description: undefined,
-        startsAt: new Date(eventForm.start).toISOString(),
-        endsAt: eventForm.end
-          ? new Date(eventForm.end).toISOString()
-          : undefined,
-      },
-      {
-        onSuccess: () => {
-          setIsEditEventModalOpen(false);
-          setEventForm({
-            title: "",
-            location: "",
-            start: "",
-            end: "",
-            skills: "",
-          });
-          setEditingId(null);
-        },
-      },
-    );
-  };
+  //   updateEventMutation.mutate(
+  //     {
+  //       id: editingId,
+  //       title: eventForm.title,
+  //       location: eventForm.location || undefined,
+  //       description: undefined,
+  //       startsAt: new Date(eventForm.start).toISOString(),
+  //       endsAt: eventForm.end
+  //         ? new Date(eventForm.end).toISOString()
+  //         : undefined,
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         setIsEditEventModalOpen(false);
+  //         setEventForm({
+  //           title: "",
+  //           location: "",
+  //           start: "",
+  //           end: "",
+  //           skills: "",
+  //         });
+  //         setEditingId(null);
+  //       },
+  //     },
+  //   );
+  // };
 
   const handleSearchTalent = (job: Job) => {
     setSelectedJob(job);
@@ -290,12 +294,12 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
           ) : candidatesQuery.data && candidatesQuery.data.length > 0 ? (
             candidatesQuery.data.map((candidate) => (
               <Card
-                key={candidate.userId}
+                key={candidate.profile.userId}
                 className="flex items-start justify-between p-4 transition-colors hover:border-emerald-500/30"
               >
                 <div className="flex-1">
                   <h4 className="font-semibold text-white">
-                    {candidate.userName}
+                    {candidate.user.name}
                   </h4>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {candidate.skills.slice(0, 4).map((skill) => (
@@ -313,7 +317,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                     )}
                   </div>
                   <p className="mt-2 text-xs font-medium text-emerald-400">
-                    {Math.round(candidate.overlap * 100)}% Match
+                    {Math.round(candidate.score * 100)}% Match
                   </p>
                 </div>
                 <Button
@@ -367,8 +371,8 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
             </div>
             <div className="mt-2 text-2xl font-bold text-white">
               {role === "COMPANY"
-                ? jobsQuery.data?.length || 0
-                : eventsQuery.data?.length || 0}
+                ? (jobsQuery.data?.length ?? 0)
+                : (eventsQuery.data?.length ?? 0)}
             </div>
           </Card>
           <Card className="border-slate-800 bg-slate-900 p-4">
@@ -377,8 +381,8 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
             </div>
             <div className="mt-2 text-2xl font-bold text-emerald-400">
               {role === "COMPANY"
-                ? jobsQuery.data?.filter((j) => !j.deletedAt)?.length || 0
-                : eventsQuery.data?.filter((e) => !e.deletedAt)?.length || 0}
+                ? (jobsQuery.data?.length ?? 0)
+                : (eventsQuery.data?.length ?? 0)}
             </div>
           </Card>
           <Card className="border-slate-800 bg-slate-900 p-4">
@@ -386,7 +390,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
               Organization
             </div>
             <div className="mt-2 text-lg font-bold text-white">
-              {orgsQuery.data?.[0]?.name || "—"}
+              {orgsQuery.data?.[0]?.name ?? "—"}
             </div>
           </Card>
           <Card className="border-slate-800 bg-slate-900 p-4">
@@ -432,7 +436,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                     <div>
                       <h4 className="font-semibold text-white">{job.title}</h4>
                       <p className="mt-2 text-xs text-slate-400">
-                        {job.description || "No description"}
+                        {job.description ?? "No description"}
                       </p>
                       {job.skills && job.skills.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1">
@@ -456,7 +460,12 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                       size="sm"
                       variant="outline"
                       className="mt-4 w-full justify-center hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-400"
-                      onClick={() => handleSearchTalent(job)}
+                      onClick={() =>
+                        handleSearchTalent({
+                          ...job,
+                          description: job.description ?? "",
+                        })
+                      }
                     >
                       <Search size={14} className="mr-2" />
                       Find Candidates
@@ -504,9 +513,9 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                           setEditingId(event.id);
                           setEventForm({
                             title: event.title,
-                            location: event.location || "",
+                            location: event.location ?? "",
                             start: toLocalISO(event.startsAt),
-                            end: toLocalISO(event.endsAt),
+                            end: toLocalISO(event.endsAt || undefined),
                             skills: "",
                           });
                           setIsEditEventModalOpen(true);
@@ -631,7 +640,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         </Modal>
 
         {/* Edit Event Modal */}
-        <Modal
+        {/* <Modal
           isOpen={isEditEventModalOpen}
           onClose={() => setIsEditEventModalOpen(false)}
           title="Edit Event Details"
@@ -677,7 +686,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
               Save Changes
             </Button>
           </form>
-        </Modal>
+        </Modal> */}
       </div>
     );
   }
@@ -692,7 +701,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
           </div>
           <h2 className="text-2xl font-bold text-white">Verify Candidate</h2>
           <p className="mt-2 text-slate-400">
-            Manually verify a user's employment history to add to their
+            Manually verify a user&apos;s employment history to add to their
             immutable profile.
           </p>
         </div>
