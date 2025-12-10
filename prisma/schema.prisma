@@ -249,10 +249,26 @@ model Certificate {
   organizationId String?
   event          Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)
   eventId        String?
+  
+  type           CertificateType @default(ACHIEVEMENT)
+  description    String?
+  skills         String[]
+  hash           String?       @unique
+
   title          String
   issueDate      DateTime
   url            String?
+  
   createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([userId])
+  @@index([organizationId])
+}
+
+enum CertificateType {
+  ATTENDANCE
+  ACHIEVEMENT
+  CERTIFICATION
+  EMPLOYMENT
 }

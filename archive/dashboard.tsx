@@ -38,6 +38,7 @@ export function DashboardClient({ userName }: { userName: string }) {
   const jobMatchesQuery = api.matching.suggestJobs.useQuery();
   const eventMatchesQuery = api.matching.suggestEvents.useQuery();
   const careerInsightsQuery = api.matching.careerInsights.useQuery();
+  const certificatesQuery = api.certificate.getMine.useQuery();
 
   const profileMutation = api.profile.upsert.useMutation({
     onSuccess: async () => {
@@ -147,6 +148,36 @@ export function DashboardClient({ userName }: { userName: string }) {
   const [employmentNote, setEmploymentNote] = useState("");
   const [eventCheckInId, setEventCheckInId] = useState("");
   const [eventCheckInNote, setEventCheckInNote] = useState("");
+
+  // Certificate Issue State
+  const [certOrgId, setCertOrgId] = useState("");
+  const [certUserId, setCertUserId] = useState("");
+  const [certTitle, setCertTitle] = useState("");
+  const [certType, setCertType] = useState<
+    "ATTENDANCE" | "ACHIEVEMENT" | "CERTIFICATION" | "EMPLOYMENT"
+  >("ACHIEVEMENT");
+  const [certDescription, setCertDescription] = useState("");
+
+  const issueCertificateMutation = api.certificate.issue.useMutation({
+    onSuccess: () => {
+      setCertUserId("");
+      setCertTitle("");
+      setCertDescription("");
+      alert("Certificate issued successfully!");
+    },
+  });
+
+  const handleIssueCertificate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!certOrgId || !certUserId || !certTitle) return;
+    issueCertificateMutation.mutate({
+      organizationId: certOrgId,
+      userId: certUserId,
+      title: certTitle,
+      type: certType,
+      description: certDescription,
+    });
+  };
 
   const [adminEventId, setAdminEventId] = useState("");
   const [adminEventUserId, setAdminEventUserId] = useState("");
@@ -847,6 +878,66 @@ export function DashboardClient({ userName }: { userName: string }) {
             </form>
           </div>
 
+          <div className="mt-8 border-t border-slate-800 pt-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">
+                Issue Certificate
+              </h3>
+              {issueCertificateMutation.isPending && (
+                <span className="text-xs text-amber-300">Issuing…</span>
+              )}
+            </div>
+            <form onSubmit={handleIssueCertificate} className="mt-3 space-y-3">
+              <select
+                value={certOrgId}
+                onChange={(e) => setCertOrgId(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="">Select organization</option>
+                {organizationsQuery.data?.map((org) => (
+                  <option key={org.id} value={org.id}>
+                    {org.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                value={certUserId}
+                onChange={(e) => setCertUserId(e.target.value)}
+                placeholder="User ID"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <select
+                value={certType}
+                onChange={(e) => setCertType(e.target.value as any)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="ACHIEVEMENT">Achievement</option>
+                <option value="ATTENDANCE">Attendance</option>
+                <option value="CERTIFICATION">Certification</option>
+                <option value="EMPLOYMENT">Employment</option>
+              </select>
+              <input
+                value={certTitle}
+                onChange={(e) => setCertTitle(e.target.value)}
+                placeholder="Certificate Title"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <textarea
+                value={certDescription}
+                onChange={(e) => setCertDescription(e.target.value)}
+                placeholder="Description (optional)"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-purple-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-400 disabled:opacity-50"
+                disabled={issueCertificateMutation.isPending}
+              >
+                Issue Certificate
+              </button>
+            </form>
+          </div>
+
           <div className="mt-4 space-y-2">
             <p className="text-xs tracking-wide text-slate-500 uppercase">
               Recent check-ins
@@ -1109,6 +1200,63 @@ export function DashboardClient({ userName }: { userName: string }) {
         ) : (
           <p className="mt-4 text-sm text-slate-400">
             No experiences recorded yet.
+          </p>
+        )}
+      </section>
+
+      <section className="rounded-2xl bg-slate-900/60 p-6 shadow-lg ring-1 shadow-black/20 ring-slate-800">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-white">Certificates</h2>
+          <p className="text-xs text-slate-400">Verified Credentials</p>
+        </div>
+        {certificatesQuery.data?.length ? (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {certificatesQuery.data.map((cert) => (
+              <div
+                key={cert.id}
+                className="relative overflow-hidden rounded-lg border border-slate-700 bg-slate-950 p-4"
+              >
+                <div className="absolute top-0 right-0 h-16 w-16 translate-x-8 -translate-y-8 rotate-45 bg-emerald-500/10" />
+                <div className="relative">
+                  <div className="mb-2 flex items-start justify-between">
+                    <span className="inline-block rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold tracking-wider text-emerald-300 uppercase">
+                      {cert.type}
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      {formatDate(cert.issueDate)}
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-lg font-medium text-amber-100">
+                    {cert.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Issued by {cert.organization?.name}
+                  </p>
+                  {cert.event && (
+                    <p className="text-xs text-slate-500">
+                      Event: {cert.event.title}
+                    </p>
+                  )}
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
+                    <span className="font-mono text-[10px] text-slate-600">
+                      ID: {cert.id.slice(-8)}
+                    </span>
+                    <button
+                      onClick={() =>
+                        window.open(`/verify/${cert.hash}`, "_blank")
+                      }
+                      className="text-xs font-medium text-sky-400 hover:text-sky-300"
+                    >
+                      Verify Credential →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-slate-400">
+            No certificates earned yet.
           </p>
         )}
       </section>

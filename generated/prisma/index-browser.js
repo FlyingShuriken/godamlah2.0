@@ -254,10 +254,15 @@ exports.Prisma.CertificateScalarFieldEnum = {
   userId: 'userId',
   organizationId: 'organizationId',
   eventId: 'eventId',
+  type: 'type',
+  description: 'description',
+  skills: 'skills',
+  hash: 'hash',
   title: 'title',
   issueDate: 'issueDate',
   url: 'url',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -308,6 +313,13 @@ exports.VerificationStatus = exports.$Enums.VerificationStatus = {
 
 exports.CheckInType = exports.$Enums.CheckInType = {
   EVENT: 'EVENT',
+  EMPLOYMENT: 'EMPLOYMENT'
+};
+
+exports.CertificateType = exports.$Enums.CertificateType = {
+  ATTENDANCE: 'ATTENDANCE',
+  ACHIEVEMENT: 'ACHIEVEMENT',
+  CERTIFICATION: 'CERTIFICATION',
   EMPLOYMENT: 'EMPLOYMENT'
 };
 
