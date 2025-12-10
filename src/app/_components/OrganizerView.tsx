@@ -17,8 +17,7 @@ import { type ProfileType, type Job, type Event } from "@/types";
 
 const toLocalISO = (isoString?: string | Date) => {
   if (!isoString) return "";
-  const date =
-    typeof isoString === "string" ? new Date(isoString) : isoString;
+  const date = typeof isoString === "string" ? new Date(isoString) : isoString;
   const offsetMs = date.getTimezoneOffset() * 60 * 1000;
   const localDate = new Date(date.getTime() - offsetMs);
   return localDate.toISOString().slice(0, 16);
@@ -51,13 +50,13 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
 
   // Dashboard view state
   const [viewMode, setViewMode] = useState<"DASHBOARD" | "TALENT_POOL">(
-    "DASHBOARD"
+    "DASHBOARD",
   );
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   // Load candidates if in talent pool mode
   const candidatesQuery = api.matching.suggestCandidates.useQuery(
-    selectedJob?.id ?? ""
+    selectedJob?.id ?? "",
   );
 
   // Mutations
@@ -112,6 +111,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
     location: "",
     start: "",
     end: "",
+    skills: "",
   });
   const [verifyForm, setVerifyForm] = useState({
     userId: "",
@@ -141,7 +141,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
           setIsCreateModalOpen(false);
           setJobForm({ title: "", description: "", skills: "" });
         },
-      }
+      },
     );
   };
 
@@ -159,13 +159,22 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         endsAt: eventForm.end
           ? new Date(eventForm.end).toISOString()
           : undefined,
+        skills: eventForm.skills
+          ? eventForm.skills.split(",").map((s) => s.trim()).filter(Boolean)
+          : undefined,
       },
       {
         onSuccess: () => {
           setIsCreateModalOpen(false);
-          setEventForm({ title: "", location: "", start: "", end: "" });
+          setEventForm({
+            title: "",
+            location: "",
+            start: "",
+            end: "",
+            skills: "",
+          });
         },
-      }
+      },
     );
   };
 
@@ -187,10 +196,16 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
       {
         onSuccess: () => {
           setIsEditEventModalOpen(false);
-          setEventForm({ title: "", location: "", start: "", end: "" });
+          setEventForm({
+            title: "",
+            location: "",
+            start: "",
+            end: "",
+            skills: "",
+          });
           setEditingId(null);
         },
-      }
+      },
     );
   };
 
@@ -228,26 +243,28 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
             note: "",
           });
         },
-      }
+      },
     );
   };
 
   /* --- VIEW: MANAGE (TALENT POOL MODE) --- */
   if (activeTab === "manage" && viewMode === "TALENT_POOL" && selectedJob) {
     return (
-      <div className="space-y-6 animate-in slide-in-from-right duration-300">
+      <div className="animate-in slide-in-from-right space-y-6 duration-300">
         <div className="flex items-center gap-4">
           <button
             onClick={() => {
               setViewMode("DASHBOARD");
               setSelectedJob(null);
             }}
-            className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-slate-800"
           >
             <ArrowLeft size={20} className="text-slate-400" />
           </button>
           <div>
-            <h2 className="text-xl font-bold text-white">{selectedJob.title}</h2>
+            <h2 className="text-xl font-bold text-white">
+              {selectedJob.title}
+            </h2>
             <p className="text-sm text-slate-400">
               {selectedJob.skills?.length || 0} skills required
             </p>
@@ -255,12 +272,12 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         </div>
 
         {/* Search Filters */}
-        <div className="flex gap-4 items-center bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+        <div className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-3">
           <Search size={18} className="text-slate-500" />
           <input
             type="text"
             placeholder="Filter candidates..."
-            className="bg-transparent border-none text-white focus:ring-0 w-full placeholder-slate-500 outline-none"
+            className="w-full border-none bg-transparent text-white placeholder-slate-500 outline-none focus:ring-0"
           />
         </div>
 
@@ -272,32 +289,37 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
             </Card>
           ) : candidatesQuery.data && candidatesQuery.data.length > 0 ? (
             candidatesQuery.data.map((candidate) => (
-              <Card key={candidate.userId} className="p-4 flex items-start justify-between hover:border-emerald-500/30 transition-colors">
+              <Card
+                key={candidate.userId}
+                className="flex items-start justify-between p-4 transition-colors hover:border-emerald-500/30"
+              >
                 <div className="flex-1">
-                  <h4 className="font-semibold text-white">{candidate.userName}</h4>
+                  <h4 className="font-semibold text-white">
+                    {candidate.userName}
+                  </h4>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {candidate.skills.slice(0, 4).map((skill) => (
                       <span
                         key={skill}
-                        className="px-2 py-1 rounded text-xs bg-slate-800 text-slate-300"
+                        className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300"
                       >
                         {skill}
                       </span>
                     ))}
                     {candidate.skills.length > 4 && (
-                      <span className="px-2 py-1 rounded text-xs text-slate-400">
+                      <span className="rounded px-2 py-1 text-xs text-slate-400">
                         +{candidate.skills.length - 4}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-emerald-400 mt-2 font-medium">
+                  <p className="mt-2 text-xs font-medium text-emerald-400">
                     {Math.round(candidate.overlap * 100)}% Match
                   </p>
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30"
+                  className="hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
                 >
                   View Profile
                 </Button>
@@ -317,12 +339,14 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   if (activeTab === "manage") {
     return (
       <div className="space-y-6">
-        <div className="flex justify-between items-end">
+        <div className="flex items-end justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-            <p className="text-slate-400 mt-1">
+            <p className="mt-1 text-slate-400">
               Manage your{" "}
-              {role === "COMPANY" ? "jobs and candidates" : "events and volunteers"}
+              {role === "COMPANY"
+                ? "jobs and candidates"
+                : "events and volunteers"}
             </p>
           </div>
           <Button
@@ -336,40 +360,40 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-4 bg-slate-900 border-slate-800">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <Card className="border-slate-800 bg-slate-900 p-4">
             <div className="text-xs font-medium text-slate-400 uppercase">
               Total {role === "COMPANY" ? "Jobs" : "Events"}
             </div>
-            <div className="text-2xl font-bold text-white mt-2">
+            <div className="mt-2 text-2xl font-bold text-white">
               {role === "COMPANY"
                 ? jobsQuery.data?.length || 0
                 : eventsQuery.data?.length || 0}
             </div>
           </Card>
-          <Card className="p-4 bg-slate-900 border-slate-800">
+          <Card className="border-slate-800 bg-slate-900 p-4">
             <div className="text-xs font-medium text-slate-400 uppercase">
               Active Listings
             </div>
-            <div className="text-2xl font-bold text-emerald-400 mt-2">
+            <div className="mt-2 text-2xl font-bold text-emerald-400">
               {role === "COMPANY"
                 ? jobsQuery.data?.filter((j) => !j.deletedAt)?.length || 0
                 : eventsQuery.data?.filter((e) => !e.deletedAt)?.length || 0}
             </div>
           </Card>
-          <Card className="p-4 bg-slate-900 border-slate-800">
+          <Card className="border-slate-800 bg-slate-900 p-4">
             <div className="text-xs font-medium text-slate-400 uppercase">
               Organization
             </div>
-            <div className="text-lg font-bold text-white mt-2">
+            <div className="mt-2 text-lg font-bold text-white">
               {orgsQuery.data?.[0]?.name || "—"}
             </div>
           </Card>
-          <Card className="p-4 bg-slate-900 border-slate-800">
+          <Card className="border-slate-800 bg-slate-900 p-4">
             <div className="text-xs font-medium text-slate-400 uppercase">
               Created
             </div>
-            <div className="text-sm font-semibold text-slate-300 mt-2">
+            <div className="mt-2 text-sm font-semibold text-slate-300">
               {orgsQuery.data?.[0]?.createdAt
                 ? formatDate(orgsQuery.data[0].createdAt)
                 : "—"}
@@ -379,7 +403,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
 
         {/* Active Items List */}
         <div className="space-y-4">
-          <h3 className="font-bold text-white text-lg flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-lg font-bold text-white">
             {role === "COMPANY" ? (
               <>
                 <Briefcase size={20} className="text-blue-500" />
@@ -403,13 +427,11 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                 jobsQuery.data.map((job) => (
                   <Card
                     key={job.id}
-                    className="p-5 flex flex-col justify-between hover:border-blue-500/30 transition-colors"
+                    className="flex flex-col justify-between p-5 transition-colors hover:border-blue-500/30"
                   >
                     <div>
-                      <h4 className="font-semibold text-white">
-                        {job.title}
-                      </h4>
-                      <p className="text-xs text-slate-400 mt-2">
+                      <h4 className="font-semibold text-white">{job.title}</h4>
+                      <p className="mt-2 text-xs text-slate-400">
                         {job.description || "No description"}
                       </p>
                       {job.skills && job.skills.length > 0 && (
@@ -417,13 +439,13 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                           {job.skills.slice(0, 3).map((skill) => (
                             <span
                               key={skill}
-                              className="px-2 py-1 rounded text-xs bg-slate-800 text-slate-300"
+                              className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300"
                             >
                               {skill}
                             </span>
                           ))}
                           {job.skills.length > 3 && (
-                            <span className="px-2 py-1 rounded text-xs text-slate-400">
+                            <span className="rounded px-2 py-1 text-xs text-slate-400">
                               +{job.skills.length - 3}
                             </span>
                           )}
@@ -433,7 +455,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="mt-4 w-full justify-center hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30"
+                      className="mt-4 w-full justify-center hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-400"
                       onClick={() => handleSearchTalent(job)}
                     >
                       <Search size={14} className="mr-2" />
@@ -457,27 +479,27 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                 eventsQuery.data.map((event) => (
                   <Card
                     key={event.id}
-                    className="p-5 flex flex-col justify-between hover:border-purple-500/30 transition-colors"
+                    className="flex flex-col justify-between p-5 transition-colors hover:border-purple-500/30"
                   >
                     <div>
                       <h4 className="font-semibold text-white">
                         {event.title}
                       </h4>
-                      <p className="text-xs text-slate-400 mt-2">
+                      <p className="mt-2 text-xs text-slate-400">
                         {formatDate(event.startsAt)}
                         {event.endsAt && ` - ${formatDate(event.endsAt)}`}
                       </p>
                       {event.location && (
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="mt-1 text-xs text-slate-500">
                           📍 {event.location}
                         </p>
                       )}
                     </div>
-                    <div className="flex gap-2 mt-4">
+                    <div className="mt-4 flex gap-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30"
+                        className="flex-1 hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400"
                         onClick={() => {
                           setEditingId(event.id);
                           setEventForm({
@@ -485,6 +507,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                             location: event.location || "",
                             start: toLocalISO(event.startsAt),
                             end: toLocalISO(event.endsAt),
+                            skills: "",
                           });
                           setIsEditEventModalOpen(true);
                         }}
@@ -494,7 +517,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                       <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 hover:bg-purple-500/10 hover:text-purple-400 hover:border-purple-500/30"
+                        className="flex-1 hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400"
                       >
                         Details
                       </Button>
@@ -588,6 +611,14 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                   setEventForm({ ...eventForm, end: e.target.value })
                 }
               />
+              <Input
+                label="Required Skills (comma separated)"
+                placeholder="e.g. Communication, Leadership"
+                value={eventForm.skills}
+                onChange={(e) =>
+                  setEventForm({ ...eventForm, skills: e.target.value })
+                }
+              />
               <Button
                 type="submit"
                 className="w-full"
@@ -654,19 +685,19 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   /* --- VIEW: VERIFY --- */
   if (activeTab === "verify") {
     return (
-      <div className="max-w-xl mx-auto space-y-6">
+      <div className="mx-auto max-w-xl space-y-6">
         <div className="text-center">
-          <div className="bg-emerald-500/10 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-500">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
             <QrCode size={32} />
           </div>
           <h2 className="text-2xl font-bold text-white">Verify Candidate</h2>
-          <p className="text-slate-400 mt-2">
+          <p className="mt-2 text-slate-400">
             Manually verify a user's employment history to add to their
             immutable profile.
           </p>
         </div>
 
-        <Card className="p-6 border-emerald-500/20 shadow-emerald-500/5">
+        <Card className="border-emerald-500/20 p-6 shadow-emerald-500/5">
           <form className="space-y-4" onSubmit={handleVerifyCandidate}>
             <Input
               label="User ID"
@@ -702,7 +733,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                 setVerifyForm({ ...verifyForm, end: e.target.value })
               }
             />
-            <div className="flex items-center gap-3 p-3 border border-slate-800 rounded-lg bg-slate-950/50">
+            <div className="flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-950/50 p-3">
               <input
                 type="checkbox"
                 id="isCurrent"
@@ -742,6 +773,6 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   }
 
   return (
-    <div className="text-center text-slate-500 mt-10">Settings placeholder</div>
+    <div className="mt-10 text-center text-slate-500">Settings placeholder</div>
   );
 };
