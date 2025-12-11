@@ -37,7 +37,8 @@ export default async function VerifyCertificatePage({
           Invalid Certificate
         </h1>
         <p className="mt-2 text-slate-400">
-          The certificate you are looking for does not exist or has been revoked.
+          The certificate you are looking for does not exist or has been
+          revoked.
         </p>
         <Link
           href="/"
@@ -124,7 +125,7 @@ export default async function VerifyCertificatePage({
 
         <div className="bg-slate-50 p-6 text-center">
           <p className="text-xs text-slate-400">Verification Hash</p>
-          <p className="mt-1 font-mono text-xs text-slate-500 break-all">
+          <p className="mt-1 font-mono text-xs break-all text-slate-500">
             {certificate.hash}
           </p>
         </div>
@@ -135,7 +136,7 @@ export default async function VerifyCertificatePage({
           href="/"
           className="text-sm font-medium text-slate-500 hover:text-white"
         >
-          ← Back to GodamLah
+          ← Back to TalentSync
         </Link>
       </div>
     </div>
