@@ -14,6 +14,7 @@ import {
   Award,
   TrendingUp,
   Lightbulb,
+  Briefcase,
 } from "lucide-react";
 import { api } from "@/trpc/react";
 import { Card, Button, Input, TextArea, Modal } from "./ui";
