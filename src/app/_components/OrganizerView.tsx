@@ -10,6 +10,7 @@ import {
   Calendar,
   Users,
   Edit2,
+  Award,
 } from "lucide-react";
 import { api } from "@/trpc/react";
 import { Card, Button, Input, TextArea, Modal, Select } from "./ui";
@@ -93,12 +94,24 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
       },
     });
 
+  const issueCertificateMutation = api.certificate.issue.useMutation({
+    onSuccess: () => {
+      setCertForm({
+        userId: "",
+        title: "",
+        description: "",
+        type: "ACHIEVEMENT",
+      });
+    },
+  });
+
   // Simple state for active organization context
   const activeOrgId = orgsQuery.data?.[0]?.id;
 
   // UI State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false);
+  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Forms State
@@ -122,6 +135,36 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
     isCurrent: true,
     note: "",
   });
+  const [certForm, setCertForm] = useState({
+    userId: "",
+    title: "",
+    description: "",
+    type: "ACHIEVEMENT" as
+      | "ATTENDANCE"
+      | "ACHIEVEMENT"
+      | "CERTIFICATION"
+      | "EMPLOYMENT",
+  });
+
+  const handleIssueCertificate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeOrgId || !certForm.userId || !certForm.title) return;
+
+    issueCertificateMutation.mutate(
+      {
+        organizationId: activeOrgId,
+        userId: certForm.userId,
+        title: certForm.title,
+        description: certForm.description || undefined,
+        type: certForm.type,
+      },
+      {
+        onSuccess: () => {
+          setIsCertModalOpen(false);
+        },
+      },
+    );
+  };
 
   const handleCreateJob = (e: React.FormEvent) => {
     e.preventDefault();
@@ -353,14 +396,25 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                 : "events and volunteers"}
             </p>
           </div>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            <Plus size={16} className="mr-2" />
-            New {role === "COMPANY" ? "Job" : "Event"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsCertModalOpen(true)}
+              className="hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400"
+            >
+              <Award size={16} className="mr-2" />
+              Issue Certificate
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <Plus size={16} className="mr-2" />
+              New {role === "COMPANY" ? "Job" : "Event"}
+            </Button>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -637,6 +691,70 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
               </Button>
             </form>
           )}
+        </Modal>
+
+        {/* Issue Certificate Modal */}
+        <Modal
+          isOpen={isCertModalOpen}
+          onClose={() => setIsCertModalOpen(false)}
+          title="Issue E-Certificate"
+        >
+          <form className="space-y-4" onSubmit={handleIssueCertificate}>
+            <Input
+              label="Recipient User ID"
+              placeholder="Enter the user's ID"
+              value={certForm.userId}
+              onChange={(e) =>
+                setCertForm({ ...certForm, userId: e.target.value })
+              }
+              required
+            />
+            <Input
+              label="Certificate Title"
+              placeholder="e.g. Best Volunteer Award"
+              value={certForm.title}
+              onChange={(e) =>
+                setCertForm({ ...certForm, title: e.target.value })
+              }
+              required
+            />
+            <TextArea
+              label="Description"
+              placeholder="Describe the achievement or recognition..."
+              rows={3}
+              value={certForm.description}
+              onChange={(e) =>
+                setCertForm({ ...certForm, description: e.target.value })
+              }
+            />
+            <Select
+              label="Certificate Type"
+              value={certForm.type}
+              onChange={(e) =>
+                setCertForm({
+                  ...certForm,
+                  type: e.target.value as
+                    | "ATTENDANCE"
+                    | "ACHIEVEMENT"
+                    | "CERTIFICATION"
+                    | "EMPLOYMENT",
+                })
+              }
+            >
+              <option value="ATTENDANCE">Attendance</option>
+              <option value="ACHIEVEMENT">Achievement</option>
+              <option value="CERTIFICATION">Certification</option>
+              <option value="EMPLOYMENT">Employment</option>
+            </Select>
+            <Button
+              type="submit"
+              className="w-full"
+              isLoading={issueCertificateMutation.isPending}
+            >
+              <Award size={16} className="mr-2" />
+              Issue Certificate
+            </Button>
+          </form>
         </Modal>
 
         {/* Edit Event Modal */}

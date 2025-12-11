@@ -51,6 +51,20 @@ export function DashboardPage() {
     );
   }
 
+  if (profileTypeQuery.isError) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center flex-col gap-4">
+        <div className="text-red-400">Failed to load profile: {profileTypeQuery.error?.message}</div>
+        <button 
+          onClick={() => router.push("/")}
+          className="text-emerald-400 underline"
+        >
+          Go back to login
+        </button>
+      </div>
+    );
+  }
+
   return (
     <DashboardLayout
       activeTab={activeTab}

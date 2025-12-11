@@ -11,6 +11,9 @@ import {
   X,
   CheckCircle,
   Calendar,
+  Award,
+  TrendingUp,
+  Lightbulb,
 } from "lucide-react";
 import { api } from "@/trpc/react";
 import { Card, Button, Input, TextArea, Modal } from "./ui";
@@ -31,6 +34,8 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
   const jobMatchesQuery = api.matching.suggestJobs.useQuery();
   const eventMatchesQuery = api.matching.suggestEvents.useQuery();
   const checkInsQuery = api.checkIn.myCheckIns.useQuery();
+  const certificatesQuery = api.certificate.getMine.useQuery();
+  const careerInsightsQuery = api.matching.careerInsights.useQuery();
 
   const utils = api.useUtils();
 
@@ -145,23 +150,23 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
   /* --- VIEW: HOME FEED --- */
   if (activeTab === "home") {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="mx-auto max-w-2xl space-y-6">
         {/* Profile Summary Card */}
-        <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-900 border-emerald-500/20">
+        <Card className="border-emerald-500/20 bg-gradient-to-br from-slate-900 to-slate-900 p-6">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-2xl font-bold text-white">
                 {profile.fullName}
               </h2>
-              <p className="text-emerald-400 font-medium">
+              <p className="font-medium text-emerald-400">
                 {profile.headline || "No headline yet"}
               </p>
-              <p className="text-slate-400 text-sm mt-2 max-w-md">
+              <p className="mt-2 max-w-md text-sm text-slate-400">
                 {profile.bio || "No bio added yet"}
               </p>
             </div>
-            <div className="h-16 w-16 rounded-full bg-slate-800 flex items-center justify-center text-2xl border border-slate-700">
-              {(profile.fullName?.charAt(0) ?? "U")}
+            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-2xl">
+              {profile.fullName?.charAt(0) ?? "U"}
             </div>
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -169,7 +174,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               profile.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs text-slate-300"
+                  className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-300"
                 >
                   {skill}
                 </span>
@@ -178,7 +183,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               <span className="text-xs text-slate-500">No skills added</span>
             )}
           </div>
-          <div className="mt-4 pt-4 border-t border-slate-800/50 flex items-center gap-2">
+          <div className="mt-4 flex items-center gap-2 border-t border-slate-800/50 pt-4">
             <Globe
               size={14}
               className={
@@ -204,7 +209,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
 
         {/* Timeline Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
             <Clock size={18} className="text-emerald-500" />
             Verified Timeline
           </h3>
@@ -213,31 +218,34 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
             timelineQuery.data.map((item) => (
               <div
                 key={item.id}
-                className="relative pl-6 border-l border-slate-800 pb-6 last:pb-0"
+                className="relative border-l border-slate-800 pb-6 pl-6 last:pb-0"
               >
                 <div
-                  className={`absolute -left-1.5 top-1 h-3 w-3 rounded-full ${
+                  className={`absolute top-1 -left-1.5 h-3 w-3 rounded-full ${
                     item.verificationStatus === "VERIFIED"
                       ? "bg-emerald-500"
                       : "bg-slate-600"
                   }`}
                 />
-                <Card className="p-4 ml-2">
+                <Card className="ml-2 p-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <h4 className="font-semibold text-white">
                         {item.title || "Experience"}
                       </h4>
-                      <p className="text-sm text-slate-400 mt-1">
+                      <p className="mt-1 text-sm text-slate-400">
                         {formatDateStr(item.startDate ?? undefined)}
-                        {item.endDate && ` - ${formatDateStr(item.endDate ?? undefined)}`}
+                        {item.endDate &&
+                          ` - ${formatDateStr(item.endDate ?? undefined)}`}
                       </p>
                       {item.notes && (
-                        <p className="text-xs text-slate-500 mt-2">{item.notes}</p>
+                        <p className="mt-2 text-xs text-slate-500">
+                          {item.notes}
+                        </p>
                       )}
                     </div>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full ${
+                      className={`rounded-full px-2 py-1 text-xs ${
                         item.verificationStatus === "VERIFIED"
                           ? "bg-emerald-500/20 text-emerald-400"
                           : "bg-slate-700/50 text-slate-400"
@@ -255,6 +263,90 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
             </Card>
           )}
         </div>
+
+        {/* Career Insights Section */}
+        <div className="space-y-4">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+            <Lightbulb size={18} className="text-amber-500" />
+            Career Insights
+          </h3>
+
+          {careerInsightsQuery.isLoading ? (
+            <Card className="p-6 text-center text-slate-400">
+              Analyzing your career...
+            </Card>
+          ) : careerInsightsQuery.data ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Recommended Skills */}
+              {careerInsightsQuery.data.recommendedSkills.length > 0 && (
+                <Card className="border-amber-500/20 p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <TrendingUp size={16} className="text-amber-500" />
+                    <h4 className="text-sm font-semibold text-white">
+                      Skills to Learn
+                    </h4>
+                  </div>
+                  <p className="mb-3 text-xs text-slate-400">
+                    These skills appear most frequently in jobs you&apos;re
+                    close to qualifying for
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {careerInsightsQuery.data.recommendedSkills.map(
+                      ({ skill, count }) => (
+                        <span
+                          key={skill}
+                          className="flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-300"
+                        >
+                          {skill}
+                          <span className="text-[10px] text-amber-500/60">
+                            ({count})
+                          </span>
+                        </span>
+                      ),
+                    )}
+                  </div>
+                </Card>
+              )}
+
+              {/* Potential Roles */}
+              {careerInsightsQuery.data.potentialRoles.length > 0 && (
+                <Card className="border-indigo-500/20 p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Briefcase size={16} className="text-indigo-500" />
+                    <h4 className="text-sm font-semibold text-white">
+                      Potential Next Roles
+                    </h4>
+                  </div>
+                  <p className="mb-3 text-xs text-slate-400">
+                    Based on your current skills, these roles are within reach
+                  </p>
+                  <ul className="space-y-2">
+                    {careerInsightsQuery.data.potentialRoles.map(
+                      ({ role, count }) => (
+                        <li
+                          key={role}
+                          className="flex items-center justify-between rounded-lg bg-slate-800/50 p-2"
+                        >
+                          <span className="text-sm text-slate-200">{role}</span>
+                          <span className="text-xs text-slate-500">
+                            {count} openings
+                          </span>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                </Card>
+              )}
+
+              {careerInsightsQuery.data.recommendedSkills.length === 0 &&
+                careerInsightsQuery.data.potentialRoles.length === 0 && (
+                  <Card className="p-6 text-center text-slate-400 md:col-span-2">
+                    Add more skills to your profile to see career insights!
+                  </Card>
+                )}
+            </div>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -263,11 +355,11 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
   if (activeTab === "jobs") {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-4 bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-          <Search className="text-slate-500 ml-2" size={20} />
+        <div className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-2">
+          <Search className="ml-2 text-slate-500" size={20} />
           <input
             placeholder="Search for jobs..."
-            className="bg-transparent border-none text-white focus:ring-0 w-full placeholder-slate-500 outline-none"
+            className="w-full border-none bg-transparent text-white placeholder-slate-500 outline-none focus:ring-0"
           />
         </div>
 
@@ -278,13 +370,13 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
             {jobMatchesQuery.data.map(({ job, overlap }) => (
               <Card
                 key={job.id}
-                className="p-5 flex flex-col justify-between hover:border-emerald-500/30 transition-colors cursor-pointer group"
+                className="group flex cursor-pointer flex-col justify-between p-5 transition-colors hover:border-emerald-500/30"
               >
                 <div>
-                  <h4 className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                  <h4 className="font-semibold text-white transition-colors group-hover:text-emerald-400">
                     {job.title}
                   </h4>
-                  <p className="text-xs text-slate-400 mt-2">
+                  <p className="mt-2 text-xs text-slate-400">
                     {job.description || "No description"}
                   </p>
                   {job.skills && job.skills.length > 0 && (
@@ -292,28 +384,31 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
                       {job.skills.slice(0, 3).map((skill) => (
                         <span
                           key={skill}
-                          className="px-2 py-1 rounded text-xs bg-slate-800 text-slate-300"
+                          className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300"
                         >
                           {skill}
                         </span>
                       ))}
                       {job.skills.length > 3 && (
-                        <span className="px-2 py-1 rounded text-xs text-slate-400">
+                        <span className="rounded px-2 py-1 text-xs text-slate-400">
                           +{job.skills.length - 3}
                         </span>
                       )}
                     </div>
                   )}
                   {overlap !== undefined && (
-                    <p className="text-xs text-emerald-400 mt-3 font-medium">
-                      {Math.round((overlap.length / Math.max(job.skills.length, 1)) * 100)}% Match
+                    <p className="mt-3 text-xs font-medium text-emerald-400">
+                      {Math.round(
+                        (overlap.length / Math.max(job.skills.length, 1)) * 100,
+                      )}
+                      % Match
                     </p>
                   )}
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="mt-4 w-full justify-between group-hover:bg-emerald-500/10 group-hover:text-emerald-400 group-hover:border-emerald-500/30"
+                  className="mt-4 w-full justify-between group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 group-hover:text-emerald-400"
                 >
                   View Details <ExternalLink size={14} />
                 </Button>
@@ -333,7 +428,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
   if (activeTab === "events") {
     return (
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">Recommended Events</h2>
         </div>
 
@@ -344,20 +439,20 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
             {eventMatchesQuery.data.map(({ event }) => (
               <Card
                 key={event.id}
-                className="p-0 overflow-hidden flex flex-col md:flex-row hover:border-emerald-500/30 transition-colors"
+                className="flex flex-col overflow-hidden p-0 transition-colors hover:border-emerald-500/30 md:flex-row"
               >
-                <div className="bg-slate-800 w-full md:w-32 h-24 md:h-auto flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700">
+                <div className="flex h-24 w-full flex-col items-center justify-center border-b border-slate-700 bg-slate-800 md:h-auto md:w-32 md:border-r md:border-b-0">
                   <Calendar size={32} className="text-emerald-500/50" />
                 </div>
-                <div className="flex-1 p-4 flex flex-col justify-between">
+                <div className="flex flex-1 flex-col justify-between p-4">
                   <div>
                     <h4 className="font-semibold text-white">{event.title}</h4>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="mt-1 text-xs text-slate-400">
                       {formatDateStr(event.startsAt)}
                       {event.endsAt && ` - ${formatDateStr(event.endsAt)}`}
                     </p>
                     {event.location && (
-                      <p className="text-xs text-slate-500 mt-1">
+                      <p className="mt-1 text-xs text-slate-500">
                         📍 {event.location}
                       </p>
                     )}
@@ -365,7 +460,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full mt-3 md:w-auto justify-center hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30"
+                    className="mt-3 w-full justify-center hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400 md:w-auto"
                   >
                     Learn More
                   </Button>
@@ -382,18 +477,117 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
     );
   }
 
+  /* --- VIEW: CERTIFICATES --- */
+  if (activeTab === "certificates") {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+            <Award size={24} className="text-purple-500" />
+            My Certificates
+          </h2>
+        </div>
+
+        {certificatesQuery.isLoading ? (
+          <div className="text-center text-slate-400">
+            Loading certificates...
+          </div>
+        ) : certificatesQuery.data && certificatesQuery.data.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {certificatesQuery.data.map((cert) => (
+              <Card
+                key={cert.id}
+                className="group relative overflow-hidden border-purple-500/20 p-0 transition-colors hover:border-purple-500/40"
+              >
+                {/* Decorative Corner */}
+                <div className="absolute top-0 right-0 h-20 w-20 translate-x-10 -translate-y-10 rotate-45 bg-purple-500/10" />
+
+                <div className="relative p-5">
+                  {/* Badge */}
+                  <div className="mb-3 flex items-start justify-between">
+                    <span className="inline-block rounded-full bg-purple-500/20 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-purple-300 uppercase">
+                      {cert.type}
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      {formatDateStr(cert.issueDate)}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-serif text-lg font-semibold text-white transition-colors group-hover:text-purple-300">
+                    {cert.title}
+                  </h3>
+
+                  {/* Issuer */}
+                  <p className="mt-2 text-xs text-slate-400">
+                    Issued by{" "}
+                    <span className="text-slate-300">
+                      {cert.organization?.name ?? "Unknown"}
+                    </span>
+                  </p>
+
+                  {cert.event && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Event: {cert.event.title}
+                    </p>
+                  )}
+
+                  {cert.description && (
+                    <p className="mt-3 line-clamp-2 text-xs text-slate-400">
+                      {cert.description}
+                    </p>
+                  )}
+
+                  {/* Footer */}
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
+                    <span className="font-mono text-[10px] text-slate-600">
+                      #{cert.id.slice(-8)}
+                    </span>
+                    <button
+                      onClick={() =>
+                        window.open(`/verify/${cert.hash}`, "_blank")
+                      }
+                      className="flex items-center gap-1 text-xs font-medium text-purple-400 hover:text-purple-300"
+                    >
+                      Verify <ExternalLink size={12} />
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="p-10 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-500/10">
+              <Award size={32} className="text-purple-500/50" />
+            </div>
+            <h3 className="text-lg font-semibold text-white">
+              No Certificates Yet
+            </h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm text-slate-400">
+              Certificates you earn from events and organizations will appear
+              here. Keep building your verified career footprint!
+            </p>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
   /* --- VIEW: CHECK-INS --- */
   if (activeTab === "checkins") {
     const recentCheckIns = checkInsQuery.data ?? [];
 
     return (
-      <div className="space-y-6 max-w-3xl mx-auto">
+      <div className="mx-auto max-w-3xl space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
           {/* Event Check-in Form */}
           <Card className="p-6">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="mb-4 flex items-center gap-2">
               <CheckCircle size={20} className="text-emerald-500" />
-              <h3 className="text-lg font-semibold text-white">Event Check-in</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Event Check-in
+              </h3>
             </div>
             <form onSubmit={handleEventCheckIn} className="space-y-4">
               <div className="space-y-2">
@@ -438,13 +632,17 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               </Button>
 
               {checkInEventMutation.isSuccess && (
-                <div className="rounded-lg bg-emerald-950/50 border border-emerald-500/30 p-3">
-                  <p className="text-xs text-emerald-400">✓ Check-in recorded successfully</p>
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/50 p-3">
+                  <p className="text-xs text-emerald-400">
+                    ✓ Check-in recorded successfully
+                  </p>
                 </div>
               )}
               {checkInEventMutation.error && (
-                <div className="rounded-lg bg-red-950/50 border border-red-500/30 p-3">
-                  <p className="text-xs text-red-400">Error: {checkInEventMutation.error.message}</p>
+                <div className="rounded-lg border border-red-500/30 bg-red-950/50 p-3">
+                  <p className="text-xs text-red-400">
+                    Error: {checkInEventMutation.error.message}
+                  </p>
                 </div>
               )}
             </form>
@@ -452,7 +650,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
 
           {/* Employment Check-in Form */}
           <Card className="p-6">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="mb-4 flex items-center gap-2">
               <CheckCircle size={20} className="text-blue-500" />
               <h3 className="text-lg font-semibold text-white">Employment</h3>
             </div>
@@ -516,13 +714,17 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               </Button>
 
               {checkInEmploymentMutation.isSuccess && (
-                <div className="rounded-lg bg-emerald-950/50 border border-emerald-500/30 p-3">
-                  <p className="text-xs text-emerald-400">✓ Employment recorded successfully</p>
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/50 p-3">
+                  <p className="text-xs text-emerald-400">
+                    ✓ Employment recorded successfully
+                  </p>
                 </div>
               )}
               {checkInEmploymentMutation.error && (
-                <div className="rounded-lg bg-red-950/50 border border-red-500/30 p-3">
-                  <p className="text-xs text-red-400">Error: {checkInEmploymentMutation.error.message}</p>
+                <div className="rounded-lg border border-red-500/30 bg-red-950/50 p-3">
+                  <p className="text-xs text-red-400">
+                    Error: {checkInEmploymentMutation.error.message}
+                  </p>
                 </div>
               )}
             </form>
@@ -531,7 +733,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
 
         {/* Recent Check-ins */}
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
             <Clock size={18} className="text-slate-400" />
             Recent Check-ins
           </h3>
@@ -541,7 +743,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               {recentCheckIns.map((checkIn) => (
                 <div
                   key={checkIn.id}
-                  className="flex items-start justify-between p-3 rounded-lg bg-slate-950/50 border border-slate-800"
+                  className="flex items-start justify-between rounded-lg border border-slate-800 bg-slate-950/50 p-3"
                 >
                   <div>
                     <p className="text-sm font-medium text-white">
@@ -549,15 +751,17 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
                         ? (checkIn.event?.title ?? "Event Check-in")
                         : "Employment Check-in"}
                     </p>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="mt-1 text-xs text-slate-400">
                       {checkIn.organization?.name ?? "Organization"}
                     </p>
                     {checkIn.note && (
-                      <p className="text-xs text-slate-500 mt-1">{checkIn.note}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {checkIn.note}
+                      </p>
                     )}
                   </div>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    className={`rounded-full px-2 py-1 text-xs font-medium ${
                       checkIn.verificationStatus === "VERIFIED"
                         ? "bg-emerald-500/20 text-emerald-400"
                         : "bg-slate-700/50 text-slate-400"
@@ -569,7 +773,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-400 text-center py-6">
+            <p className="py-6 text-center text-sm text-slate-400">
               No check-ins yet. Start recording your attendance and employment!
             </p>
           )}
@@ -580,9 +784,9 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
 
   /* --- VIEW: PROFILE --- */
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="mx-auto max-w-xl">
       <Card className="p-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">Edit Profile</h2>
           <Button
             variant="ghost"
@@ -599,7 +803,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               label="Full Name"
               value={profile.fullName ?? ""}
               disabled
-              className="opacity-60 cursor-not-allowed"
+              className="cursor-not-allowed opacity-60"
             />
             <Input
               label="Headline"
@@ -627,7 +831,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
               placeholder="e.g. React, TypeScript, Node.js"
             />
 
-            <div className="flex items-start gap-3 p-3 border border-slate-800 rounded-lg bg-slate-950/50">
+            <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-slate-950/50 p-3">
               <input
                 type="checkbox"
                 id="talentPool"
@@ -657,29 +861,25 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
         ) : (
           <div className="space-y-6">
             <div>
-              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
                 Full Name
               </label>
-              <p className="text-white mt-1">{profile.fullName}</p>
+              <p className="mt-1 text-white">{profile.fullName}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
                 Headline
               </label>
-              <p className="text-white mt-1">
-                {profile.headline || "—"}
-              </p>
+              <p className="mt-1 text-white">{profile.headline || "—"}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
                 Bio
               </label>
-              <p className="text-white mt-1">
-                {profile.bio || "—"}
-              </p>
+              <p className="mt-1 text-white">{profile.bio || "—"}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
                 Skills
               </label>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -687,7 +887,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
                   profile.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sm text-slate-300"
+                      className="rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-slate-300"
                     >
                       {skill}
                     </span>
@@ -697,13 +897,13 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
                 )}
               </div>
             </div>
-            <div className="pt-4 border-t border-slate-800">
-              <label className="text-xs font-medium text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <div className="border-t border-slate-800 pt-4">
+              <label className="flex items-center gap-2 text-xs font-medium tracking-wider text-slate-400 uppercase">
                 <Globe size={14} />
                 Talent Pool Visibility
               </label>
               <p
-                className={`text-sm mt-1 font-medium ${
+                className={`mt-1 text-sm font-medium ${
                   profile.consentTalentPool
                     ? "text-emerald-400"
                     : "text-slate-500"
