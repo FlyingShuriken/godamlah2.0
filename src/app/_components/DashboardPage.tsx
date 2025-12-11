@@ -12,7 +12,7 @@ import { type ProfileType } from "@/types";
 export function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("home");
-  
+
   const profileTypeQuery = api.profile.getProfileType.useQuery();
   const profileQuery = api.profile.getMine.useQuery();
 
@@ -45,7 +45,7 @@ export function DashboardPage() {
 
   if (profileTypeQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="text-slate-400">Loading your profile...</div>
       </div>
     );
@@ -53,9 +53,11 @@ export function DashboardPage() {
 
   if (profileTypeQuery.isError) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center flex-col gap-4">
-        <div className="text-red-400">Failed to load profile: {profileTypeQuery.error?.message}</div>
-        <button 
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-950">
+        <div className="text-red-400">
+          Failed to load profile: {profileTypeQuery.error?.message}
+        </div>
+        <button
           onClick={() => router.push("/")}
           className="text-emerald-400 underline"
         >
