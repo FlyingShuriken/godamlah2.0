@@ -97,7 +97,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   const issueCertificateMutation = api.certificate.issue.useMutation({
     onSuccess: () => {
       setCertForm({
-        userId: "",
+        mykadNumber: "",
         title: "",
         description: "",
         type: "ACHIEVEMENT",
@@ -128,7 +128,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
     skills: "",
   });
   const [verifyForm, setVerifyForm] = useState({
-    userId: "",
+    mykadNumber: "",
     title: "",
     start: "",
     end: "",
@@ -136,7 +136,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
     note: "",
   });
   const [certForm, setCertForm] = useState({
-    userId: "",
+    mykadNumber: "",
     title: "",
     description: "",
     type: "ACHIEVEMENT" as
@@ -148,12 +148,12 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
 
   const handleIssueCertificate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeOrgId || !certForm.userId || !certForm.title) return;
+    if (!activeOrgId || !certForm.mykadNumber || !certForm.title) return;
 
     issueCertificateMutation.mutate(
       {
         organizationId: activeOrgId,
-        userId: certForm.userId,
+        mykadNumber: certForm.mykadNumber,
         title: certForm.title,
         description: certForm.description || undefined,
         type: certForm.type,
@@ -263,12 +263,12 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
 
   const handleVerifyCandidate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeOrgId || !verifyForm.userId || !verifyForm.title) return;
+    if (!activeOrgId || !verifyForm.mykadNumber || !verifyForm.title) return;
 
     adminEmploymentCheckInMutation.mutate(
       {
         organizationId: activeOrgId,
-        userId: verifyForm.userId,
+        mykadNumber: verifyForm.mykadNumber,
         title: verifyForm.title,
         startDate: verifyForm.start
           ? new Date(verifyForm.start).toISOString()
@@ -282,7 +282,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
       {
         onSuccess: () => {
           setVerifyForm({
-            userId: "",
+            mykadNumber: "",
             title: "",
             start: "",
             end: "",
@@ -701,11 +701,11 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         >
           <form className="space-y-4" onSubmit={handleIssueCertificate}>
             <Input
-              label="Recipient User ID"
-              placeholder="Enter the user's ID"
-              value={certForm.userId}
+              label="Recipient MyKad IC Number"
+              placeholder="XXXXXX-XX-XXXX"
+              value={certForm.mykadNumber}
               onChange={(e) =>
-                setCertForm({ ...certForm, userId: e.target.value })
+                setCertForm({ ...certForm, mykadNumber: e.target.value })
               }
               required
             />
@@ -827,11 +827,11 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         <Card className="border-emerald-500/20 p-6 shadow-emerald-500/5">
           <form className="space-y-4" onSubmit={handleVerifyCandidate}>
             <Input
-              label="User ID"
-              placeholder="Enter candidate user ID"
-              value={verifyForm.userId}
+              label="Candidate MyKad IC Number"
+              placeholder="XXXXXX-XX-XXXX"
+              value={verifyForm.mykadNumber}
               onChange={(e) =>
-                setVerifyForm({ ...verifyForm, userId: e.target.value })
+                setVerifyForm({ ...verifyForm, mykadNumber: e.target.value })
               }
               required
             />

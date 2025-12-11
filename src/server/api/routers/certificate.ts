@@ -3,12 +3,15 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/
 import { TRPCError } from "@trpc/server";
 import crypto from "crypto";
 
+// Helper to normalize MyKad number (remove dashes and spaces)
+const normalizeMyKad = (mykad: string) => mykad.replace(/[-\s]/g, "");
+
 export const certificateRouter = createTRPCRouter({
   // Issue a certificate (Organizer/Company only)
   issue: protectedProcedure
     .input(
       z.object({
-        userId: z.string(),
+        mykadNumber: z.string().min(12).max(14), // Accept with or without dashes
         organizationId: z.string(),
         eventId: z.string().optional(),
         title: z.string(),
@@ -30,14 +33,27 @@ export const certificateRouter = createTRPCRouter({
         });
       }
 
+      // Look up user by MyKad number
+      const normalizedMyKad = normalizeMyKad(input.mykadNumber);
+      const user = await ctx.db.user.findUnique({
+        where: { mykadNumber: normalizedMyKad },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No user found with this MyKad IC number",
+        });
+      }
+
       // Generate a unique hash for verification
       // Simple hash: SHA256(orgId + userId + timestamp + random)
-      const dataToHash = `${input.organizationId}:${input.userId}:${Date.now()}:${Math.random()}`;
+      const dataToHash = `${input.organizationId}:${user.id}:${Date.now()}:${Math.random()}`;
       const hash = crypto.createHash("sha256").update(dataToHash).digest("hex");
 
       const certificate = await ctx.db.certificate.create({
         data: {
-          userId: input.userId,
+          userId: user.id,
           organizationId: input.organizationId,
           eventId: input.eventId,
           title: input.title,

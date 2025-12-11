@@ -4,6 +4,9 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { aiService } from "@/server/services/ai";
 
+// Helper to normalize MyKad number (remove dashes and spaces)
+const normalizeMyKad = (mykad: string) => mykad.replace(/[-\s]/g, "");
+
 export const checkInRouter = createTRPCRouter({
   /**
    * Self check-in to an event (unverified until organizer/admin confirms)
@@ -136,7 +139,7 @@ export const checkInRouter = createTRPCRouter({
     .input(
       z.object({
         eventId: z.string(),
-        userId: z.string(),
+        mykadNumber: z.string().min(12).max(14), // Accept with or without dashes
         note: z.string().max(280).optional(),
       }),
     )
@@ -165,11 +168,24 @@ export const checkInRouter = createTRPCRouter({
         });
       }
 
+      // Look up user by MyKad number
+      const normalizedMyKad = normalizeMyKad(input.mykadNumber);
+      const user = await ctx.db.user.findUnique({
+        where: { mykadNumber: normalizedMyKad },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No user found with this MyKad IC number",
+        });
+      }
+
       return ctx.db.$transaction(async (tx) => {
         const checkIn = await tx.checkIn.upsert({
           where: {
             userId_eventId_type: {
-              userId: input.userId,
+              userId: user.id,
               eventId: input.eventId,
               type: "EVENT",
             },
@@ -180,7 +196,7 @@ export const checkInRouter = createTRPCRouter({
             addedById: adminId,
           },
           create: {
-            userId: input.userId,
+            userId: user.id,
             organizationId: event.organizationId,
             eventId: input.eventId,
             type: "EVENT",
@@ -193,7 +209,7 @@ export const checkInRouter = createTRPCRouter({
         await tx.experience.upsert({
           where: {
             userId_eventId_type: {
-              userId: input.userId,
+              userId: user.id,
               eventId: input.eventId,
               type: "EVENT",
             },
@@ -206,7 +222,7 @@ export const checkInRouter = createTRPCRouter({
             skills: event.skills,
           },
           create: {
-            userId: input.userId,
+            userId: user.id,
             organizationId: event.organizationId,
             eventId: input.eventId,
             type: "EVENT",
@@ -230,7 +246,7 @@ export const checkInRouter = createTRPCRouter({
     .input(
       z.object({
         organizationId: z.string(),
-        userId: z.string(),
+        mykadNumber: z.string().min(12).max(14), // Accept with or without dashes
         title: z.string().min(2).max(140),
         startDate: z.string().datetime().optional(),
         endDate: z.string().datetime().optional(),
@@ -258,6 +274,19 @@ export const checkInRouter = createTRPCRouter({
         });
       }
 
+      // Look up user by MyKad number
+      const normalizedMyKad = normalizeMyKad(input.mykadNumber);
+      const user = await ctx.db.user.findUnique({
+        where: { mykadNumber: normalizedMyKad },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No user found with this MyKad IC number",
+        });
+      }
+
       const startDate = input.startDate
         ? new Date(input.startDate)
         : new Date();
@@ -270,7 +299,7 @@ export const checkInRouter = createTRPCRouter({
         const checkIn = await tx.checkIn.upsert({
           where: {
             userId_organizationId_type: {
-              userId: input.userId,
+              userId: user.id,
               organizationId: input.organizationId,
               type: "EMPLOYMENT",
             },
@@ -281,7 +310,7 @@ export const checkInRouter = createTRPCRouter({
             addedById: adminId,
           },
           create: {
-            userId: input.userId,
+            userId: user.id,
             organizationId: input.organizationId,
             type: "EMPLOYMENT",
             note: input.note,
@@ -293,7 +322,7 @@ export const checkInRouter = createTRPCRouter({
         await tx.experience.upsert({
           where: {
             userId_organizationId_type: {
-              userId: input.userId,
+              userId: user.id,
               organizationId: input.organizationId,
               type: "EMPLOYMENT",
             },
@@ -307,7 +336,7 @@ export const checkInRouter = createTRPCRouter({
             skills: extractedSkills,
           },
           create: {
-            userId: input.userId,
+            userId: user.id,
             organizationId: input.organizationId,
             type: "EMPLOYMENT",
             title: input.title,
