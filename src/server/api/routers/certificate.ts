@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import crypto from "crypto";
 
@@ -16,9 +20,14 @@ export const certificateRouter = createTRPCRouter({
         eventId: z.string().optional(),
         title: z.string(),
         description: z.string().optional(),
-        type: z.enum(["ATTENDANCE", "ACHIEVEMENT", "CERTIFICATION", "EMPLOYMENT"]),
+        type: z.enum([
+          "ATTENDANCE",
+          "ACHIEVEMENT",
+          "CERTIFICATION",
+          "EMPLOYMENT",
+        ]),
         skills: z.array(z.string()).optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       // Verify organization ownership/membership
@@ -29,7 +38,8 @@ export const certificateRouter = createTRPCRouter({
       if (!org || org.createdById !== ctx.session.user.id) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
-          message: "You are not authorized to issue certificates for this organization",
+          message:
+            "You are not authorized to issue certificates for this organization",
         });
       }
 
@@ -93,13 +103,16 @@ export const certificateRouter = createTRPCRouter({
       });
 
       if (!cert) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Certificate not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Certificate not found",
+        });
       }
-      
+
       // Fetch user profile name separately
       const profile = await ctx.db.userProfile.findUnique({
         where: { userId: cert.userId },
-        select: { fullName: true }
+        select: { fullName: true },
       });
 
       return {
@@ -107,12 +120,12 @@ export const certificateRouter = createTRPCRouter({
         recipientName: profile?.fullName ?? "Unknown User",
       };
     }),
-    
+
   // Get certificates issued by an organization
   getIssued: protectedProcedure
     .input(z.object({ organizationId: z.string() }))
     .query(async ({ ctx, input }) => {
-       const org = await ctx.db.organization.findUnique({
+      const org = await ctx.db.organization.findUnique({
         where: { id: input.organizationId },
       });
 
@@ -122,25 +135,25 @@ export const certificateRouter = createTRPCRouter({
           message: "Not authorized",
         });
       }
-      
+
       // We need to fetch certificates and then map user profiles
       const certs = await ctx.db.certificate.findMany({
         where: { organizationId: input.organizationId },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: "desc" },
       });
 
       // Fetch profiles for these users
-      const userIds = [...new Set(certs.map(c => c.userId))];
+      const userIds = [...new Set(certs.map((c) => c.userId))];
       const profiles = await ctx.db.userProfile.findMany({
         where: { userId: { in: userIds } },
-        select: { userId: true, fullName: true }
+        select: { userId: true, fullName: true },
       });
-      
-      const profileMap = new Map(profiles.map(p => [p.userId, p.fullName]));
 
-      return certs.map(cert => ({
+      const profileMap = new Map(profiles.map((p) => [p.userId, p.fullName]));
+
+      return certs.map((cert) => ({
         ...cert,
-        recipientName: profileMap.get(cert.userId) ?? "Unknown User"
+        recipientName: profileMap.get(cert.userId) ?? "Unknown User",
       }));
-    })
+    }),
 });
