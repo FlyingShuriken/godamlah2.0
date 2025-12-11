@@ -151,7 +151,7 @@ export function DashboardClient({ userName }: { userName: string }) {
 
   // Certificate Issue State
   const [certOrgId, setCertOrgId] = useState("");
-  const [certUserId, setCertUserId] = useState("");
+  const [certMyKadNumber, setCertMyKadNumber] = useState("");
   const [certTitle, setCertTitle] = useState("");
   const [certType, setCertType] = useState<
     "ATTENDANCE" | "ACHIEVEMENT" | "CERTIFICATION" | "EMPLOYMENT"
@@ -160,7 +160,7 @@ export function DashboardClient({ userName }: { userName: string }) {
 
   const issueCertificateMutation = api.certificate.issue.useMutation({
     onSuccess: () => {
-      setCertUserId("");
+      setCertMyKadNumber("");
       setCertTitle("");
       setCertDescription("");
       alert("Certificate issued successfully!");
@@ -169,10 +169,10 @@ export function DashboardClient({ userName }: { userName: string }) {
 
   const handleIssueCertificate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!certOrgId || !certUserId || !certTitle) return;
+    if (!certOrgId || !certMyKadNumber || !certTitle) return;
     issueCertificateMutation.mutate({
       organizationId: certOrgId,
-      userId: certUserId,
+      mykadNumber: certMyKadNumber,
       title: certTitle,
       type: certType,
       description: certDescription,
@@ -180,11 +180,12 @@ export function DashboardClient({ userName }: { userName: string }) {
   };
 
   const [adminEventId, setAdminEventId] = useState("");
-  const [adminEventUserId, setAdminEventUserId] = useState("");
+  const [adminEventMyKadNumber, setAdminEventMyKadNumber] = useState("");
   const [adminEventNote, setAdminEventNote] = useState("");
 
   const [adminEmploymentOrgId, setAdminEmploymentOrgId] = useState("");
-  const [adminEmploymentUserId, setAdminEmploymentUserId] = useState("");
+  const [adminEmploymentMyKadNumber, setAdminEmploymentMyKadNumber] =
+    useState("");
   const [adminEmploymentTitle, setAdminEmploymentTitle] = useState("");
   const [adminEmploymentStart, setAdminEmploymentStart] = useState("");
   const [adminEmploymentEnd, setAdminEmploymentEnd] = useState("");
@@ -336,10 +337,10 @@ export function DashboardClient({ userName }: { userName: string }) {
 
   const handleAdminEventCheckIn = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminEventId || !adminEventUserId) return;
+    if (!adminEventId || !adminEventMyKadNumber) return;
     adminEventCheckInMutation.mutate({
       eventId: adminEventId,
-      userId: adminEventUserId,
+      mykadNumber: adminEventMyKadNumber,
       note: adminEventNote || undefined,
     });
     setAdminEventNote("");
@@ -349,13 +350,13 @@ export function DashboardClient({ userName }: { userName: string }) {
     e.preventDefault();
     if (
       !adminEmploymentOrgId ||
-      !adminEmploymentUserId ||
+      !adminEmploymentMyKadNumber ||
       !adminEmploymentTitle
     )
       return;
     adminEmploymentCheckInMutation.mutate({
       organizationId: adminEmploymentOrgId,
-      userId: adminEmploymentUserId,
+      mykadNumber: adminEmploymentMyKadNumber,
       title: adminEmploymentTitle,
       startDate: adminEmploymentStart
         ? new Date(adminEmploymentStart).toISOString()
@@ -777,9 +778,9 @@ export function DashboardClient({ userName }: { userName: string }) {
                 ))}
               </select>
               <input
-                value={adminEventUserId}
-                onChange={(e) => setAdminEventUserId(e.target.value)}
-                placeholder="User ID"
+                value={adminEventMyKadNumber}
+                onChange={(e) => setAdminEventMyKadNumber(e.target.value)}
+                placeholder="MyKad Number"
                 className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               />
               <input
@@ -826,9 +827,9 @@ export function DashboardClient({ userName }: { userName: string }) {
                   ))}
               </select>
               <input
-                value={adminEmploymentUserId}
-                onChange={(e) => setAdminEmploymentUserId(e.target.value)}
-                placeholder="User ID"
+                value={adminEmploymentMyKadNumber}
+                onChange={(e) => setAdminEmploymentMyKadNumber(e.target.value)}
+                placeholder="MyKad Number"
                 className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               />
               <input
@@ -901,9 +902,9 @@ export function DashboardClient({ userName }: { userName: string }) {
                 ))}
               </select>
               <input
-                value={certUserId}
-                onChange={(e) => setCertUserId(e.target.value)}
-                placeholder="User ID"
+                value={certMyKadNumber}
+                onChange={(e) => setCertMyKadNumber(e.target.value)}
+                placeholder="MyKad Number"
                 className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
               />
               <select
