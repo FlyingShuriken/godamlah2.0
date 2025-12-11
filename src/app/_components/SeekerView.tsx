@@ -17,7 +17,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import { api } from "@/trpc/react";
-import { Card, Button, Input, TextArea, Modal } from "./ui";
+import { Card, Button, Input, TextArea } from "./ui";
 
 const formatDateStr = (dateStr?: string | Date) => {
   if (!dateStr) return "Present";
@@ -46,6 +46,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
         utils.profile.getMine.invalidate(),
         utils.profile.timeline.invalidate(),
       ]);
+      setIsEditing(false);
     },
   });
 
@@ -70,6 +71,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
   // Local state for profile editing
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
+    fullName: "",
     headline: "",
     bio: "",
     skills: "",
@@ -88,17 +90,22 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
   useEffect(() => {
     if (profileQuery.data) {
       setFormData({
+        fullName: profileQuery.data.fullName || "",
         headline: profileQuery.data.headline || "",
         bio: profileQuery.data.bio || "",
         skills: profileQuery.data.skills?.join(", ") || "",
         consentTalentPool: profileQuery.data.consentTalentPool ?? true,
       });
+    } else if (!profileQuery.isLoading && !profileQuery.data) {
+      // If loaded but no data (New User), auto-enable edit mode
+      setIsEditing(true);
     }
-  }, [profileQuery.data]);
+  }, [profileQuery.data, profileQuery.isLoading]);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     profileMutation.mutate({
+      fullName: formData.fullName,
       headline: formData.headline,
       bio: formData.bio,
       skills: formData.skills
@@ -107,7 +114,6 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
         .filter(Boolean),
       consentTalentPool: formData.consentTalentPool,
     });
-    setIsEditing(false);
   };
 
   const handleEventCheckIn = (e: React.FormEvent) => {
@@ -138,7 +144,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
     setEmploymentOrgId("");
   };
 
-  if (profileQuery.isLoading || !profileQuery.data) {
+  if (profileQuery.isLoading) {
     return (
       <div className="p-10 text-center text-slate-500">
         Loading your profile...
@@ -146,7 +152,14 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
     );
   }
 
-  const profile = profileQuery.data;
+  // Provide fallback values for new users
+  const profile = profileQuery.data ?? {
+    fullName: "New User",
+    headline: "",
+    bio: "",
+    skills: [] as string[],
+    consentTalentPool: true,
+  };
 
   /* --- VIEW: HOME FEED --- */
   if (activeTab === "home") {
@@ -802,9 +815,11 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <Input
               label="Full Name"
-              value={profile.fullName ?? ""}
-              disabled
-              className="cursor-not-allowed opacity-60"
+              value={formData.fullName}
+              onChange={(e) =>
+                setFormData({ ...formData, fullName: e.target.value })
+              }
+              placeholder="e.g. Ali Bin Abu"
             />
             <Input
               label="Headline"
