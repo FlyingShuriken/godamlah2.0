@@ -42,7 +42,6 @@ export const matchingRouter = createTRPCRouter({
       const score = aiService.calculateMatchScore(userSkillsArray, job.skills);
 
       // Calculate overlap/missing for UI display
-      const jobSkillsSet = new Set(job.skills.map((s) => s.toLowerCase()));
       const userSkillsLower = new Set(
         userSkillsArray.map((s) => s.toLowerCase()),
       );

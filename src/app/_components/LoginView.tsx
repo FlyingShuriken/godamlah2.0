@@ -96,9 +96,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleScanResult = (result: any, error: any) => {
+  const handleScanResult = (
+    result?: unknown,
+    _error?: unknown,
+  ) => {
     if (result) {
-      const text = result?.text;
+      const text = (result as { getText: () => string }).getText();
       if (text) {
         // Clean the input just in case
         const cleanText = text.replace(/[-\s]/g, "");

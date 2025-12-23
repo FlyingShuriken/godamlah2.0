@@ -29,6 +29,9 @@ importers:
       '@trpc/server':
         specifier: ^11.0.0
         version: 11.7.2(typescript@5.9.3)
+      '@zxing/library':
+        specifier: ^0.21.3
+        version: 0.21.3
       better-auth:
         specifier: ^1.3
         version: 1.4.5(next@15.2.6(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -791,6 +794,10 @@ packages:
 
   '@zxing/library@0.18.6':
     resolution: {integrity: sha512-bulZ9JHoLFd9W36pi+7e7DnEYNJhljYjZ1UTsKPOoLMU3qtC+REHITeCRNx40zTRJZx18W5TBRXt5pq2Uopjsw==}
+    engines: {node: '>= 10.4.0'}
+
+  '@zxing/library@0.21.3':
+    resolution: {integrity: sha512-hZHqFe2JyH/ZxviJZosZjV+2s6EDSY0O24R+FQmlWZBZXP9IqMo7S3nb3+2LBWxodJQkSurdQGnqE7KXqrYgow==}
     engines: {node: '>= 10.4.0'}
 
   '@zxing/text-encoding@0.9.0':
@@ -2868,6 +2875,12 @@ snapshots:
       '@zxing/text-encoding': 0.9.0
 
   '@zxing/library@0.18.6':
+    dependencies:
+      ts-custom-error: 3.3.1
+    optionalDependencies:
+      '@zxing/text-encoding': 0.9.0
+
+  '@zxing/library@0.21.3':
     dependencies:
       ts-custom-error: 3.3.1
     optionalDependencies:

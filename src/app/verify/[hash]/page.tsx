@@ -11,7 +11,7 @@ export default async function VerifyCertificatePage({
   let certificate;
   try {
     certificate = await api.certificate.verify({ hash });
-  } catch (error) {
+  } catch {
     certificate = null;
   }
 

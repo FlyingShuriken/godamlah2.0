@@ -105,6 +105,16 @@ export const checkInRouter = createTRPCRouter({
       const extractedSkills = await aiService.extractSkills(input.title);
 
       return ctx.db.$transaction(async (tx) => {
+        const existingCheckIn = await tx.checkIn.findFirst({
+          where: {
+            userId,
+            organizationId: input.organizationId,
+            type: "EMPLOYMENT",
+          },
+        });
+
+        if (existingCheckIn) return existingCheckIn;
+
         const checkIn = await tx.checkIn.create({
           data: {
             userId,
@@ -115,18 +125,28 @@ export const checkInRouter = createTRPCRouter({
           },
         });
 
-        await tx.experience.create({
-          data: {
+        const existingExperience = await tx.experience.findFirst({
+          where: {
             userId,
             organizationId: input.organizationId,
             type: "EMPLOYMENT",
-            title: input.title,
-            startDate,
-            isCurrent: true,
-            verificationStatus: "UNVERIFIED",
-            skills: extractedSkills,
           },
         });
+
+        if (!existingExperience) {
+          await tx.experience.create({
+            data: {
+              userId,
+              organizationId: input.organizationId,
+              type: "EMPLOYMENT",
+              title: input.title,
+              startDate,
+              isCurrent: true,
+              verificationStatus: "UNVERIFIED",
+              skills: extractedSkills,
+            },
+          });
+        }
 
         return checkIn;
       });
@@ -296,57 +316,69 @@ export const checkInRouter = createTRPCRouter({
       const extractedSkills = await aiService.extractSkills(input.title);
 
       return ctx.db.$transaction(async (tx) => {
-        const checkIn = await tx.checkIn.upsert({
+        const existingCheckIn = await tx.checkIn.findFirst({
           where: {
-            userId_organizationId_type: {
-              userId: user.id,
-              organizationId: input.organizationId,
-              type: "EMPLOYMENT",
-            },
-          },
-          update: {
-            note: input.note,
-            verificationStatus: "VERIFIED",
-            addedById: adminId,
-          },
-          create: {
             userId: user.id,
             organizationId: input.organizationId,
             type: "EMPLOYMENT",
-            note: input.note,
-            verificationStatus: "VERIFIED",
-            addedById: adminId,
           },
         });
 
-        await tx.experience.upsert({
+        const checkIn = existingCheckIn
+          ? await tx.checkIn.update({
+              where: { id: existingCheckIn.id },
+              data: {
+                note: input.note,
+                verificationStatus: "VERIFIED",
+                addedById: adminId,
+              },
+            })
+          : await tx.checkIn.create({
+              data: {
+                userId: user.id,
+                organizationId: input.organizationId,
+                type: "EMPLOYMENT",
+                note: input.note,
+                verificationStatus: "VERIFIED",
+                addedById: adminId,
+              },
+            });
+
+        const existingExperience = await tx.experience.findFirst({
           where: {
-            userId_organizationId_type: {
-              userId: user.id,
-              organizationId: input.organizationId,
-              type: "EMPLOYMENT",
-            },
-          },
-          update: {
-            title: input.title,
-            startDate,
-            endDate,
-            isCurrent,
-            verificationStatus: "VERIFIED",
-            skills: extractedSkills,
-          },
-          create: {
             userId: user.id,
             organizationId: input.organizationId,
             type: "EMPLOYMENT",
-            title: input.title,
-            startDate,
-            endDate,
-            isCurrent,
-            verificationStatus: "VERIFIED",
-            skills: extractedSkills,
           },
         });
+
+        if (existingExperience) {
+          await tx.experience.update({
+            where: { id: existingExperience.id },
+            data: {
+              title: input.title,
+              startDate,
+              endDate,
+              isCurrent,
+              verificationStatus: "VERIFIED",
+              skills: extractedSkills,
+            },
+          });
+        } else {
+          await tx.experience.create({
+            data: {
+              userId: user.id,
+              organizationId: input.organizationId,
+              type: "EMPLOYMENT",
+              title: input.title,
+              startDate,
+              endDate,
+              isCurrent,
+              verificationStatus: "VERIFIED",
+              skills: extractedSkills,
+            },
+          });
+        }
 
         return checkIn;
       });

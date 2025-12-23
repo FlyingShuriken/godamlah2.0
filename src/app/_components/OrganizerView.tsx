@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Plus,
@@ -17,7 +17,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { api } from "@/trpc/react";
 import { validateMyKad } from "@/server/better-auth/mykad-plugin";
 import { Card, Button, Input, TextArea, Modal, Select } from "./ui";
-import { type ProfileType, type Job, type Event } from "@/types";
+import { type ProfileType, type Job } from "@/types";
 
 const toLocalISO = (isoString?: string | Date) => {
   if (!isoString) return "";
@@ -87,13 +87,6 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
       ]);
     },
   });
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-  // const updateEventMutation = api.organization.updateEvent.useMutation({
-  //   onSuccess: async () => {
-  //     await utils.organization.listEvents.invalidate();
-  //   },
-  // });
 
   const adminEmploymentCheckInMutation =
     api.checkIn.adminCheckInEmployment.useMutation({

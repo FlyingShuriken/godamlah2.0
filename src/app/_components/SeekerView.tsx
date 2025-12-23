@@ -129,10 +129,17 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
     setEventCheckInId("");
   };
 
-  const handleScanResult = (result: any, error: any) => {
+  const handleScanResult = (
+    result?: unknown,
+    _error?: unknown,
+  ) => {
     if (result) {
       try {
-        const data = JSON.parse(result?.text);
+        const text = (result as { getText: () => string }).getText();
+        const data = JSON.parse(text) as {
+          action: string;
+          eventId: string;
+        };
         if (data.action === "CHECK_IN" && data.eventId) {
           setIsScanModalOpen(false);
           checkInEventMutation.mutate(
@@ -411,7 +418,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
           <div className="text-center text-slate-400">Loading jobs...</div>
         ) : jobMatchesQuery.data && jobMatchesQuery.data.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {jobMatchesQuery.data.map(({ job, overlap, score }) => (
+            {jobMatchesQuery.data.map(({ job, score }) => (
               <Card
                 key={job.id}
                 className="group flex cursor-pointer flex-col justify-between p-5 transition-colors hover:border-emerald-500/30"

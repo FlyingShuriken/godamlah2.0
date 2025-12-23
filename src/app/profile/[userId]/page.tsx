@@ -1,6 +1,6 @@
 import { api } from "@/trpc/server";
 import Link from "next/link";
-import { ArrowLeft, Briefcase, Calendar, Award, CheckCircle, Globe, MapPin } from "lucide-react";
+import { ArrowLeft, Briefcase, Calendar, Award, CheckCircle } from "lucide-react";
 import { Card } from "@/app/_components/ui";
 
 export default async function CandidateProfilePage({
@@ -13,7 +13,7 @@ export default async function CandidateProfilePage({
   let user;
   try {
     user = await api.profile.getById({ userId });
-  } catch (error) {
+  } catch {
     user = null;
   }
 

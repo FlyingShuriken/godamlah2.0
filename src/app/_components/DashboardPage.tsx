@@ -3,7 +3,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { api } from "@/trpc/react";
 import { signOut } from "@/server/better-auth/actions";
 import { DashboardLayout } from "@/app/_components/DashboardLayout";
@@ -11,10 +10,8 @@ import { SeekerView } from "@/app/_components/SeekerView";
 import { OrganizerView } from "@/app/_components/OrganizerView";
 
 export function DashboardPage() {
-  const router = useRouter();
   // No need for utils.invalidate() if we force reload on logout,
   // but good to have utils for other operations.
-  const utils = api.useUtils();
   const [activeTab, setActiveTab] = useState("home");
 
   // FIX 1: Disable caching for the profile type check.
@@ -24,8 +21,6 @@ export function DashboardPage() {
     refetchOnWindowFocus: false,
     staleTime: 0, // Data is considered stale immediately
   });
-
-  const profileQuery = api.profile.getMine.useQuery();
 
   const role = profileTypeQuery.data?.profileType ?? "USER";
 
