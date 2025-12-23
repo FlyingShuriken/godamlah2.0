@@ -96,10 +96,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleScanResult = (
-    result?: unknown,
-    _error?: unknown,
-  ) => {
+  const handleScanResult = (result?: unknown, _error?: unknown) => {
     if (result) {
       const text = (result as { getText: () => string }).getText();
       if (text) {

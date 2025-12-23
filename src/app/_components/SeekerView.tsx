@@ -129,10 +129,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
     setEventCheckInId("");
   };
 
-  const handleScanResult = (
-    result?: unknown,
-    _error?: unknown,
-  ) => {
+  const handleScanResult = (result?: unknown, _error?: unknown) => {
     if (result) {
       try {
         const text = (result as { getText: () => string }).getText();
