@@ -9,14 +9,16 @@ import {
   Calendar,
   ArrowRight,
   ShieldCheck,
+  QrCode,
 } from "lucide-react";
+import { QrReader } from "react-qr-reader";
 import {
   signInWithMyKad,
   signUpAsOrganization,
   type AuthResult,
 } from "@/server/better-auth/actions";
 import { validateMyKad } from "@/server/better-auth/mykad-plugin";
-import { Card, Button, Input } from "./ui";
+import { Card, Button, Input, Modal } from "./ui";
 import { type ProfileType } from "@/types";
 
 interface LoginViewProps {
@@ -33,6 +35,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [orgName, setOrgName] = useState("");
   const [ssmNumber, setSsmNumber] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   const [userState, userFormAction, userIsPending] = useActionState<
     AuthResult | null,
@@ -90,6 +93,28 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       }
     } else if (formatted.replace(/[-\s]/g, "").length > 0) {
       setValidationError(null);
+    }
+  };
+
+  const handleScanResult = (result: any, error: any) => {
+    if (result) {
+      const text = result?.text;
+      if (text) {
+        // Clean the input just in case
+        const cleanText = text.replace(/[-\s]/g, "");
+        const formatted = formatMykadInput(cleanText);
+        setMykad(formatted);
+
+        if (cleanText.length >= 12) {
+          const validation = validateMyKad(cleanText);
+          if (!validation.isValid) {
+            setValidationError(validation.error ?? "Invalid MyKad number");
+          } else {
+            setValidationError(null);
+            setIsScanModalOpen(false);
+          }
+        }
+      }
     }
   };
 
@@ -224,9 +249,21 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           className="relative z-10 space-y-6"
         >
           {selectedRole === "USER" ? (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-medium tracking-wider text-slate-400 uppercase">
+                  MyKad Number
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsScanModalOpen(true)}
+                  className="flex items-center gap-1.5 text-xs text-emerald-500 transition-colors hover:text-emerald-400"
+                >
+                  <QrCode size={14} />
+                  Scan QR
+                </button>
+              </div>
               <Input
-                label="MyKad Number"
                 placeholder="XXXXXX-XX-XXXX"
                 value={mykad}
                 onChange={handleMyKadChange}
@@ -292,6 +329,40 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           </Button>
         </form>
       </Card>
+
+      {/* QR Scanner Modal */}
+      <Modal
+        isOpen={isScanModalOpen}
+        onClose={() => setIsScanModalOpen(false)}
+        title="Scan MyKad QR"
+      >
+        <div className="flex flex-col items-center justify-center space-y-4 p-4">
+          <div className="relative h-64 w-full overflow-hidden rounded-xl bg-black">
+            {isScanModalOpen && (
+              <QrReader
+                onResult={handleScanResult}
+                constraints={{ facingMode: "environment" }}
+                videoContainerStyle={{
+                  paddingTop: 0,
+                  height: "100%",
+                  width: "100%",
+                }}
+                videoStyle={{
+                  height: "100%",
+                  width: "100%",
+                  objectFit: "cover",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                }}
+              />
+            )}
+          </div>
+          <p className="text-center text-sm text-slate-400">
+            Point your camera at the MyKad QR code to login automatically.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 };
