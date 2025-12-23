@@ -12,9 +12,9 @@ import { OrganizerView } from "@/app/_components/OrganizerView";
 
 export function DashboardPage() {
   const router = useRouter();
-  // No need for utils.invalidate() if we force reload on logout, 
+  // No need for utils.invalidate() if we force reload on logout,
   // but good to have utils for other operations.
-  const utils = api.useUtils(); 
+  const utils = api.useUtils();
   const [activeTab, setActiveTab] = useState("home");
 
   // FIX 1: Disable caching for the profile type check.
@@ -24,7 +24,7 @@ export function DashboardPage() {
     refetchOnWindowFocus: false,
     staleTime: 0, // Data is considered stale immediately
   });
-  
+
   const profileQuery = api.profile.getMine.useQuery();
 
   const role = profileTypeQuery.data?.profileType ?? "USER";
@@ -43,7 +43,7 @@ export function DashboardPage() {
   const handleLogout = async () => {
     // Call the server action to sign out
     await signOut();
-    
+
     // FIX 2: FORCE A HARD BROWSER RELOAD
     // Instead of router.push('/'), we use window.location.href.
     // This wipes the browser's JavaScript memory (TRPC cache, React state, etc).
@@ -68,7 +68,7 @@ export function DashboardPage() {
     } else if (role === "ORGANIZER" || role === "COMPANY") {
       return <OrganizerView activeTab={activeTab} role={role} />;
     }
-    
+
     // Fallback
     return <div className="text-slate-400">Loading...</div>;
   };

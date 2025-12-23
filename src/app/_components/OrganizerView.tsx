@@ -13,6 +13,7 @@ import {
   Award,
 } from "lucide-react";
 import { api } from "@/trpc/react";
+import { validateMyKad } from "@/server/better-auth/mykad-plugin";
 import { Card, Button, Input, TextArea, Modal, Select } from "./ui";
 import { type ProfileType, type Job, type Event } from "@/types";
 
@@ -32,6 +33,14 @@ const formatDate = (date?: Date | string) => {
     day: "2-digit",
     year: "numeric",
   });
+};
+
+// Format input with dashes: XXXXXX-XX-XXXX
+const formatMykadInput = (value: string): string => {
+  const digits = value.replace(/\D/g, "").slice(0, 12);
+  if (digits.length <= 6) return digits;
+  if (digits.length <= 8) return `${digits.slice(0, 6)}-${digits.slice(6)}`;
+  return `${digits.slice(0, 6)}-${digits.slice(6, 8)}-${digits.slice(8)}`;
 };
 
 interface OrganizerViewProps {
@@ -105,6 +114,36 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
     },
   });
 
+  const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
+  const [checkInForm, setCheckInForm] = useState({
+    mykadNumber: "",
+    note: "",
+  });
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  const adminEventCheckInMutation = api.checkIn.adminCheckInToEvent.useMutation(
+    {
+      onSuccess: async () => {
+        setIsCheckInModalOpen(false);
+        setCheckInForm({ mykadNumber: "", note: "" });
+        alert("Attendee checked in successfully!");
+      },
+      onError: (error) => {
+        alert(error.message);
+      },
+    },
+  );
+
+  const handleCheckInAttendee = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEventId) return;
+    adminEventCheckInMutation.mutate({
+      eventId: selectedEventId,
+      mykadNumber: checkInForm.mykadNumber,
+      note: checkInForm.note,
+    });
+  };
+
   // Simple state for active organization context
   const activeOrgId = orgsQuery.data?.[0]?.id;
 
@@ -113,6 +152,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false);
   const [isCertModalOpen, setIsCertModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [myKadError, setMyKadError] = useState<string | null>(null);
 
   // Forms State
   const [jobForm, setJobForm] = useState({
@@ -145,6 +185,30 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
       | "CERTIFICATION"
       | "EMPLOYMENT",
   });
+
+  const handleMyKadInput = (
+    value: string,
+    setForm: React.Dispatch<React.SetStateAction<any>>,
+  ) => {
+    const formatted = formatMykadInput(value);
+    setForm((prev: any) => ({ ...prev, mykadNumber: formatted }));
+
+    if (formatted.length === 0) {
+      setMyKadError(null);
+      return;
+    }
+
+    if (formatted.replace(/[-\s]/g, "").length >= 12) {
+      const result = validateMyKad(formatted);
+      if (!result.isValid) {
+        setMyKadError(result.error ?? "Invalid MyKad number");
+      } else {
+        setMyKadError(null);
+      }
+    } else if (formatted.replace(/[-\s]/g, "").length > 0) {
+      setMyKadError(null);
+    }
+  };
 
   const handleIssueCertificate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -289,6 +353,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
             isCurrent: true,
             note: "",
           });
+          setMyKadError(null);
         },
       },
     );
@@ -581,8 +646,13 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                         size="sm"
                         variant="outline"
                         className="flex-1 hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400"
+                        onClick={() => {
+                          setSelectedEventId(event.id);
+                          setIsCheckInModalOpen(true);
+                        }}
                       >
-                        Details
+                        <Users size={14} className="mr-2" />
+                        Check In
                       </Button>
                     </div>
                   </Card>
@@ -696,19 +766,26 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         {/* Issue Certificate Modal */}
         <Modal
           isOpen={isCertModalOpen}
-          onClose={() => setIsCertModalOpen(false)}
+          onClose={() => {
+            setIsCertModalOpen(false);
+            setMyKadError(null);
+          }}
           title="Issue E-Certificate"
         >
           <form className="space-y-4" onSubmit={handleIssueCertificate}>
-            <Input
-              label="Recipient MyKad IC Number"
-              placeholder="XXXXXX-XX-XXXX"
-              value={certForm.mykadNumber}
-              onChange={(e) =>
-                setCertForm({ ...certForm, mykadNumber: e.target.value })
-              }
-              required
-            />
+            <div>
+              <Input
+                label="Recipient MyKad IC Number"
+                placeholder="XXXXXX-XX-XXXX"
+                value={certForm.mykadNumber}
+                onChange={(e) => handleMyKadInput(e.target.value, setCertForm)}
+                required
+                className={`font-mono text-lg tracking-widest ${myKadError ? "border-red-500 focus:border-red-500" : ""}`}
+              />
+              {myKadError && (
+                <p className="mt-1 text-xs text-red-500">{myKadError}</p>
+              )}
+            </div>
             <Input
               label="Certificate Title"
               placeholder="e.g. Best Volunteer Award"
@@ -753,6 +830,50 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
             >
               <Award size={16} className="mr-2" />
               Issue Certificate
+            </Button>
+          </form>
+        </Modal>
+
+        {/* Check In Attendee Modal */}
+        <Modal
+          isOpen={isCheckInModalOpen}
+          onClose={() => {
+            setIsCheckInModalOpen(false);
+            setMyKadError(null);
+          }}
+          title="Check In Attendee"
+        >
+          <form className="space-y-4" onSubmit={handleCheckInAttendee}>
+            <div>
+              <Input
+                label="Attendee MyKad IC Number"
+                placeholder="XXXXXX-XX-XXXX"
+                value={checkInForm.mykadNumber}
+                onChange={(e) =>
+                  handleMyKadInput(e.target.value, setCheckInForm)
+                }
+                required
+                className={`font-mono text-lg tracking-widest ${myKadError ? "border-red-500 focus:border-red-500" : ""}`}
+              />
+              {myKadError && (
+                <p className="mt-1 text-xs text-red-500">{myKadError}</p>
+              )}
+            </div>
+            <TextArea
+              label="Note (Optional)"
+              placeholder="Any notes about this attendee..."
+              rows={3}
+              value={checkInForm.note}
+              onChange={(e) =>
+                setCheckInForm({ ...checkInForm, note: e.target.value })
+              }
+            />
+            <Button
+              type="submit"
+              className="w-full"
+              isLoading={adminEventCheckInMutation.isPending}
+            >
+              Check In Attendee
             </Button>
           </form>
         </Modal>
@@ -826,15 +947,21 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
 
         <Card className="border-emerald-500/20 p-6 shadow-emerald-500/5">
           <form className="space-y-4" onSubmit={handleVerifyCandidate}>
-            <Input
-              label="Candidate MyKad IC Number"
-              placeholder="XXXXXX-XX-XXXX"
-              value={verifyForm.mykadNumber}
-              onChange={(e) =>
-                setVerifyForm({ ...verifyForm, mykadNumber: e.target.value })
-              }
-              required
-            />
+            <div>
+              <Input
+                label="Candidate MyKad IC Number"
+                placeholder="XXXXXX-XX-XXXX"
+                value={verifyForm.mykadNumber}
+                onChange={(e) =>
+                  handleMyKadInput(e.target.value, setVerifyForm)
+                }
+                required
+                className={`font-mono text-lg tracking-widest ${myKadError ? "border-red-500 focus:border-red-500" : ""}`}
+              />
+              {myKadError && (
+                <p className="mt-1 text-xs text-red-500">{myKadError}</p>
+              )}
+            </div>
             <Input
               label="Job Title"
               placeholder="e.g. Senior Developer"

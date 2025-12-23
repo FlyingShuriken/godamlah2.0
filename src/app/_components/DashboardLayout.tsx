@@ -40,7 +40,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       ]
     : [
         { id: "manage", icon: LayoutDashboard, label: "Manage" },
-        { id: "verify", icon: PlusCircle, label: "Verify" },
+        ...(role === "COMPANY"
+          ? [{ id: "verify", icon: PlusCircle, label: "Verify" }]
+          : []),
         { id: "profile", icon: User, label: "Settings" },
       ];
 

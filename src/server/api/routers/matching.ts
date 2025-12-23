@@ -106,13 +106,13 @@ export const matchingRouter = createTRPCRouter({
         };
       });
 
-      // Sort by score then date
-      return scored
-        .sort((a, b) => {
-          if (b.score !== a.score) return b.score - a.score;
-          return a.event.startsAt.getTime() - b.event.startsAt.getTime();
-        })
-        .slice(0, 20);
+      // Return all upcoming events so users can self check-in; order by soonest date, then score for ties
+      return scored.sort((a, b) => {
+        const dateDiff =
+          a.event.startsAt.getTime() - b.event.startsAt.getTime();
+        if (dateDiff !== 0) return dateDiff;
+        return b.score - a.score;
+      });
     }),
 
   suggestCandidates: protectedProcedure

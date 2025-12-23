@@ -10,7 +10,11 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
-import { signInWithMyKad, signUpAsOrganization, type AuthResult } from "@/server/better-auth/actions";
+import {
+  signInWithMyKad,
+  signUpAsOrganization,
+  type AuthResult,
+} from "@/server/better-auth/actions";
 import { validateMyKad } from "@/server/better-auth/mykad-plugin";
 import { Card, Button, Input } from "./ui";
 import { type ProfileType } from "@/types";
@@ -30,15 +34,15 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [ssmNumber, setSsmNumber] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const [userState, userFormAction, userIsPending] = useActionState<AuthResult | null, FormData>(
-    signInWithMyKad,
-    null
-  );
+  const [userState, userFormAction, userIsPending] = useActionState<
+    AuthResult | null,
+    FormData
+  >(signInWithMyKad, null);
 
-  const [orgState, orgFormAction, orgIsPending] = useActionState<AuthResult | null, FormData>(
-    signUpAsOrganization,
-    null
-  );
+  const [orgState, orgFormAction, orgIsPending] = useActionState<
+    AuthResult | null,
+    FormData
+  >(signUpAsOrganization, null);
 
   // Use appropriate state based on role
   const state = selectedRole === "USER" ? userState : orgState;
@@ -91,65 +95,84 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
   if (step === "ROLE") {
     return (
-      // Changed: min-h-[100dvh] handles mobile browser bars better. 
+      // Changed: min-h-[100dvh] handles mobile browser bars better.
       // Removed overflow-hidden from parent to allow scrolling on small landscape screens.
-      <div className="min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-950 relative overflow-x-hidden">
+      <div className="relative flex min-h-[100dvh] w-full flex-col items-center justify-center overflow-x-hidden bg-slate-950 p-4 sm:p-6">
         {/* Background Decor */}
-        <div className="absolute top-0 left-0 w-full h-96 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="pointer-events-none absolute top-0 left-0 h-96 w-full rounded-full bg-emerald-500/10 blur-[100px]" />
 
-        <div className="z-10 w-full max-w-md sm:max-w-3xl md:max-w-5xl space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="text-center space-y-3 mt-4 sm:mt-0">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+        <div className="animate-in fade-in slide-in-from-bottom-8 z-10 w-full max-w-md space-y-8 duration-700 sm:max-w-3xl md:max-w-5xl">
+          <div className="mt-4 space-y-3 text-center sm:mt-0">
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
               Talent<span className="text-emerald-500">Sync</span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 max-w-xs mx-auto sm:max-w-none">
+            <p className="mx-auto max-w-xs text-sm text-slate-400 sm:max-w-none sm:text-base">
               Choose your portal to get started.
             </p>
           </div>
 
           {/* Changed: Grid layout adjustments for better scaling */}
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-3 w-full">
+          <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
             <button
               onClick={() => handleRoleSelect("USER")}
               // Changed: h-auto with min-height ensures content never gets cut off if text wraps
-              className="group relative flex items-center gap-4 p-4 sm:p-5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 hover:border-emerald-500 transition-all text-left w-full h-auto min-h-[5.5rem] sm:min-h-[7rem]"
+              className="group relative flex h-auto min-h-[5.5rem] w-full items-center gap-4 rounded-xl border border-slate-800 bg-slate-900 p-4 text-left transition-all hover:border-emerald-500 hover:bg-slate-800 sm:min-h-[7rem] sm:p-5"
             >
-              <div className="shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-colors">
-                <User size={22} className="sm:w-6 sm:h-6" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 transition-colors group-hover:bg-emerald-500 group-hover:text-slate-950 sm:h-14 sm:w-14">
+                <User size={22} className="sm:h-6 sm:w-6" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white truncate">Job Seeker</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-tight">Build your verified career history.</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate font-semibold text-white">
+                  Job Seeker
+                </h3>
+                <p className="text-xs leading-tight text-slate-400 sm:text-sm">
+                  Build your verified career history.
+                </p>
               </div>
-              <ArrowRight className="shrink-0 text-slate-600 group-hover:text-emerald-400 transition-colors" size={20} />
+              <ArrowRight
+                className="shrink-0 text-slate-600 transition-colors group-hover:text-emerald-400"
+                size={20}
+              />
             </button>
 
             <button
               onClick={() => handleRoleSelect("COMPANY")}
-              className="group relative flex items-center gap-4 p-4 sm:p-5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 hover:border-blue-500 transition-all text-left w-full h-auto min-h-[5.5rem] sm:min-h-[7rem]"
+              className="group relative flex h-auto min-h-[5.5rem] w-full items-center gap-4 rounded-xl border border-slate-800 bg-slate-900 p-4 text-left transition-all hover:border-blue-500 hover:bg-slate-800 sm:min-h-[7rem] sm:p-5"
             >
-              <div className="shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                <Building2 size={22} className="sm:w-6 sm:h-6" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 transition-colors group-hover:bg-blue-500 group-hover:text-white sm:h-14 sm:w-14">
+                <Building2 size={22} className="sm:h-6 sm:w-6" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white truncate">Company</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-tight">Hire verified talent & post jobs.</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate font-semibold text-white">Company</h3>
+                <p className="text-xs leading-tight text-slate-400 sm:text-sm">
+                  Hire verified talent & post jobs.
+                </p>
               </div>
-              <ArrowRight className="shrink-0 text-slate-600 group-hover:text-blue-400 transition-colors" size={20} />
+              <ArrowRight
+                className="shrink-0 text-slate-600 transition-colors group-hover:text-blue-400"
+                size={20}
+              />
             </button>
 
             <button
               onClick={() => handleRoleSelect("ORGANIZER")}
-              className="group relative flex items-center gap-4 p-4 sm:p-5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 hover:border-purple-500 transition-all text-left w-full h-auto min-h-[5.5rem] sm:min-h-[7rem]"
+              className="group relative flex h-auto min-h-[5.5rem] w-full items-center gap-4 rounded-xl border border-slate-800 bg-slate-900 p-4 text-left transition-all hover:border-purple-500 hover:bg-slate-800 sm:min-h-[7rem] sm:p-5"
             >
-              <div className="shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
-                <Calendar size={22} className="sm:w-6 sm:h-6" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-purple-500/20 text-purple-400 transition-colors group-hover:bg-purple-500 group-hover:text-white sm:h-14 sm:w-14">
+                <Calendar size={22} className="sm:h-6 sm:w-6" />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white truncate">Event Organizer</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-tight">Manage events & volunteer staff.</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate font-semibold text-white">
+                  Event Organizer
+                </h3>
+                <p className="text-xs leading-tight text-slate-400 sm:text-sm">
+                  Manage events & volunteer staff.
+                </p>
               </div>
-              <ArrowRight className="shrink-0 text-slate-600 group-hover:text-purple-400 transition-colors" size={20} />
+              <ArrowRight
+                className="shrink-0 text-slate-600 transition-colors group-hover:text-purple-400"
+                size={20}
+              />
             </button>
           </div>
         </div>
@@ -159,23 +182,23 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
   return (
     // Changed: min-h-[100dvh] for mobile full height, added overflow-y-auto for safety
-    <div className="min-h-[100dvh] w-full flex items-center justify-center p-4 bg-slate-950 overflow-y-auto">
-      <Card className="w-full max-w-md p-6 sm:p-8 relative overflow-hidden bg-slate-900 border-slate-800 shadow-2xl">
+    <div className="flex min-h-[100dvh] w-full items-center justify-center overflow-y-auto bg-slate-950 p-4">
+      <Card className="relative w-full max-w-md overflow-hidden border-slate-800 bg-slate-900 p-6 shadow-2xl sm:p-8">
         {/* Decorative Background */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-emerald-500/20 to-transparent blur-3xl rounded-full pointer-events-none" />
+        <div className="pointer-events-none absolute -top-20 -right-20 h-40 w-40 rounded-full bg-gradient-to-br from-emerald-500/20 to-transparent blur-3xl" />
 
-        <div className="mb-8 relative z-10">
+        <div className="relative z-10 mb-8">
           <button
             onClick={() => {
               setStep("ROLE");
               setValidationError(null);
             }}
             // Changed: Increased padding for better touch target size
-            className="text-sm text-slate-400 hover:text-white mb-6 flex items-center gap-2 py-2 px-1 -ml-1 rounded transition-colors"
+            className="mb-6 -ml-1 flex items-center gap-2 rounded px-1 py-2 text-sm text-slate-400 transition-colors hover:text-white"
           >
             ← Back to roles
           </button>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+          <h2 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
             {selectedRole === "USER"
               ? "Job Seeker"
               : selectedRole === "COMPANY"
@@ -183,7 +206,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 : "Organizer"}{" "}
             Login
           </h2>
-          <p className="text-sm text-slate-400 leading-relaxed">
+          <p className="text-sm leading-relaxed text-slate-400">
             {selectedRole === "USER"
               ? "Enter your MyKad IC number to continue."
               : "Enter your organization details to continue."}
@@ -198,7 +221,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             }
             formAction(formData);
           }}
-          className="space-y-6 relative z-10"
+          className="relative z-10 space-y-6"
         >
           {selectedRole === "USER" ? (
             <div className="space-y-2">
@@ -208,12 +231,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 value={mykad}
                 onChange={handleMyKadChange}
                 // Changed: Added inputMode for mobile numeric keypad
-                inputMode="numeric" 
-                className="text-lg tracking-widest font-mono py-6 sm:py-2"
+                inputMode="numeric"
+                className="py-6 font-mono text-lg tracking-widest sm:py-2"
                 error={validationError || undefined}
               />
               {mykad.length === 14 && !validationError && (
-                <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 p-2 rounded animate-in fade-in duration-300">
+                <div className="animate-in fade-in flex items-center gap-2 rounded bg-emerald-500/10 p-2 text-xs text-emerald-400 duration-300">
                   <ShieldCheck size={14} />
                   Format valid
                 </div>
@@ -249,14 +272,14 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           )}
 
           {state && !state.success && state.error && (
-            <div className="rounded-lg bg-red-950/30 px-4 py-3 text-sm text-red-400 border border-red-900/50">
+            <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-400">
               {state.error}
             </div>
           )}
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-medium"
+            className="h-12 w-full text-base font-medium"
             size="lg"
             isLoading={isPending}
             disabled={

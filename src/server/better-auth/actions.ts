@@ -171,12 +171,18 @@ export async function signOut(): Promise<void> {
     }
 
     // Clear the cookie
-    cookieStore.delete("better-auth.session_token");
+    // Using set with maxAge: 0 is more reliable than delete() in some cases
+    cookieStore.set("better-auth.session_token", "", {
+      maxAge: 0,
+      path: "/",
+    });
   } catch (error) {
     console.error("[Auth] Sign-out error:", error);
   }
 
-  redirect("/");
+  // We do NOT redirect here. We let the client handle the navigation.
+  // This allows the client to perform a hard reload (window.location.href = "/")
+  // which clears all client-side state (React Query cache, etc).
 }
 
 /**
