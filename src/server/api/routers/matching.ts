@@ -8,18 +8,28 @@ export const matchingRouter = createTRPCRouter({
   suggestJobs: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    // Fetch user profile and experiences to aggregate skills
-    const [profile, experiences] = await Promise.all([
+    // Fetch user profile, experiences, and certificates to aggregate skills
+    const [profile, experiences, certificates] = await Promise.all([
       ctx.db.userProfile.findUnique({ where: { userId } }),
       ctx.db.experience.findMany({
-        where: { userId }, // Use all experiences for matching
+        where: { userId },
+        include: { event: { select: { skills: true } } },
+      }),
+      ctx.db.certificate.findMany({
+        where: { userId },
         select: { skills: true },
       }),
     ]);
 
     const userSkills = new Set<string>();
     if (profile?.skills) profile.skills.forEach((s) => userSkills.add(s));
-    experiences.forEach((exp) => exp.skills.forEach((s) => userSkills.add(s)));
+    experiences.forEach((exp) => {
+      exp.skills.forEach((s) => userSkills.add(s));
+      if (exp.event?.skills) exp.event.skills.forEach((s) => userSkills.add(s));
+    });
+    certificates.forEach((cert) =>
+      cert.skills.forEach((s) => userSkills.add(s)),
+    );
 
     const userSkillsArray = Array.from(userSkills);
 
@@ -67,10 +77,14 @@ export const matchingRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // Fetch user skills
-      const [profile, experiences] = await Promise.all([
+      // Fetch user skills from profile, experiences, and certificates
+      const [profile, experiences, certificates] = await Promise.all([
         ctx.db.userProfile.findUnique({ where: { userId } }),
         ctx.db.experience.findMany({
+          where: { userId },
+          include: { event: { select: { skills: true } } },
+        }),
+        ctx.db.certificate.findMany({
           where: { userId },
           select: { skills: true },
         }),
@@ -78,8 +92,13 @@ export const matchingRouter = createTRPCRouter({
 
       const userSkills = new Set<string>();
       if (profile?.skills) profile.skills.forEach((s) => userSkills.add(s));
-      experiences.forEach((exp) =>
-        exp.skills.forEach((s) => userSkills.add(s)),
+      experiences.forEach((exp) => {
+        exp.skills.forEach((s) => userSkills.add(s));
+        if (exp.event?.skills)
+          exp.event.skills.forEach((s) => userSkills.add(s));
+      });
+      certificates.forEach((cert) =>
+        cert.skills.forEach((s) => userSkills.add(s)),
       );
       const userSkillsArray = Array.from(userSkills);
 
@@ -139,14 +158,57 @@ export const matchingRouter = createTRPCRouter({
         });
       }
 
-      // Fetch users in talent pool
+      if (!job.skills || job.skills.length === 0) {
+        return [];
+      }
+
+      // Fetch users in talent pool who have at least one matching skill
+      // This optimizes the query by filtering out candidates with 0 overlap
       const profiles = await ctx.db.userProfile.findMany({
-        where: { visibility: "TALENT_POOL" },
+        where: {
+          visibility: "TALENT_POOL",
+          user: {
+            profileType: "USER",
+          },
+          OR: [
+            // 1. Match in user profile skills
+            { skills: { hasSome: job.skills } },
+            // 2. Match in experience skills or linked event skills
+            {
+              user: {
+                experiences: {
+                  some: {
+                    OR: [
+                      { skills: { hasSome: job.skills } },
+                      { event: { skills: { hasSome: job.skills } } },
+                    ],
+                  },
+                },
+              },
+            },
+            // 3. Match in certificate skills
+            {
+              user: {
+                certificates: {
+                  some: {
+                    skills: { hasSome: job.skills },
+                  },
+                },
+              },
+            },
+          ],
+        },
         include: {
           user: {
             include: {
               experiences: {
-                where: { verificationStatus: "VERIFIED" },
+                include: {
+                  event: {
+                    select: { skills: true },
+                  },
+                },
+              },
+              certificates: {
                 select: { skills: true },
               },
             },
@@ -156,14 +218,36 @@ export const matchingRouter = createTRPCRouter({
 
       const scored = profiles.map((profile) => {
         const userSkills = new Set<string>(profile.skills);
-        profile.user.experiences.forEach((exp) =>
-          exp.skills.forEach((s) => userSkills.add(s)),
-        );
+
+        // Add skills from all experiences (Employment & Events)
+        profile.user.experiences.forEach((exp) => {
+          exp.skills.forEach((s) => userSkills.add(s));
+          // Also include skills from the linked event if any
+          if (exp.event?.skills) {
+            exp.event.skills.forEach((s) => userSkills.add(s));
+          }
+        });
+
+        // Add skills from earned certificates
+        profile.user.certificates.forEach((cert) => {
+          cert.skills.forEach((s) => userSkills.add(s));
+        });
+
         const userSkillsArray = Array.from(userSkills);
+        const userSkillsLower = new Set(
+          userSkillsArray.map((s) => s.toLowerCase()),
+        );
 
         const score = aiService.calculateMatchScore(
           userSkillsArray,
           job.skills,
+        );
+
+        const overlap = job.skills.filter((s) =>
+          userSkillsLower.has(s.toLowerCase()),
+        );
+        const missing = job.skills.filter(
+          (s) => !userSkillsLower.has(s.toLowerCase()),
         );
 
         return {
@@ -171,6 +255,8 @@ export const matchingRouter = createTRPCRouter({
           profile,
           score,
           skills: userSkillsArray,
+          overlap,
+          missing,
         };
       });
 
@@ -180,10 +266,14 @@ export const matchingRouter = createTRPCRouter({
   careerInsights: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    // 1. Fetch user skills
-    const [profile, experiences] = await Promise.all([
+    // 1. Fetch user skills from profile, experiences, and certificates
+    const [profile, experiences, certificates] = await Promise.all([
       ctx.db.userProfile.findUnique({ where: { userId } }),
       ctx.db.experience.findMany({
+        where: { userId },
+        include: { event: { select: { skills: true } } },
+      }),
+      ctx.db.certificate.findMany({
         where: { userId },
         select: { skills: true },
       }),
@@ -191,7 +281,13 @@ export const matchingRouter = createTRPCRouter({
 
     const userSkills = new Set<string>();
     if (profile?.skills) profile.skills.forEach((s) => userSkills.add(s));
-    experiences.forEach((exp) => exp.skills.forEach((s) => userSkills.add(s)));
+    experiences.forEach((exp) => {
+      exp.skills.forEach((s) => userSkills.add(s));
+      if (exp.event?.skills) exp.event.skills.forEach((s) => userSkills.add(s));
+    });
+    certificates.forEach((cert) =>
+      cert.skills.forEach((s) => userSkills.add(s)),
+    );
     const userSkillsArray = Array.from(userSkills);
     const userSkillsLower = new Set(
       userSkillsArray.map((s) => s.toLowerCase()),

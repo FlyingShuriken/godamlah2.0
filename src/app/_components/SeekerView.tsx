@@ -411,7 +411,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
           <div className="text-center text-slate-400">Loading jobs...</div>
         ) : jobMatchesQuery.data && jobMatchesQuery.data.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {jobMatchesQuery.data.map(({ job, overlap }) => (
+            {jobMatchesQuery.data.map(({ job, overlap, score }) => (
               <Card
                 key={job.id}
                 className="group flex cursor-pointer flex-col justify-between p-5 transition-colors hover:border-emerald-500/30"
@@ -440,12 +440,9 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
                       )}
                     </div>
                   )}
-                  {overlap !== undefined && (
+                  {score !== undefined && (
                     <p className="mt-3 text-xs font-medium text-emerald-400">
-                      {Math.round(
-                        (overlap.length / Math.max(job.skills.length, 1)) * 100,
-                      )}
-                      % Match
+                      {Math.round(score)}% Match
                     </p>
                   )}
                 </div>

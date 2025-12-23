@@ -191,12 +191,12 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
       | "EMPLOYMENT",
   });
 
-  const handleMyKadInput = (
+  const handleMyKadInput = <T extends { mykadNumber: string }>(
     value: string,
-    setForm: React.Dispatch<React.SetStateAction<any>>,
+    setForm: React.Dispatch<React.SetStateAction<T>>,
   ) => {
     const formatted = formatMykadInput(value);
-    setForm((prev: any) => ({ ...prev, mykadNumber: formatted }));
+    setForm((prev) => ({ ...prev, mykadNumber: formatted }));
 
     if (formatted.length === 0) {
       setMyKadError(null);
@@ -414,24 +414,42 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                   <h4 className="font-semibold text-white">
                     {candidate.user.name}
                   </h4>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {candidate.skills.slice(0, 4).map((skill) => (
-                      <span
-                        key={skill}
-                        className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                    {candidate.skills.length > 4 && (
-                      <span className="rounded px-2 py-1 text-xs text-slate-400">
-                        +{candidate.skills.length - 4}
-                      </span>
-                    )}
+                  <div className="mt-2 flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400">
+                      {Math.round(candidate.score)}% Match
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {/* Show matched skills first */}
+                      {candidate.overlap.map((skill) => (
+                        <span
+                          key={skill}
+                          className="rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {/* Show other skills */}
+                      {candidate.skills
+                        .filter((s) => !candidate.overlap.includes(s))
+                        .slice(0, 3)
+                        .map((skill) => (
+                          <span
+                            key={skill}
+                            className="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-slate-400"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      {candidate.skills.length >
+                        candidate.overlap.length + 3 && (
+                        <span className="text-[10px] text-slate-500">
+                          +
+                          {candidate.skills.length -
+                            (candidate.overlap.length + 3)}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <p className="mt-2 text-xs font-medium text-emerald-400">
-                    {Math.round(candidate.score * 100)}% Match
-                  </p>
                 </div>
                 <Button
                   size="sm"
