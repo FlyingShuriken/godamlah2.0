@@ -16,8 +16,9 @@ import {
   Lightbulb,
   Briefcase,
 } from "lucide-react";
+import { QrReader } from "react-qr-reader";
 import { api } from "@/trpc/react";
-import { Card, Button, Input, TextArea } from "./ui";
+import { Card, Button, Input, TextArea, Modal } from "./ui";
 
 const formatDateStr = (dateStr?: string | Date) => {
   if (!dateStr) return "Present";
@@ -85,6 +86,7 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
   const [employmentTitle, setEmploymentTitle] = useState("");
   const [employmentStart, setEmploymentStart] = useState("");
   const [employmentNote, setEmploymentNote] = useState("");
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
 
   // Load data into form
   useEffect(() => {
@@ -125,6 +127,34 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
     });
     setEventCheckInNote("");
     setEventCheckInId("");
+  };
+
+  const handleScanResult = (result: any, error: any) => {
+    if (result) {
+      try {
+        const data = JSON.parse(result?.text);
+        if (data.action === "CHECK_IN" && data.eventId) {
+          setIsScanModalOpen(false);
+          checkInEventMutation.mutate(
+            {
+              eventId: data.eventId,
+              note: "Checked in via QR Code",
+            },
+            {
+              onSuccess: () => {
+                alert("Successfully checked in via QR Code!");
+              },
+              onError: (err) => {
+                alert(`Check-in failed: ${err.message}`);
+              },
+            },
+          );
+        }
+      } catch (e) {
+        // Ignore parse errors or non-JSON QR codes
+        console.error("QR Scan Error", e);
+      }
+    }
   };
 
   const handleEmploymentCheckIn = (e: React.FormEvent) => {
@@ -597,11 +627,20 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
         <div className="grid gap-6 md:grid-cols-2">
           {/* Event Check-in Form */}
           <Card className="p-6">
-            <div className="mb-4 flex items-center gap-2">
-              <CheckCircle size={20} className="text-emerald-500" />
-              <h3 className="text-lg font-semibold text-white">
-                Event Check-in
-              </h3>
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle size={20} className="text-emerald-500" />
+                <h3 className="text-lg font-semibold text-white">
+                  Event Check-in
+                </h3>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsScanModalOpen(true)}
+              >
+                Scan QR
+              </Button>
             </div>
             <form onSubmit={handleEventCheckIn} className="space-y-4">
               <div className="space-y-2">
@@ -792,6 +831,40 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
             </p>
           )}
         </Card>
+
+        {/* QR Scanner Modal */}
+        <Modal
+          isOpen={isScanModalOpen}
+          onClose={() => setIsScanModalOpen(false)}
+          title="Scan Event QR Code"
+        >
+          <div className="flex flex-col items-center justify-center space-y-4 p-4">
+            <div className="relative h-64 w-full overflow-hidden rounded-xl bg-black">
+              {isScanModalOpen && (
+                <QrReader
+                  onResult={handleScanResult}
+                  constraints={{ facingMode: "environment" }}
+                  videoContainerStyle={{
+                    paddingTop: 0,
+                    height: "100%",
+                    width: "100%",
+                  }}
+                  videoStyle={{
+                    height: "100%",
+                    width: "100%",
+                    objectFit: "cover",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                  }}
+                />
+              )}
+            </div>
+            <p className="text-center text-sm text-slate-400">
+              Point your camera at the event QR code to check in automatically.
+            </p>
+          </div>
+        </Modal>
       </div>
     );
   }

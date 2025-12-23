@@ -12,6 +12,7 @@ import {
   Edit2,
   Award,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { api } from "@/trpc/react";
 import { validateMyKad } from "@/server/better-auth/mykad-plugin";
 import { Card, Button, Input, TextArea, Modal, Select } from "./ui";
@@ -115,11 +116,15 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   });
 
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [checkInForm, setCheckInForm] = useState({
     mykadNumber: "",
     note: "",
   });
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [qrEvent, setQrEvent] = useState<{ id: string; title: string } | null>(
+    null,
+  );
 
   const adminEventCheckInMutation = api.checkIn.adminCheckInToEvent.useMutation(
     {
@@ -655,6 +660,18 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                         Check In
                       </Button>
                     </div>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="mt-2 w-full"
+                      onClick={() => {
+                        setQrEvent({ id: event.id, title: event.title });
+                        setIsQRModalOpen(true);
+                      }}
+                    >
+                      <QrCode size={14} className="mr-2" />
+                      Show QR Code
+                    </Button>
                   </Card>
                 ))
               ) : (
@@ -876,6 +893,37 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
               Check In Attendee
             </Button>
           </form>
+        </Modal>
+
+        {/* QR Code Modal */}
+        <Modal
+          isOpen={isQRModalOpen}
+          onClose={() => setIsQRModalOpen(false)}
+          title="Event QR Code"
+        >
+          <div className="flex flex-col items-center justify-center space-y-6 p-4">
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-white">{qrEvent?.title}</h3>
+              <p className="text-sm text-slate-400">
+                Scan to check in to this event
+              </p>
+            </div>
+            <div className="rounded-xl bg-white p-4">
+              {qrEvent && (
+                <QRCodeSVG
+                  value={JSON.stringify({
+                    eventId: qrEvent.id,
+                    action: "CHECK_IN",
+                  })}
+                  size={200}
+                />
+              )}
+            </div>
+            <p className="text-xs text-slate-500">
+              Attendees can scan this code using the TalentSync app to verify
+              their attendance.
+            </p>
+          </div>
         </Modal>
 
         {/* Edit Event Modal */}

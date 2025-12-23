@@ -216,7 +216,7 @@ model Experience {
   updatedAt          DateTime           @updatedAt
 
   @@unique([userId, eventId, type])
-  @@unique([userId, organizationId, type])
+
   @@index([userId, type])
 }
 
@@ -236,7 +236,6 @@ model CheckIn {
   createdAt          DateTime           @default(now())
 
   @@unique([userId, eventId, type])
-  @@unique([userId, organizationId, type])
   @@index([userId, type])
   @@index([organizationId, createdAt])
 }
