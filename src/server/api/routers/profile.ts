@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
@@ -93,4 +94,47 @@ export const profileRouter = createTRPCRouter({
       },
     });
   }),
+
+  getById: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.userId },
+        include: {
+          profile: true,
+          experiences: {
+            orderBy: [{ startDate: "desc" }, { createdAt: "desc" }],
+            include: {
+              organization: true,
+              event: true,
+            },
+          },
+          certificates: {
+            orderBy: { issueDate: "desc" },
+            include: {
+              organization: true,
+              event: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      // Security check: Only allow viewing if profile is public (TALENT_POOL)
+      // OR if the user is viewing their own profile
+      const isOwnProfile = ctx.session.user.id === input.userId;
+      const isPublic = user.profile?.visibility === "TALENT_POOL";
+
+      if (!isOwnProfile && !isPublic) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "This profile is private",
+        });
+      }
+
+      return user;
+    }),
 });

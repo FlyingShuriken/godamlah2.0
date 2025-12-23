@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Plus,
   ArrowLeft,
@@ -451,13 +452,15 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
                     </div>
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
-                >
-                  View Profile
-                </Button>
+                <Link href={`/profile/${candidate.profile.userId}`}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
+                  >
+                    View Profile
+                  </Button>
+                </Link>
               </Card>
             ))
           ) : (
