@@ -8,7 +8,7 @@ export default async function Home() {
 
   if (!session?.user) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+      <main className="liquid-bg flex min-h-screen flex-col items-center justify-center text-white">
         <LoginView />
       </main>
     );
@@ -16,7 +16,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
+      <main className="liquid-bg min-h-screen">
         <DashboardPage />
       </main>
     </HydrateClient>

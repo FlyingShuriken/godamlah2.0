@@ -12,12 +12,47 @@ import {
   Users,
   Edit2,
   Award,
+  MapPin,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Loader2,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { api } from "@/trpc/react";
 import { validateMyKad } from "@/server/better-auth/mykad-plugin";
-import { Card, Button, Input, TextArea, Modal, Select } from "./ui";
 import { type ProfileType, type Job } from "@/types";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 const toLocalISO = (isoString?: string | Date) => {
   if (!isoString) return "";
@@ -67,15 +102,17 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   // Load candidates if in talent pool mode
-  const candidatesQuery = api.matching.suggestCandidates.useQuery({
-    jobId: selectedJob?.id ?? "",
-  });
+  const candidatesQuery = api.matching.suggestCandidates.useQuery(
+    { jobId: selectedJob?.id ?? "" },
+    { enabled: !!selectedJob },
+  );
 
   // Mutations
   const createJobMutation = api.organization.createJob.useMutation({
     onSuccess: async () => {
       await utils.organization.listJobs.invalidate();
       await utils.matching.suggestJobs.invalidate();
+      setIsCreateJobOpen(false);
     },
   });
 
@@ -85,6 +122,7 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
         utils.organization.listEvents.invalidate(),
         utils.organization.listMine.invalidate(),
       ]);
+      setIsCreateEventOpen(false);
     },
   });
 
@@ -95,1000 +133,639 @@ export const OrganizerView: React.FC<OrganizerViewProps> = ({
           utils.checkIn.myCheckIns.invalidate(),
           utils.profile.timeline.invalidate(),
         ]);
+        setVerifyMyKad("");
+        setVerifyJobTitle("");
+        setVerifyStartDate("");
+        setVerifyNote("");
+        setVerifyResult(null);
       },
     });
 
-  const issueCertificateMutation = api.certificate.issue.useMutation({
-    onSuccess: () => {
-      setCertForm({
-        mykadNumber: "",
-        title: "",
-        description: "",
-        type: "ACHIEVEMENT",
-      });
-    },
-  });
+  // Form States
+  const [isCreateJobOpen, setIsCreateJobOpen] = useState(false);
+  const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
 
-  const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [checkInForm, setCheckInForm] = useState({
-    mykadNumber: "",
-    note: "",
-  });
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [qrEvent, setQrEvent] = useState<{ id: string; title: string } | null>(
-    null,
-  );
-
-  const adminEventCheckInMutation = api.checkIn.adminCheckInToEvent.useMutation(
-    {
-      onSuccess: async () => {
-        setIsCheckInModalOpen(false);
-        setCheckInForm({ mykadNumber: "", note: "" });
-        alert("Attendee checked in successfully!");
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    },
-  );
-
-  const handleCheckInAttendee = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedEventId) return;
-    adminEventCheckInMutation.mutate({
-      eventId: selectedEventId,
-      mykadNumber: checkInForm.mykadNumber,
-      note: checkInForm.note,
-    });
-  };
-
-  // Simple state for active organization context
-  const activeOrgId = orgsQuery.data?.[0]?.id;
-
-  // UI State
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false);
-  const [isCertModalOpen, setIsCertModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [myKadError, setMyKadError] = useState<string | null>(null);
-
-  // Forms State
+  // Job Form
   const [jobForm, setJobForm] = useState({
     title: "",
     description: "",
+    type: "FULL_TIME",
+    location: "",
     skills: "",
+    orgId: "",
   });
+
+  // Event Form
   const [eventForm, setEventForm] = useState({
     title: "",
-    location: "",
-    start: "",
-    end: "",
-    skills: "",
-  });
-  const [verifyForm, setVerifyForm] = useState({
-    mykadNumber: "",
-    title: "",
-    start: "",
-    end: "",
-    isCurrent: true,
-    note: "",
-  });
-  const [certForm, setCertForm] = useState({
-    mykadNumber: "",
-    title: "",
     description: "",
-    type: "ACHIEVEMENT" as
-      | "ATTENDANCE"
-      | "ACHIEVEMENT"
-      | "CERTIFICATION"
-      | "EMPLOYMENT",
+    date: "",
+    location: "",
+    orgId: "",
   });
 
-  const handleMyKadInput = <T extends { mykadNumber: string }>(
-    value: string,
-    setForm: React.Dispatch<React.SetStateAction<T>>,
-  ) => {
-    const formatted = formatMykadInput(value);
-    setForm((prev) => ({ ...prev, mykadNumber: formatted }));
+  // Verify Form
+  const [verifyMyKad, setVerifyMyKad] = useState("");
+  const [verifyJobTitle, setVerifyJobTitle] = useState("");
+  const [verifyStartDate, setVerifyStartDate] = useState("");
+  const [verifyNote, setVerifyNote] = useState("");
+  const [verifyResult, setVerifyResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
-    if (formatted.length === 0) {
-      setMyKadError(null);
-      return;
-    }
+  // --- Render Functions ---
 
-    if (formatted.replace(/[-\s]/g, "").length >= 12) {
-      const result = validateMyKad(formatted);
-      if (!result.isValid) {
-        setMyKadError(result.error ?? "Invalid MyKad number");
-      } else {
-        setMyKadError(null);
-      }
-    } else if (formatted.replace(/[-\s]/g, "").length > 0) {
-      setMyKadError(null);
-    }
-  };
-
-  const handleIssueCertificate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeOrgId || !certForm.mykadNumber || !certForm.title) return;
-
-    issueCertificateMutation.mutate(
-      {
-        organizationId: activeOrgId,
-        mykadNumber: certForm.mykadNumber,
-        title: certForm.title,
-        description: certForm.description || undefined,
-        type: certForm.type,
-      },
-      {
-        onSuccess: () => {
-          setIsCertModalOpen(false);
-        },
-      },
-    );
-  };
-
-  const handleCreateJob = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeOrgId || !jobForm.title) return;
-
-    createJobMutation.mutate(
-      {
-        organizationId: activeOrgId,
-        title: jobForm.title,
-        description: jobForm.description || undefined,
-        skills: jobForm.skills
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-      },
-      {
-        onSuccess: () => {
-          setIsCreateModalOpen(false);
-          setJobForm({ title: "", description: "", skills: "" });
-        },
-      },
-    );
-  };
-
-  const handleCreateEvent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeOrgId || !eventForm.title || !eventForm.start) return;
-
-    createEventMutation.mutate(
-      {
-        organizationId: activeOrgId,
-        title: eventForm.title,
-        location: eventForm.location || undefined,
-        description: undefined,
-        startsAt: new Date(eventForm.start).toISOString(),
-        endsAt: eventForm.end
-          ? new Date(eventForm.end).toISOString()
-          : undefined,
-        skills: eventForm.skills
-          ? eventForm.skills
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : undefined,
-      },
-      {
-        onSuccess: () => {
-          setIsCreateModalOpen(false);
-          setEventForm({
-            title: "",
-            location: "",
-            start: "",
-            end: "",
-            skills: "",
-          });
-        },
-      },
-    );
-  };
-
-  // const handleUpdateEvent = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!editingId || !eventForm.title || !eventForm.start) return;
-
-  //   updateEventMutation.mutate(
-  //     {
-  //       id: editingId,
-  //       title: eventForm.title,
-  //       location: eventForm.location || undefined,
-  //       description: undefined,
-  //       startsAt: new Date(eventForm.start).toISOString(),
-  //       endsAt: eventForm.end
-  //         ? new Date(eventForm.end).toISOString()
-  //         : undefined,
-  //     },
-  //     {
-  //       onSuccess: () => {
-  //         setIsEditEventModalOpen(false);
-  //         setEventForm({
-  //           title: "",
-  //           location: "",
-  //           start: "",
-  //           end: "",
-  //           skills: "",
-  //         });
-  //         setEditingId(null);
-  //       },
-  //     },
-  //   );
-  // };
-
-  const handleSearchTalent = (job: Job) => {
-    setSelectedJob(job);
-    setViewMode("TALENT_POOL");
-  };
-
-  const handleVerifyCandidate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeOrgId || !verifyForm.mykadNumber || !verifyForm.title) return;
-
-    adminEmploymentCheckInMutation.mutate(
-      {
-        organizationId: activeOrgId,
-        mykadNumber: verifyForm.mykadNumber,
-        title: verifyForm.title,
-        startDate: verifyForm.start
-          ? new Date(verifyForm.start).toISOString()
-          : undefined,
-        endDate: verifyForm.end
-          ? new Date(verifyForm.end).toISOString()
-          : undefined,
-        isCurrent: verifyForm.isCurrent,
-        note: verifyForm.note || undefined,
-      },
-      {
-        onSuccess: () => {
-          setVerifyForm({
-            mykadNumber: "",
-            title: "",
-            start: "",
-            end: "",
-            isCurrent: true,
-            note: "",
-          });
-          setMyKadError(null);
-        },
-      },
-    );
-  };
-
-  /* --- VIEW: MANAGE (TALENT POOL MODE) --- */
-  if (activeTab === "manage" && viewMode === "TALENT_POOL" && selectedJob) {
-    return (
-      <div className="animate-in slide-in-from-right space-y-6 duration-300">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => {
-              setViewMode("DASHBOARD");
-              setSelectedJob(null);
-            }}
-            className="rounded-lg p-2 transition-colors hover:bg-slate-800"
-          >
-            <ArrowLeft size={20} className="text-slate-400" />
-          </button>
-          <div>
-            <h2 className="text-xl font-bold text-white">
-              {selectedJob.title}
-            </h2>
-            <p className="text-sm text-slate-400">
-              {selectedJob.skills?.length || 0} skills required
+  const renderDashboard = () => (
+    <div className="space-y-8">
+      {/* Header Stats */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
+            <Briefcase className="text-muted-foreground h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {jobsQuery.data?.length ?? 0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Upcoming Events
+            </CardTitle>
+            <Calendar className="text-muted-foreground h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {eventsQuery.data?.length ?? 0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Candidates
+            </CardTitle>
+            <Users className="text-muted-foreground h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">--</div>
+            <p className="text-muted-foreground text-xs">
+              Across all job listings
             </p>
-          </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Jobs Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Job Listings</h3>
+          <Button onClick={() => setIsCreateJobOpen(true)} className="gap-2">
+            <Plus size={16} /> Post Job
+          </Button>
         </div>
 
-        {/* Search Filters */}
-        <div className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-3">
-          <Search size={18} className="text-slate-500" />
-          <input
-            type="text"
-            placeholder="Filter candidates..."
-            className="w-full border-none bg-transparent text-white placeholder-slate-500 outline-none focus:ring-0"
-          />
-        </div>
-
-        {/* Candidates List */}
-        <div className="grid gap-4">
-          {candidatesQuery.isLoading ? (
-            <Card className="p-6 text-center text-slate-400">
-              Loading candidates...
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {jobsQuery.isLoading ? (
+            <p>Loading jobs...</p>
+          ) : jobsQuery.data?.length === 0 ? (
+            <Card className="col-span-full border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+                <Briefcase className="text-muted-foreground/50 mb-4 h-12 w-12" />
+                <h3 className="text-lg font-medium">No jobs posted</h3>
+                <p className="text-muted-foreground text-sm">
+                  Create a job posting to find talent.
+                </p>
+              </CardContent>
             </Card>
-          ) : candidatesQuery.data && candidatesQuery.data.length > 0 ? (
-            candidatesQuery.data.map((candidate) => (
-              <Card
-                key={candidate.profile.userId}
-                className="flex items-start justify-between p-4 transition-colors hover:border-emerald-500/30"
-              >
-                <div className="flex-1">
-                  <h4 className="font-semibold text-white">
-                    {candidate.user.name}
-                  </h4>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400">
-                      {Math.round(candidate.score)}% Match
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {/* Show matched skills first */}
-                      {candidate.overlap.map((skill) => (
-                        <span
-                          key={skill}
-                          className="rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {/* Show other skills */}
-                      {candidate.skills
-                        .filter((s) => !candidate.overlap.includes(s))
-                        .slice(0, 3)
-                        .map((skill) => (
-                          <span
-                            key={skill}
-                            className="rounded bg-slate-800 px-2 py-0.5 text-[10px] text-slate-400"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      {candidate.skills.length >
-                        candidate.overlap.length + 3 && (
-                        <span className="text-[10px] text-slate-500">
-                          +
-                          {candidate.skills.length -
-                            (candidate.overlap.length + 3)}
-                        </span>
-                      )}
-                    </div>
+          ) : (
+            jobsQuery.data?.map((job) => (
+              <Card key={job.id} className="flex flex-col">
+                <CardHeader>
+                  <CardTitle className="line-clamp-1 text-lg">
+                    {job.title}
+                  </CardTitle>
+                  <CardDescription>{job.organization.name}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    <Badge variant="secondary">{job.type}</Badge>
+                    {job.location && (
+                      <Badge variant="outline">{job.location}</Badge>
+                    )}
                   </div>
-                </div>
-                <Link href={`/profile/${candidate.profile.userId}`}>
+                  <p className="text-muted-foreground line-clamp-2 text-sm">
+                    {job.description}
+                  </p>
+                </CardContent>
+                <CardFooter className="gap-2">
                   <Button
-                    size="sm"
                     variant="outline"
-                    className="hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
+                    className="w-full"
+                    onClick={() => {
+                      setSelectedJob(job);
+                      setViewMode("TALENT_POOL");
+                    }}
                   >
-                    View Profile
+                    Find Talent
                   </Button>
-                </Link>
+                </CardFooter>
               </Card>
             ))
-          ) : (
-            <Card className="p-6 text-center text-slate-400">
-              No candidates match this role.
-            </Card>
           )}
         </div>
       </div>
-    );
-  }
 
-  /* --- VIEW: MANAGE (DASHBOARD MODE) --- */
-  if (activeTab === "manage") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-            <p className="mt-1 text-slate-400">
-              Manage your{" "}
-              {role === "COMPANY"
-                ? "jobs and candidates"
-                : "events and volunteers"}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsCertModalOpen(true)}
-              className="hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400"
-            >
-              <Award size={16} className="mr-2" />
-              Issue Certificate
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              <Plus size={16} className="mr-2" />
-              New {role === "COMPANY" ? "Job" : "Event"}
-            </Button>
-          </div>
+      {/* Events Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Events</h3>
+          <Button onClick={() => setIsCreateEventOpen(true)} className="gap-2">
+            <Plus size={16} /> Create Event
+          </Button>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Card className="border-slate-800 bg-slate-900 p-4">
-            <div className="text-xs font-medium text-slate-400 uppercase">
-              Total {role === "COMPANY" ? "Jobs" : "Events"}
-            </div>
-            <div className="mt-2 text-2xl font-bold text-white">
-              {role === "COMPANY"
-                ? (jobsQuery.data?.length ?? 0)
-                : (eventsQuery.data?.length ?? 0)}
-            </div>
-          </Card>
-          <Card className="border-slate-800 bg-slate-900 p-4">
-            <div className="text-xs font-medium text-slate-400 uppercase">
-              Active Listings
-            </div>
-            <div className="mt-2 text-2xl font-bold text-emerald-400">
-              {role === "COMPANY"
-                ? (jobsQuery.data?.length ?? 0)
-                : (eventsQuery.data?.length ?? 0)}
-            </div>
-          </Card>
-          <Card className="border-slate-800 bg-slate-900 p-4">
-            <div className="text-xs font-medium text-slate-400 uppercase">
-              Organization
-            </div>
-            <div className="mt-2 text-lg font-bold text-white">
-              {orgsQuery.data?.[0]?.name ?? "—"}
-            </div>
-          </Card>
-          <Card className="border-slate-800 bg-slate-900 p-4">
-            <div className="text-xs font-medium text-slate-400 uppercase">
-              Created
-            </div>
-            <div className="mt-2 text-sm font-semibold text-slate-300">
-              {orgsQuery.data?.[0]?.createdAt
-                ? formatDate(orgsQuery.data[0].createdAt)
-                : "—"}
-            </div>
-          </Card>
-        </div>
-
-        {/* Active Items List */}
-        <div className="space-y-4">
-          <h3 className="flex items-center gap-2 text-lg font-bold text-white">
-            {role === "COMPANY" ? (
-              <>
-                <Briefcase size={20} className="text-blue-500" />
-                Active Job Listings
-              </>
-            ) : (
-              <>
-                <Calendar size={20} className="text-purple-500" />
-                Upcoming Events
-              </>
-            )}
-          </h3>
-
-          {role === "COMPANY" ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {jobsQuery.isLoading ? (
-                <Card className="p-6 text-center text-slate-400">
-                  Loading jobs...
-                </Card>
-              ) : jobsQuery.data && jobsQuery.data.length > 0 ? (
-                jobsQuery.data.map((job) => (
-                  <Card
-                    key={job.id}
-                    className="flex flex-col justify-between p-5 transition-colors hover:border-blue-500/30"
-                  >
-                    <div>
-                      <h4 className="font-semibold text-white">{job.title}</h4>
-                      <p className="mt-2 text-xs text-slate-400">
-                        {job.description ?? "No description"}
-                      </p>
-                      {job.skills && job.skills.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {job.skills.slice(0, 3).map((skill) => (
-                            <span
-                              key={skill}
-                              className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {job.skills.length > 3 && (
-                            <span className="rounded px-2 py-1 text-xs text-slate-400">
-                              +{job.skills.length - 3}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="mt-4 w-full justify-center hover:border-blue-500/30 hover:bg-blue-500/10 hover:text-blue-400"
-                      onClick={() =>
-                        handleSearchTalent({
-                          ...job,
-                          description: job.description ?? "",
-                        })
-                      }
-                    >
-                      <Search size={14} className="mr-2" />
-                      Find Candidates
-                    </Button>
-                  </Card>
-                ))
-              ) : (
-                <Card className="p-6 text-center text-slate-400">
-                  No jobs posted yet. Create one to get started!
-                </Card>
-              )}
-            </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {eventsQuery.isLoading ? (
+            <p>Loading events...</p>
+          ) : eventsQuery.data?.length === 0 ? (
+            <Card className="col-span-full border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+                <Calendar className="text-muted-foreground/50 mb-4 h-12 w-12" />
+                <h3 className="text-lg font-medium">No events created</h3>
+                <p className="text-muted-foreground text-sm">
+                  Host an event to engage with talent.
+                </p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {eventsQuery.isLoading ? (
-                <Card className="p-6 text-center text-slate-400">
-                  Loading events...
-                </Card>
-              ) : eventsQuery.data && eventsQuery.data.length > 0 ? (
-                eventsQuery.data.map((event) => (
-                  <Card
-                    key={event.id}
-                    className="flex flex-col justify-between p-5 transition-colors hover:border-purple-500/30"
-                  >
-                    <div>
-                      <h4 className="font-semibold text-white">
-                        {event.title}
-                      </h4>
-                      <p className="mt-2 text-xs text-slate-400">
-                        {formatDate(event.startsAt)}
-                        {event.endsAt && ` - ${formatDate(event.endsAt)}`}
-                      </p>
-                      {event.location && (
-                        <p className="mt-1 text-xs text-slate-500">
-                          📍 {event.location}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mt-4 flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400"
-                        onClick={() => {
-                          setEditingId(event.id);
-                          setEventForm({
-                            title: event.title,
-                            location: event.location ?? "",
-                            start: toLocalISO(event.startsAt),
-                            end: toLocalISO(event.endsAt || undefined),
-                            skills: "",
-                          });
-                          setIsEditEventModalOpen(true);
-                        }}
-                      >
-                        <Edit2 size={14} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex-1 hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400"
-                        onClick={() => {
-                          setSelectedEventId(event.id);
-                          setIsCheckInModalOpen(true);
-                        }}
-                      >
-                        <Users size={14} className="mr-2" />
-                        Check In
-                      </Button>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="mt-2 w-full"
-                      onClick={() => {
-                        setQrEvent({ id: event.id, title: event.title });
-                        setIsQRModalOpen(true);
-                      }}
-                    >
-                      <QrCode size={14} className="mr-2" />
-                      Show QR Code
-                    </Button>
-                  </Card>
-                ))
-              ) : (
-                <Card className="p-6 text-center text-slate-400">
-                  No events created yet. Create one to get started!
-                </Card>
-              )}
-            </div>
+            eventsQuery.data?.map((event) => (
+              <Card key={event.id}>
+                <CardHeader>
+                  <CardTitle className="line-clamp-1 text-lg">
+                    {event.title}
+                  </CardTitle>
+                  <CardDescription>
+                    {formatDate(event.date)} • {event.location}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-center rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md dark:bg-white/5">
+                    <QRCodeSVG value={event.id} size={120} />
+                  </div>
+                  <p className="text-muted-foreground mt-2 text-center text-xs">
+                    Scan to check in
+                  </p>
+                </CardContent>
+              </Card>
+            ))
           )}
         </div>
+      </div>
+    </div>
+  );
 
-        {/* Create Modal */}
-        <Modal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          title={role === "COMPANY" ? "Post a New Job" : "Create New Event"}
+  const renderTalentPool = () => (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            setViewMode("DASHBOARD");
+            setSelectedJob(null);
+          }}
         >
-          {role === "COMPANY" ? (
-            <form className="space-y-4" onSubmit={handleCreateJob}>
+          <ArrowLeft size={20} />
+        </Button>
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Talent Pool: {selectedJob?.title}
+          </h2>
+          <p className="text-muted-foreground">
+            AI-matched candidates based on skills and experience.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {candidatesQuery.isLoading ? (
+          <p>Finding best matches...</p>
+        ) : candidatesQuery.data?.length === 0 ? (
+          <p className="text-muted-foreground col-span-full text-center">
+            No matching candidates found yet.
+          </p>
+        ) : (
+          candidatesQuery.data?.map((candidate) => (
+            <Card key={candidate.id}>
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/10 text-lg font-bold text-slate-600 backdrop-blur-md dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                    {candidate.fullName?.charAt(0)}
+                  </div>
+                  <div>
+                    <CardTitle className="text-base">
+                      {candidate.fullName}
+                    </CardTitle>
+                    <CardDescription>{candidate.headline}</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {candidate.skills.slice(0, 5).map((skill) => (
+                    <Badge key={skill} variant="secondary" className="text-xs">
+                      {skill}
+                    </Badge>
+                  ))}
+                  {candidate.skills.length > 5 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{candidate.skills.length - 5} more
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Match Score</span>
+                  <span className="font-bold text-emerald-600">
+                    {Math.round(candidate.matchScore * 100)}%
+                  </span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10 dark:bg-slate-950">
+                  <div
+                    className="h-full bg-emerald-500"
+                    style={{ width: `${candidate.matchScore * 100}%` }}
+                  />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full">Contact Candidate</Button>
+              </CardFooter>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderVerify = () => (
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold tracking-tight">Verify Employment</h2>
+        <p className="text-muted-foreground">
+          Manually verify an employee's position in your organization.
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Employee Details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="verifyMyKad">MyKad Number</Label>
+            <Input
+              id="verifyMyKad"
+              placeholder="e.g. 900101-14-1234"
+              value={verifyMyKad}
+              onChange={(e) => setVerifyMyKad(formatMykadInput(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="verifyJobTitle">Job Title</Label>
+            <Input
+              id="verifyJobTitle"
+              placeholder="e.g. Senior Engineer"
+              value={verifyJobTitle}
+              onChange={(e) => setVerifyJobTitle(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="verifyStartDate">Start Date</Label>
+            <Input
+              id="verifyStartDate"
+              type="date"
+              value={verifyStartDate}
+              onChange={(e) => setVerifyStartDate(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="verifyNote">Note (Optional)</Label>
+            <Textarea
+              id="verifyNote"
+              placeholder="Additional verification details..."
+              value={verifyNote}
+              onChange={(e) => setVerifyNote(e.target.value)}
+            />
+          </div>
+
+          {verifyResult && (
+            <div
+              className={cn(
+                "flex items-center gap-2 rounded-md p-3 text-sm",
+                verifyResult.success
+                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
+                  : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400",
+              )}
+            >
+              {verifyResult.success ? (
+                <CheckCircle size={16} />
+              ) : (
+                <XCircle size={16} />
+              )}
+              {verifyResult.message}
+            </div>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Button
+            className="w-full"
+            onClick={() => {
+              if (!orgsQuery.data?.[0]?.id) return;
+              adminEmploymentCheckInMutation.mutate(
+                {
+                  mykad: verifyMyKad,
+                  organizationId: orgsQuery.data[0].id,
+                  title: verifyJobTitle,
+                  startDate: new Date(verifyStartDate),
+                  note: verifyNote,
+                },
+                {
+                  onSuccess: () => {
+                    setVerifyResult({
+                      success: true,
+                      message: "Employment verified successfully!",
+                    });
+                    // Clear form after delay
+                    setTimeout(() => {
+                      setVerifyMyKad("");
+                      setVerifyJobTitle("");
+                      setVerifyStartDate("");
+                      setVerifyNote("");
+                      setVerifyResult(null);
+                    }, 3000);
+                  },
+                  onError: (err) => {
+                    setVerifyResult({
+                      success: false,
+                      message: err.message,
+                    });
+                  },
+                },
+              );
+            }}
+            disabled={
+              !verifyMyKad ||
+              !verifyJobTitle ||
+              !verifyStartDate ||
+              adminEmploymentCheckInMutation.isPending
+            }
+          >
+            {adminEmploymentCheckInMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              "Verify & Add to Record"
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+
+  // --- Main Render ---
+
+  if (activeTab === "verify") {
+    return renderVerify();
+  }
+
+  if (viewMode === "TALENT_POOL") {
+    return renderTalentPool();
+  }
+
+  return (
+    <>
+      {renderDashboard()}
+
+      {/* Create Job Dialog */}
+      <Dialog open={isCreateJobOpen} onOpenChange={setIsCreateJobOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Post a New Job</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="jobTitle">Job Title</Label>
               <Input
-                label="Job Title"
-                placeholder="e.g. Senior React Developer"
+                id="jobTitle"
                 value={jobForm.title}
                 onChange={(e) =>
                   setJobForm({ ...jobForm, title: e.target.value })
                 }
-                required
               />
-              <TextArea
-                label="Job Description"
-                placeholder="Describe the role and responsibilities..."
-                rows={4}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="jobType">Type</Label>
+                <Select
+                  value={jobForm.type}
+                  onValueChange={(val) => setJobForm({ ...jobForm, type: val })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FULL_TIME">Full Time</SelectItem>
+                    <SelectItem value="PART_TIME">Part Time</SelectItem>
+                    <SelectItem value="CONTRACT">Contract</SelectItem>
+                    <SelectItem value="INTERNSHIP">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="jobLocation">Location</Label>
+                <Input
+                  id="jobLocation"
+                  value={jobForm.location}
+                  onChange={(e) =>
+                    setJobForm({ ...jobForm, location: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="jobDesc">Description</Label>
+              <Textarea
+                id="jobDesc"
                 value={jobForm.description}
                 onChange={(e) =>
                   setJobForm({ ...jobForm, description: e.target.value })
                 }
               />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="jobSkills">
+                Required Skills (comma separated)
+              </Label>
               <Input
-                label="Required Skills (comma separated)"
-                placeholder="e.g. React, TypeScript, Node.js"
+                id="jobSkills"
                 value={jobForm.skills}
                 onChange={(e) =>
                   setJobForm({ ...jobForm, skills: e.target.value })
                 }
               />
-              <Button
-                type="submit"
-                className="w-full"
-                isLoading={createJobMutation.isPending}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="jobOrg">Organization</Label>
+              <Select
+                value={jobForm.orgId}
+                onValueChange={(val) => setJobForm({ ...jobForm, orgId: val })}
               >
-                Post Job
-              </Button>
-            </form>
-          ) : (
-            <form className="space-y-4" onSubmit={handleCreateEvent}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {orgsQuery.data?.map((org) => (
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateJobOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() =>
+                createJobMutation.mutate({
+                  title: jobForm.title,
+                  description: jobForm.description,
+                  type: jobForm.type as any,
+                  location: jobForm.location,
+                  skills: jobForm.skills
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+                  organizationId: jobForm.orgId,
+                })
+              }
+              disabled={
+                !jobForm.title || !jobForm.orgId || createJobMutation.isPending
+              }
+            >
+              {createJobMutation.isPending ? "Posting..." : "Post Job"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Event Dialog */}
+      <Dialog open={isCreateEventOpen} onOpenChange={setIsCreateEventOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Create New Event</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="eventTitle">Event Title</Label>
               <Input
-                label="Event Title"
-                placeholder="e.g. Tech Career Fair 2024"
+                id="eventTitle"
                 value={eventForm.title}
                 onChange={(e) =>
                   setEventForm({ ...eventForm, title: e.target.value })
                 }
-                required
               />
-              <Input
-                label="Location"
-                placeholder="e.g. Convention Center, KL"
-                value={eventForm.location}
-                onChange={(e) =>
-                  setEventForm({ ...eventForm, location: e.target.value })
-                }
-              />
-              <Input
-                label="Start Date & Time"
-                type="datetime-local"
-                value={eventForm.start}
-                onChange={(e) =>
-                  setEventForm({ ...eventForm, start: e.target.value })
-                }
-                required
-              />
-              <Input
-                label="End Date & Time"
-                type="datetime-local"
-                value={eventForm.end}
-                onChange={(e) =>
-                  setEventForm({ ...eventForm, end: e.target.value })
-                }
-              />
-              <Input
-                label="Required Skills (comma separated)"
-                placeholder="e.g. Communication, Leadership"
-                value={eventForm.skills}
-                onChange={(e) =>
-                  setEventForm({ ...eventForm, skills: e.target.value })
-                }
-              />
-              <Button
-                type="submit"
-                className="w-full"
-                isLoading={createEventMutation.isPending}
-              >
-                Create Event
-              </Button>
-            </form>
-          )}
-        </Modal>
-
-        {/* Issue Certificate Modal */}
-        <Modal
-          isOpen={isCertModalOpen}
-          onClose={() => {
-            setIsCertModalOpen(false);
-            setMyKadError(null);
-          }}
-          title="Issue E-Certificate"
-        >
-          <form className="space-y-4" onSubmit={handleIssueCertificate}>
-            <div>
-              <Input
-                label="Recipient MyKad IC Number"
-                placeholder="XXXXXX-XX-XXXX"
-                value={certForm.mykadNumber}
-                onChange={(e) => handleMyKadInput(e.target.value, setCertForm)}
-                required
-                className={`font-mono text-lg tracking-widest ${myKadError ? "border-red-500 focus:border-red-500" : ""}`}
-              />
-              {myKadError && (
-                <p className="mt-1 text-xs text-red-500">{myKadError}</p>
-              )}
             </div>
-            <Input
-              label="Certificate Title"
-              placeholder="e.g. Best Volunteer Award"
-              value={certForm.title}
-              onChange={(e) =>
-                setCertForm({ ...certForm, title: e.target.value })
-              }
-              required
-            />
-            <TextArea
-              label="Description"
-              placeholder="Describe the achievement or recognition..."
-              rows={3}
-              value={certForm.description}
-              onChange={(e) =>
-                setCertForm({ ...certForm, description: e.target.value })
-              }
-            />
-            <Select
-              label="Certificate Type"
-              value={certForm.type}
-              onChange={(e) =>
-                setCertForm({
-                  ...certForm,
-                  type: e.target.value as
-                    | "ATTENDANCE"
-                    | "ACHIEVEMENT"
-                    | "CERTIFICATION"
-                    | "EMPLOYMENT",
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="eventDate">Date & Time</Label>
+                <Input
+                  id="eventDate"
+                  type="datetime-local"
+                  value={eventForm.date}
+                  onChange={(e) =>
+                    setEventForm({ ...eventForm, date: e.target.value })
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="eventLocation">Location</Label>
+                <Input
+                  id="eventLocation"
+                  value={eventForm.location}
+                  onChange={(e) =>
+                    setEventForm({ ...eventForm, location: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="eventDesc">Description</Label>
+              <Textarea
+                id="eventDesc"
+                value={eventForm.description}
+                onChange={(e) =>
+                  setEventForm({ ...eventForm, description: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="eventOrg">Organization</Label>
+              <Select
+                value={eventForm.orgId}
+                onValueChange={(val) =>
+                  setEventForm({ ...eventForm, orgId: val })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {orgsQuery.data?.map((org) => (
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsCreateEventOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() =>
+                createEventMutation.mutate({
+                  title: eventForm.title,
+                  description: eventForm.description,
+                  date: new Date(eventForm.date),
+                  location: eventForm.location,
+                  organizationId: eventForm.orgId,
                 })
               }
+              disabled={
+                !eventForm.title ||
+                !eventForm.orgId ||
+                createEventMutation.isPending
+              }
             >
-              <option value="ATTENDANCE">Attendance</option>
-              <option value="ACHIEVEMENT">Achievement</option>
-              <option value="CERTIFICATION">Certification</option>
-              <option value="EMPLOYMENT">Employment</option>
-            </Select>
-            <Button
-              type="submit"
-              className="w-full"
-              isLoading={issueCertificateMutation.isPending}
-            >
-              <Award size={16} className="mr-2" />
-              Issue Certificate
+              {createEventMutation.isPending ? "Creating..." : "Create Event"}
             </Button>
-          </form>
-        </Modal>
-
-        {/* Check In Attendee Modal */}
-        <Modal
-          isOpen={isCheckInModalOpen}
-          onClose={() => {
-            setIsCheckInModalOpen(false);
-            setMyKadError(null);
-          }}
-          title="Check In Attendee"
-        >
-          <form className="space-y-4" onSubmit={handleCheckInAttendee}>
-            <div>
-              <Input
-                label="Attendee MyKad IC Number"
-                placeholder="XXXXXX-XX-XXXX"
-                value={checkInForm.mykadNumber}
-                onChange={(e) =>
-                  handleMyKadInput(e.target.value, setCheckInForm)
-                }
-                required
-                className={`font-mono text-lg tracking-widest ${myKadError ? "border-red-500 focus:border-red-500" : ""}`}
-              />
-              {myKadError && (
-                <p className="mt-1 text-xs text-red-500">{myKadError}</p>
-              )}
-            </div>
-            <TextArea
-              label="Note (Optional)"
-              placeholder="Any notes about this attendee..."
-              rows={3}
-              value={checkInForm.note}
-              onChange={(e) =>
-                setCheckInForm({ ...checkInForm, note: e.target.value })
-              }
-            />
-            <Button
-              type="submit"
-              className="w-full"
-              isLoading={adminEventCheckInMutation.isPending}
-            >
-              Check In Attendee
-            </Button>
-          </form>
-        </Modal>
-
-        {/* QR Code Modal */}
-        <Modal
-          isOpen={isQRModalOpen}
-          onClose={() => setIsQRModalOpen(false)}
-          title="Event QR Code"
-        >
-          <div className="flex flex-col items-center justify-center space-y-6 p-4">
-            <div className="text-center">
-              <h3 className="text-lg font-bold text-white">{qrEvent?.title}</h3>
-              <p className="text-sm text-slate-400">
-                Scan to check in to this event
-              </p>
-            </div>
-            <div className="rounded-xl bg-white p-4">
-              {qrEvent && (
-                <QRCodeSVG
-                  value={JSON.stringify({
-                    eventId: qrEvent.id,
-                    action: "CHECK_IN",
-                  })}
-                  size={200}
-                />
-              )}
-            </div>
-            <p className="text-xs text-slate-500">
-              Attendees can scan this code using the TalentSync app to verify
-              their attendance.
-            </p>
-          </div>
-        </Modal>
-
-        {/* Edit Event Modal */}
-        {/* <Modal
-          isOpen={isEditEventModalOpen}
-          onClose={() => setIsEditEventModalOpen(false)}
-          title="Edit Event Details"
-        >
-          <form className="space-y-4" onSubmit={handleUpdateEvent}>
-            <Input
-              label="Event Title"
-              value={eventForm.title}
-              onChange={(e) =>
-                setEventForm({ ...eventForm, title: e.target.value })
-              }
-              required
-            />
-            <Input
-              label="Location"
-              value={eventForm.location}
-              onChange={(e) =>
-                setEventForm({ ...eventForm, location: e.target.value })
-              }
-            />
-            <Input
-              label="Start Date & Time"
-              type="datetime-local"
-              value={eventForm.start}
-              onChange={(e) =>
-                setEventForm({ ...eventForm, start: e.target.value })
-              }
-              required
-            />
-            <Input
-              label="End Date & Time"
-              type="datetime-local"
-              value={eventForm.end}
-              onChange={(e) =>
-                setEventForm({ ...eventForm, end: e.target.value })
-              }
-            />
-            <Button
-              type="submit"
-              className="w-full"
-              isLoading={updateEventMutation.isPending}
-            >
-              Save Changes
-            </Button>
-          </form>
-        </Modal> */}
-      </div>
-    );
-  }
-
-  /* --- VIEW: VERIFY --- */
-  if (activeTab === "verify") {
-    return (
-      <div className="mx-auto max-w-xl space-y-6">
-        <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
-            <QrCode size={32} />
-          </div>
-          <h2 className="text-2xl font-bold text-white">Verify Candidate</h2>
-          <p className="mt-2 text-slate-400">
-            Manually verify a user&apos;s employment history to add to their
-            immutable profile.
-          </p>
-        </div>
-
-        <Card className="border-emerald-500/20 p-6 shadow-emerald-500/5">
-          <form className="space-y-4" onSubmit={handleVerifyCandidate}>
-            <div>
-              <Input
-                label="Candidate MyKad IC Number"
-                placeholder="XXXXXX-XX-XXXX"
-                value={verifyForm.mykadNumber}
-                onChange={(e) =>
-                  handleMyKadInput(e.target.value, setVerifyForm)
-                }
-                required
-                className={`font-mono text-lg tracking-widest ${myKadError ? "border-red-500 focus:border-red-500" : ""}`}
-              />
-              {myKadError && (
-                <p className="mt-1 text-xs text-red-500">{myKadError}</p>
-              )}
-            </div>
-            <Input
-              label="Job Title"
-              placeholder="e.g. Senior Developer"
-              value={verifyForm.title}
-              onChange={(e) =>
-                setVerifyForm({ ...verifyForm, title: e.target.value })
-              }
-              required
-            />
-            <Input
-              label="Start Date"
-              type="date"
-              value={verifyForm.start}
-              onChange={(e) =>
-                setVerifyForm({ ...verifyForm, start: e.target.value })
-              }
-            />
-            <Input
-              label="End Date"
-              type="date"
-              value={verifyForm.end}
-              onChange={(e) =>
-                setVerifyForm({ ...verifyForm, end: e.target.value })
-              }
-            />
-            <div className="flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-              <input
-                type="checkbox"
-                id="isCurrent"
-                checked={verifyForm.isCurrent}
-                onChange={(e) =>
-                  setVerifyForm({
-                    ...verifyForm,
-                    isCurrent: e.target.checked,
-                  })
-                }
-                className="rounded border-slate-700"
-              />
-              <label htmlFor="isCurrent" className="text-sm text-slate-400">
-                Currently employed at this position
-              </label>
-            </div>
-            <TextArea
-              label="Verification Note"
-              placeholder="Optional notes about this employment..."
-              rows={3}
-              value={verifyForm.note}
-              onChange={(e) =>
-                setVerifyForm({ ...verifyForm, note: e.target.value })
-              }
-            />
-            <Button
-              type="submit"
-              className="w-full"
-              isLoading={adminEmploymentCheckInMutation.isPending}
-            >
-              Verify Employment
-            </Button>
-          </form>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-10 text-center text-slate-500">Settings placeholder</div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

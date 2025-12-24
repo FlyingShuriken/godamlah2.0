@@ -15,10 +15,36 @@ import {
   TrendingUp,
   Lightbulb,
   Briefcase,
+  MapPin,
+  Building2,
+  QrCode,
+  Loader2,
 } from "lucide-react";
 import { QrReader } from "react-qr-reader";
 import { api } from "@/trpc/react";
-import { Card, Button, Input, TextArea, Modal } from "./ui";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const formatDateStr = (dateStr?: string | Date) => {
   if (!dateStr) return "Present";
@@ -57,6 +83,8 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
         utils.checkIn.myCheckIns.invalidate(),
         utils.profile.timeline.invalidate(),
       ]);
+      setEventCheckInId("");
+      setEventCheckInNote("");
     },
   });
 
@@ -66,6 +94,10 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
         utils.checkIn.myCheckIns.invalidate(),
         utils.profile.timeline.invalidate(),
       ]);
+      setEmploymentOrgId("");
+      setEmploymentTitle("");
+      setEmploymentStart("");
+      setEmploymentNote("");
     },
   });
 
@@ -98,913 +130,628 @@ export const SeekerView: React.FC<SeekerViewProps> = ({ activeTab }) => {
         skills: profileQuery.data.skills?.join(", ") || "",
         consentTalentPool: profileQuery.data.consentTalentPool ?? true,
       });
-    } else if (!profileQuery.isLoading && !profileQuery.data) {
-      // If loaded but no data (New User), auto-enable edit mode
-      setIsEditing(true);
     }
-  }, [profileQuery.data, profileQuery.isLoading]);
-
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault();
-    profileMutation.mutate({
-      fullName: formData.fullName,
-      headline: formData.headline,
-      bio: formData.bio,
-      skills: formData.skills
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      consentTalentPool: formData.consentTalentPool,
-    });
-  };
-
-  const handleEventCheckIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!eventCheckInId) return;
-    checkInEventMutation.mutate({
-      eventId: eventCheckInId,
-      note: eventCheckInNote || undefined,
-    });
-    setEventCheckInNote("");
-    setEventCheckInId("");
-  };
+  }, [profileQuery.data]);
 
   const handleScanResult = (result?: unknown, _error?: unknown) => {
     if (result) {
-      try {
-        const text = (result as { getText: () => string }).getText();
-        const data = JSON.parse(text) as {
-          action: string;
-          eventId: string;
-        };
-        if (data.action === "CHECK_IN" && data.eventId) {
-          setIsScanModalOpen(false);
-          checkInEventMutation.mutate(
-            {
-              eventId: data.eventId,
-              note: "Checked in via QR Code",
-            },
-            {
-              onSuccess: () => {
-                alert("Successfully checked in via QR Code!");
-              },
-              onError: (err) => {
-                alert(`Check-in failed: ${err.message}`);
-              },
-            },
-          );
-        }
-      } catch (e) {
-        // Ignore parse errors or non-JSON QR codes
-        console.error("QR Scan Error", e);
+      // @ts-expect-error - react-qr-reader types are loose
+      const text = result?.text;
+      if (text) {
+        // Simple heuristic: if it looks like a UUID, it might be an event ID
+        // In a real app, we'd have a better format like "event:UUID"
+        setEventCheckInId(text);
+        setIsScanModalOpen(false);
       }
     }
   };
 
-  const handleEmploymentCheckIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!employmentOrgId || !employmentTitle) return;
-    checkInEmploymentMutation.mutate({
-      organizationId: employmentOrgId,
-      title: employmentTitle,
-      note: employmentNote || undefined,
-      startDate: employmentStart
-        ? new Date(employmentStart).toISOString()
-        : undefined,
-    });
-    setEmploymentNote("");
-    setEmploymentTitle("");
-    setEmploymentStart("");
-    setEmploymentOrgId("");
-  };
+  // --- Render Functions ---
 
-  if (profileQuery.isLoading) {
-    return (
-      <div className="p-10 text-center text-slate-500">
-        Loading your profile...
-      </div>
-    );
-  }
-
-  // Provide fallback values for new users
-  const profile = profileQuery.data ?? {
-    fullName: "New User",
-    headline: "",
-    bio: "",
-    skills: [] as string[],
-    consentTalentPool: true,
-  };
-
-  /* --- VIEW: HOME FEED --- */
-  if (activeTab === "home") {
-    return (
-      <div className="mx-auto max-w-2xl space-y-6">
-        {/* Profile Summary Card */}
-        <Card className="border-emerald-500/20 bg-gradient-to-br from-slate-900 to-slate-900 p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-white">
-                {profile.fullName}
-              </h2>
-              <p className="font-medium text-emerald-400">
-                {profile.headline || "No headline yet"}
-              </p>
-              <p className="mt-2 max-w-md text-sm text-slate-400">
-                {profile.bio || "No bio added yet"}
-              </p>
-            </div>
-            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-2xl">
-              {profile.fullName?.charAt(0) ?? "U"}
-            </div>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {profile.skills && profile.skills.length > 0 ? (
-              profile.skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-300"
-                >
-                  {skill}
-                </span>
-              ))
-            ) : (
-              <span className="text-xs text-slate-500">No skills added</span>
-            )}
-          </div>
-          <div className="mt-4 flex items-center gap-2 border-t border-slate-800/50 pt-4">
-            <Globe
-              size={14}
-              className={
-                profile.consentTalentPool
-                  ? "text-emerald-500"
-                  : "text-slate-500"
-              }
-            />
-            <span className="text-xs text-slate-400">
-              Talent Pool Visibility:{" "}
-              <span
-                className={
-                  profile.consentTalentPool
-                    ? "text-emerald-400"
-                    : "text-slate-500"
-                }
-              >
-                {profile.consentTalentPool ? "Public" : "Private"}
-              </span>
-            </span>
-          </div>
-        </Card>
-
-        {/* Timeline Section */}
-        <div className="space-y-4">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-            <Clock size={18} className="text-emerald-500" />
-            Verified Timeline
-          </h3>
-
-          {timelineQuery.data && timelineQuery.data.length > 0 ? (
-            timelineQuery.data.map((item) => (
-              <div
-                key={item.id}
-                className="relative border-l border-slate-800 pb-6 pl-6 last:pb-0"
-              >
-                <div
-                  className={`absolute top-1 -left-1.5 h-3 w-3 rounded-full ${
-                    item.verificationStatus === "VERIFIED"
-                      ? "bg-emerald-500"
-                      : "bg-slate-600"
-                  }`}
-                />
-                <Card className="ml-2 p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-semibold text-white">
-                        {item.title || "Experience"}
-                      </h4>
-                      <p className="mt-1 text-sm text-slate-400">
-                        {formatDateStr(item.startDate ?? undefined)}
-                        {item.endDate &&
-                          ` - ${formatDateStr(item.endDate ?? undefined)}`}
-                      </p>
-                      {item.notes && (
-                        <p className="mt-2 text-xs text-slate-500">
-                          {item.notes}
-                        </p>
-                      )}
-                    </div>
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs ${
-                        item.verificationStatus === "VERIFIED"
-                          ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-slate-700/50 text-slate-400"
-                      }`}
-                    >
-                      {item.verificationStatus}
-                    </span>
-                  </div>
-                </Card>
-              </div>
-            ))
-          ) : (
-            <Card className="p-6 text-center text-slate-400">
-              No experiences yet. Check-in to events or add employment history.
-            </Card>
-          )}
-        </div>
-
-        {/* Career Insights Section */}
-        <div className="space-y-4">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
-            <Lightbulb size={18} className="text-amber-500" />
-            Career Insights
-          </h3>
-
-          {careerInsightsQuery.isLoading ? (
-            <Card className="p-6 text-center text-slate-400">
-              Analyzing your career...
-            </Card>
-          ) : careerInsightsQuery.data ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Recommended Skills */}
-              {careerInsightsQuery.data.recommendedSkills.length > 0 && (
-                <Card className="border-amber-500/20 p-5">
-                  <div className="mb-3 flex items-center gap-2">
-                    <TrendingUp size={16} className="text-amber-500" />
-                    <h4 className="text-sm font-semibold text-white">
-                      Skills to Learn
-                    </h4>
-                  </div>
-                  <p className="mb-3 text-xs text-slate-400">
-                    These skills appear most frequently in jobs you&apos;re
-                    close to qualifying for
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {careerInsightsQuery.data.recommendedSkills.map(
-                      ({ skill, count }) => (
-                        <span
-                          key={skill}
-                          className="flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs text-amber-300"
-                        >
-                          {skill}
-                          <span className="text-[10px] text-amber-500/60">
-                            ({count})
-                          </span>
-                        </span>
-                      ),
-                    )}
-                  </div>
-                </Card>
-              )}
-
-              {/* Potential Roles */}
-              {careerInsightsQuery.data.potentialRoles.length > 0 && (
-                <Card className="border-indigo-500/20 p-5">
-                  <div className="mb-3 flex items-center gap-2">
-                    <Briefcase size={16} className="text-indigo-500" />
-                    <h4 className="text-sm font-semibold text-white">
-                      Potential Next Roles
-                    </h4>
-                  </div>
-                  <p className="mb-3 text-xs text-slate-400">
-                    Based on your current skills, these roles are within reach
-                  </p>
-                  <ul className="space-y-2">
-                    {careerInsightsQuery.data.potentialRoles.map(
-                      ({ role, count }) => (
-                        <li
-                          key={role}
-                          className="flex items-center justify-between rounded-lg bg-slate-800/50 p-2"
-                        >
-                          <span className="text-sm text-slate-200">{role}</span>
-                          <span className="text-xs text-slate-500">
-                            {count} openings
-                          </span>
-                        </li>
-                      ),
-                    )}
-                  </ul>
-                </Card>
-              )}
-
-              {careerInsightsQuery.data.recommendedSkills.length === 0 &&
-                careerInsightsQuery.data.potentialRoles.length === 0 && (
-                  <Card className="p-6 text-center text-slate-400 md:col-span-2">
-                    Add more skills to your profile to see career insights!
-                  </Card>
-                )}
-            </div>
-          ) : null}
-        </div>
-      </div>
-    );
-  }
-
-  /* --- VIEW: JOBS --- */
-  if (activeTab === "jobs") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/50 p-2">
-          <Search className="ml-2 text-slate-500" size={20} />
-          <input
-            placeholder="Search for jobs..."
-            className="w-full border-none bg-transparent text-white placeholder-slate-500 outline-none focus:ring-0"
-          />
-        </div>
-
-        {jobMatchesQuery.isLoading ? (
-          <div className="text-center text-slate-400">Loading jobs...</div>
-        ) : jobMatchesQuery.data && jobMatchesQuery.data.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {jobMatchesQuery.data.map(({ job, score }) => (
-              <Card
-                key={job.id}
-                className="group flex cursor-pointer flex-col justify-between p-5 transition-colors hover:border-emerald-500/30"
-              >
-                <div>
-                  <h4 className="font-semibold text-white transition-colors group-hover:text-emerald-400">
-                    {job.title}
-                  </h4>
-                  <p className="mt-2 text-xs text-slate-400">
-                    {job.description || "No description"}
-                  </p>
-                  {job.skills && job.skills.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {job.skills.slice(0, 3).map((skill) => (
-                        <span
-                          key={skill}
-                          className="rounded bg-slate-800 px-2 py-1 text-xs text-slate-300"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {job.skills.length > 3 && (
-                        <span className="rounded px-2 py-1 text-xs text-slate-400">
-                          +{job.skills.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {score !== undefined && (
-                    <p className="mt-3 text-xs font-medium text-emerald-400">
-                      {Math.round(score)}% Match
-                    </p>
-                  )}
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="mt-4 w-full justify-between group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 group-hover:text-emerald-400"
-                >
-                  View Details <ExternalLink size={14} />
-                </Button>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="p-6 text-center text-slate-400">
-            No job matches found. Try improving your profile skills!
-          </Card>
-        )}
-      </div>
-    );
-  }
-
-  /* --- VIEW: EVENTS --- */
-  if (activeTab === "events") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Recommended Events</h2>
-        </div>
-
-        {eventMatchesQuery.isLoading ? (
-          <div className="text-center text-slate-400">Loading events...</div>
-        ) : eventMatchesQuery.data && eventMatchesQuery.data.length > 0 ? (
-          <div className="grid gap-4">
-            {eventMatchesQuery.data.map(({ event }) => (
-              <Card
-                key={event.id}
-                className="flex flex-col overflow-hidden p-0 transition-colors hover:border-emerald-500/30 md:flex-row"
-              >
-                <div className="flex h-24 w-full flex-col items-center justify-center border-b border-slate-700 bg-slate-800 md:h-auto md:w-32 md:border-r md:border-b-0">
-                  <Calendar size={32} className="text-emerald-500/50" />
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-4">
-                  <div>
-                    <h4 className="font-semibold text-white">{event.title}</h4>
-                    <p className="mt-1 text-xs text-slate-400">
-                      {formatDateStr(event.startsAt)}
-                      {event.endsAt && ` - ${formatDateStr(event.endsAt)}`}
-                    </p>
-                    {event.location && (
-                      <p className="mt-1 text-xs text-slate-500">
-                        📍 {event.location}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="mt-3 w-full justify-center hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400 md:w-auto"
-                  >
-                    Learn More
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="p-6 text-center text-slate-400">
-            No events recommended at this time.
-          </Card>
-        )}
-      </div>
-    );
-  }
-
-  /* --- VIEW: CERTIFICATES --- */
-  if (activeTab === "certificates") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-xl font-bold text-white">
-            <Award size={24} className="text-purple-500" />
-            My Certificates
+  const renderHome = () => (
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Welcome back, {profileQuery.data?.fullName?.split(" ")[0] ?? "User"}
           </h2>
+          <p className="text-muted-foreground">
+            Here's what's happening in your career journey.
+          </p>
         </div>
+        <Button onClick={() => setIsScanModalOpen(true)} className="gap-2">
+          <QrCode size={16} />
+          Scan Check-in
+        </Button>
+      </div>
 
-        {certificatesQuery.isLoading ? (
-          <div className="text-center text-slate-400">
-            Loading certificates...
+      {/* Stats / Quick Actions */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Profile Strength
+            </CardTitle>
+            <TrendingUp className="text-muted-foreground h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {profileQuery.data?.skills?.length ? "Good" : "Needs Work"}
+            </div>
+            <p className="text-muted-foreground text-xs">
+              {profileQuery.data?.skills?.length ?? 0} skills verified
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Job Matches</CardTitle>
+            <Briefcase className="text-muted-foreground h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {jobMatchesQuery.data?.length ?? 0}
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Based on your profile
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Upcoming Events
+            </CardTitle>
+            <Calendar className="text-muted-foreground h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {eventMatchesQuery.data?.length ?? 0}
+            </div>
+            <p className="text-muted-foreground text-xs">Recommended for you</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Timeline Feed */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Your Journey</h3>
+        {timelineQuery.isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
           </div>
-        ) : certificatesQuery.data && certificatesQuery.data.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {certificatesQuery.data.map((cert) => (
-              <Card
-                key={cert.id}
-                className="group relative overflow-hidden border-purple-500/20 p-0 transition-colors hover:border-purple-500/40"
-              >
-                {/* Decorative Corner */}
-                <div className="absolute top-0 right-0 h-20 w-20 translate-x-10 -translate-y-10 rotate-45 bg-purple-500/10" />
-
-                <div className="relative p-5">
-                  {/* Badge */}
-                  <div className="mb-3 flex items-start justify-between">
-                    <span className="inline-block rounded-full bg-purple-500/20 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-purple-300 uppercase">
-                      {cert.type}
-                    </span>
-                    <span className="text-[10px] text-slate-500">
-                      {formatDateStr(cert.issueDate)}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-serif text-lg font-semibold text-white transition-colors group-hover:text-purple-300">
-                    {cert.title}
-                  </h3>
-
-                  {/* Issuer */}
-                  <p className="mt-2 text-xs text-slate-400">
-                    Issued by{" "}
-                    <span className="text-slate-300">
-                      {cert.organization?.name ?? "Unknown"}
-                    </span>
-                  </p>
-
-                  {cert.event && (
-                    <p className="mt-1 text-xs text-slate-500">
-                      Event: {cert.event.title}
-                    </p>
-                  )}
-
-                  {cert.description && (
-                    <p className="mt-3 line-clamp-2 text-xs text-slate-400">
-                      {cert.description}
-                    </p>
-                  )}
-
-                  {/* Footer */}
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
-                    <span className="font-mono text-[10px] text-slate-600">
-                      #{cert.id.slice(-8)}
-                    </span>
-                    <button
-                      onClick={() =>
-                        window.open(`/verify/${cert.hash}`, "_blank")
-                      }
-                      className="flex items-center gap-1 text-xs font-medium text-purple-400 hover:text-purple-300"
-                    >
-                      Verify <ExternalLink size={12} />
-                    </button>
-                  </div>
+        ) : timelineQuery.data?.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+              <Clock className="text-muted-foreground/50 mb-4 h-12 w-12" />
+              <h3 className="text-lg font-medium">No activity yet</h3>
+              <p className="text-muted-foreground text-sm">
+                Your career milestones will appear here.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="before:bg-border relative space-y-8 pl-8 before:absolute before:top-2 before:left-3.5 before:h-full before:w-0.5">
+            {timelineQuery.data?.map((item) => (
+              <div key={item.id} className="relative">
+                <div className="bg-background absolute -left-[34px] flex h-7 w-7 items-center justify-center rounded-full border shadow-sm">
+                  {item.type === "JOB" && <Briefcase size={14} />}
+                  {item.type === "EVENT" && <Calendar size={14} />}
+                  {item.type === "CERTIFICATE" && <Award size={14} />}
                 </div>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">{item.title}</CardTitle>
+                      <span className="text-muted-foreground text-xs">
+                        {formatDateStr(item.date)}
+                      </span>
+                    </div>
+                    <CardDescription>{item.subtitle}</CardDescription>
+                  </CardHeader>
+                  {item.description && (
+                    <CardContent className="pb-4 text-sm">
+                      {item.description}
+                    </CardContent>
+                  )}
+                </Card>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderJobs = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Recommended Jobs</h2>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {jobMatchesQuery.isLoading ? (
+          <p>Loading jobs...</p>
+        ) : jobMatchesQuery.data?.length === 0 ? (
+          <p className="text-muted-foreground col-span-full text-center">
+            No job matches found yet. Try updating your skills!
+          </p>
+        ) : (
+          jobMatchesQuery.data?.map((job) => (
+            <Card key={job.id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="line-clamp-1 text-lg">
+                  {job.title}
+                </CardTitle>
+                <CardDescription className="flex items-center gap-1">
+                  <Building2 size={12} />
+                  {job.organization.name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {job.location && (
+                    <Badge variant="secondary" className="gap-1">
+                      <MapPin size={10} /> {job.location}
+                    </Badge>
+                  )}
+                  <Badge variant="secondary" className="gap-1">
+                    <Briefcase size={10} /> {job.type}
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground line-clamp-3 text-sm">
+                  {job.description}
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full" variant="outline">
+                  View Details
+                </Button>
+              </CardFooter>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderEvents = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Upcoming Events</h2>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {eventMatchesQuery.isLoading ? (
+          <p>Loading events...</p>
+        ) : eventMatchesQuery.data?.length === 0 ? (
+          <p className="text-muted-foreground col-span-full text-center">
+            No upcoming events found.
+          </p>
+        ) : (
+          eventMatchesQuery.data?.map((event) => (
+            <Card key={event.id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="line-clamp-1 text-lg">
+                  {event.title}
+                </CardTitle>
+                <CardDescription className="flex items-center gap-1">
+                  <Calendar size={12} />
+                  {formatDateStr(event.date)}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <div className="mb-4 flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="gap-1">
+                    <MapPin size={10} /> {event.location}
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground line-clamp-3 text-sm">
+                  {event.description}
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full">Register</Button>
+              </CardFooter>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderCheckins = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Check-ins</h2>
+        <Button onClick={() => setIsScanModalOpen(true)} className="gap-2">
+          <QrCode size={16} />
+          Scan QR
+        </Button>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Manual Event Check-in */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Event Check-in</CardTitle>
+            <CardDescription>
+              Enter an event ID if you can't scan the QR code.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="eventId">Event ID</Label>
+              <Input
+                id="eventId"
+                placeholder="Enter Event ID"
+                value={eventCheckInId}
+                onChange={(e) => setEventCheckInId(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="eventNote">Note (Optional)</Label>
+              <Textarea
+                id="eventNote"
+                placeholder="What did you learn?"
+                value={eventCheckInNote}
+                onChange={(e) => setEventCheckInNote(e.target.value)}
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              onClick={() =>
+                checkInEventMutation.mutate({
+                  eventId: eventCheckInId,
+                  note: eventCheckInNote,
+                })
+              }
+              disabled={!eventCheckInId || checkInEventMutation.isPending}
+              className="w-full"
+            >
+              {checkInEventMutation.isPending ? "Checking in..." : "Check In"}
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Employment Check-in */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Employment Check-in</CardTitle>
+            <CardDescription>
+              Self-declare your current employment.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="orgId">Organization ID</Label>
+              <Input
+                id="orgId"
+                placeholder="Enter Organization ID"
+                value={employmentOrgId}
+                onChange={(e) => setEmploymentOrgId(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="jobTitle">Job Title</Label>
+              <Input
+                id="jobTitle"
+                placeholder="e.g. Software Engineer"
+                value={employmentTitle}
+                onChange={(e) => setEmploymentTitle(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Start Date</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={employmentStart}
+                onChange={(e) => setEmploymentStart(e.target.value)}
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              onClick={() =>
+                checkInEmploymentMutation.mutate({
+                  organizationId: employmentOrgId,
+                  title: employmentTitle,
+                  startDate: new Date(employmentStart),
+                  note: employmentNote,
+                })
+              }
+              disabled={
+                !employmentOrgId ||
+                !employmentTitle ||
+                !employmentStart ||
+                checkInEmploymentMutation.isPending
+              }
+              className="w-full"
+            >
+              {checkInEmploymentMutation.isPending
+                ? "Submitting..."
+                : "Submit Declaration"}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+
+      {/* Recent Check-ins List */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Recent Check-ins</h3>
+        {checkInsQuery.isLoading ? (
+          <p>Loading check-ins...</p>
+        ) : checkInsQuery.data?.length === 0 ? (
+          <p className="text-muted-foreground">No check-ins yet.</p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {checkInsQuery.data?.map((checkIn) => (
+              <Card key={checkIn.id}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">
+                    {checkIn.event
+                      ? checkIn.event.title
+                      : (checkIn.organization?.name ?? "Unknown")}
+                  </CardTitle>
+                  <CardDescription>
+                    {checkIn.type === "EVENT"
+                      ? "Event Attendance"
+                      : "Employment"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-xs">
+                    {formatDateStr(checkIn.createdAt)}
+                  </p>
+                  {checkIn.verified ? (
+                    <Badge
+                      variant="default"
+                      className="mt-2 bg-emerald-500 hover:bg-emerald-600"
+                    >
+                      Verified
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="mt-2">
+                      Pending Verification
+                    </Badge>
+                  )}
+                </CardContent>
               </Card>
             ))}
           </div>
-        ) : (
-          <Card className="p-10 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-500/10">
-              <Award size={32} className="text-purple-500/50" />
-            </div>
-            <h3 className="text-lg font-semibold text-white">
-              No Certificates Yet
-            </h3>
-            <p className="mx-auto mt-2 max-w-sm text-sm text-slate-400">
-              Certificates you earn from events and organizations will appear
-              here. Keep building your verified career footprint!
-            </p>
-          </Card>
         )}
       </div>
-    );
-  }
-
-  /* --- VIEW: CHECK-INS --- */
-  if (activeTab === "checkins") {
-    const recentCheckIns = checkInsQuery.data ?? [];
-
-    return (
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Event Check-in Form */}
-          <Card className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle size={20} className="text-emerald-500" />
-                <h3 className="text-lg font-semibold text-white">
-                  Event Check-in
-                </h3>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setIsScanModalOpen(true)}
-              >
-                Scan QR
-              </Button>
-            </div>
-            <form onSubmit={handleEventCheckIn} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Select Event
-                </label>
-                <select
-                  value={eventCheckInId}
-                  onChange={(e) => setEventCheckInId(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
-                  required
-                >
-                  <option value="">Choose an event...</option>
-                  {eventMatchesQuery.data?.map(({ event }) => (
-                    <option key={event.id} value={event.id}>
-                      {event.title} ({formatDateStr(event.startsAt)})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Note (Optional)
-                </label>
-                <textarea
-                  value={eventCheckInNote}
-                  onChange={(e) => setEventCheckInNote(e.target.value)}
-                  placeholder="Add any additional details..."
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none"
-                  rows={3}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                isLoading={checkInEventMutation.isPending}
-                disabled={!eventCheckInId}
-              >
-                Record Event Check-in
-              </Button>
-
-              {checkInEventMutation.isSuccess && (
-                <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/50 p-3">
-                  <p className="text-xs text-emerald-400">
-                    ✓ Check-in recorded successfully
-                  </p>
-                </div>
-              )}
-              {checkInEventMutation.error && (
-                <div className="rounded-lg border border-red-500/30 bg-red-950/50 p-3">
-                  <p className="text-xs text-red-400">
-                    Error: {checkInEventMutation.error.message}
-                  </p>
-                </div>
-              )}
-            </form>
-          </Card>
-
-          {/* Employment Check-in Form */}
-          <Card className="p-6">
-            <div className="mb-4 flex items-center gap-2">
-              <CheckCircle size={20} className="text-blue-500" />
-              <h3 className="text-lg font-semibold text-white">Employment</h3>
-            </div>
-            <form onSubmit={handleEmploymentCheckIn} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Organization
-                </label>
-                <Input
-                  value={employmentOrgId}
-                  onChange={(e) => setEmploymentOrgId(e.target.value)}
-                  placeholder="Company name or ID"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Role Title
-                </label>
-                <Input
-                  value={employmentTitle}
-                  onChange={(e) => setEmploymentTitle(e.target.value)}
-                  placeholder="e.g. Event Coordinator"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Start Date
-                </label>
-                <input
-                  type="datetime-local"
-                  value={employmentStart}
-                  onChange={(e) => setEmploymentStart(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">
-                  Note (Optional)
-                </label>
-                <textarea
-                  value={employmentNote}
-                  onChange={(e) => setEmploymentNote(e.target.value)}
-                  placeholder="Add any additional details..."
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-400 focus:outline-none"
-                  rows={3}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                isLoading={checkInEmploymentMutation.isPending}
-                disabled={!employmentOrgId || !employmentTitle}
-              >
-                Record Employment
-              </Button>
-
-              {checkInEmploymentMutation.isSuccess && (
-                <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/50 p-3">
-                  <p className="text-xs text-emerald-400">
-                    ✓ Employment recorded successfully
-                  </p>
-                </div>
-              )}
-              {checkInEmploymentMutation.error && (
-                <div className="rounded-lg border border-red-500/30 bg-red-950/50 p-3">
-                  <p className="text-xs text-red-400">
-                    Error: {checkInEmploymentMutation.error.message}
-                  </p>
-                </div>
-              )}
-            </form>
-          </Card>
-        </div>
-
-        {/* Recent Check-ins */}
-        <Card className="p-6">
-          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-            <Clock size={18} className="text-slate-400" />
-            Recent Check-ins
-          </h3>
-
-          {recentCheckIns.length > 0 ? (
-            <div className="space-y-3">
-              {recentCheckIns.map((checkIn) => (
-                <div
-                  key={checkIn.id}
-                  className="flex items-start justify-between rounded-lg border border-slate-800 bg-slate-950/50 p-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-white">
-                      {checkIn.type === "EVENT"
-                        ? (checkIn.event?.title ?? "Event Check-in")
-                        : "Employment Check-in"}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      {checkIn.organization?.name ?? "Organization"}
-                    </p>
-                    {checkIn.note && (
-                      <p className="mt-1 text-xs text-slate-500">
-                        {checkIn.note}
-                      </p>
-                    )}
-                  </div>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${
-                      checkIn.verificationStatus === "VERIFIED"
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : "bg-slate-700/50 text-slate-400"
-                    }`}
-                  >
-                    {checkIn.verificationStatus}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="py-6 text-center text-sm text-slate-400">
-              No check-ins yet. Start recording your attendance and employment!
-            </p>
-          )}
-        </Card>
-
-        {/* QR Scanner Modal */}
-        <Modal
-          isOpen={isScanModalOpen}
-          onClose={() => setIsScanModalOpen(false)}
-          title="Scan Event QR Code"
-        >
-          <div className="flex flex-col items-center justify-center space-y-4 p-4">
-            <div className="relative h-64 w-full overflow-hidden rounded-xl bg-black">
-              {isScanModalOpen && (
-                <QrReader
-                  onResult={handleScanResult}
-                  constraints={{ facingMode: "environment" }}
-                  videoContainerStyle={{
-                    paddingTop: 0,
-                    height: "100%",
-                    width: "100%",
-                  }}
-                  videoStyle={{
-                    height: "100%",
-                    width: "100%",
-                    objectFit: "cover",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                  }}
-                />
-              )}
-            </div>
-            <p className="text-center text-sm text-slate-400">
-              Point your camera at the event QR code to check in automatically.
-            </p>
-          </div>
-        </Modal>
-      </div>
-    );
-  }
-
-  /* --- VIEW: PROFILE --- */
-  return (
-    <div className="mx-auto max-w-xl">
-      <Card className="p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Edit Profile</h2>
-          <Button
-            variant="ghost"
-            onClick={() => setIsEditing(!isEditing)}
-            size="sm"
-          >
-            {isEditing ? <X size={16} /> : <Edit2 size={16} />}
-          </Button>
-        </div>
-
-        {isEditing ? (
-          <form onSubmit={handleSaveProfile} className="space-y-4">
-            <Input
-              label="Full Name"
-              value={formData.fullName}
-              onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
-              }
-              placeholder="e.g. Ali Bin Abu"
-            />
-            <Input
-              label="Headline"
-              value={formData.headline}
-              onChange={(e) =>
-                setFormData({ ...formData, headline: e.target.value })
-              }
-              placeholder="e.g. Full Stack Developer"
-            />
-            <TextArea
-              label="Bio"
-              rows={4}
-              value={formData.bio}
-              onChange={(e) =>
-                setFormData({ ...formData, bio: e.target.value })
-              }
-              placeholder="Tell us about yourself..."
-            />
-            <Input
-              label="Skills (Comma separated)"
-              value={formData.skills}
-              onChange={(e) =>
-                setFormData({ ...formData, skills: e.target.value })
-              }
-              placeholder="e.g. React, TypeScript, Node.js"
-            />
-
-            <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-slate-950/50 p-3">
-              <input
-                type="checkbox"
-                id="talentPool"
-                checked={formData.consentTalentPool}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    consentTalentPool: e.target.checked,
-                  })
-                }
-                className="mt-1 rounded border-slate-700"
-              />
-              <label htmlFor="talentPool" className="text-sm text-slate-400">
-                Allow organizations to view my profile in the talent pool
-              </label>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              isLoading={profileMutation.isPending}
-            >
-              <Save size={16} className="mr-2" />
-              Save Changes
-            </Button>
-          </form>
-        ) : (
-          <div className="space-y-6">
-            <div>
-              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
-                Full Name
-              </label>
-              <p className="mt-1 text-white">{profile.fullName}</p>
-            </div>
-            <div>
-              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
-                Headline
-              </label>
-              <p className="mt-1 text-white">{profile.headline || "—"}</p>
-            </div>
-            <div>
-              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
-                Bio
-              </label>
-              <p className="mt-1 text-white">{profile.bio || "—"}</p>
-            </div>
-            <div>
-              <label className="text-xs font-medium tracking-wider text-slate-400 uppercase">
-                Skills
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {profile.skills && profile.skills.length > 0 ? (
-                  profile.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-slate-300"
-                    >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-slate-500">—</span>
-                )}
-              </div>
-            </div>
-            <div className="border-t border-slate-800 pt-4">
-              <label className="flex items-center gap-2 text-xs font-medium tracking-wider text-slate-400 uppercase">
-                <Globe size={14} />
-                Talent Pool Visibility
-              </label>
-              <p
-                className={`mt-1 text-sm font-medium ${
-                  profile.consentTalentPool
-                    ? "text-emerald-400"
-                    : "text-slate-500"
-                }`}
-              >
-                {profile.consentTalentPool ? "Visible" : "Hidden"}
-              </p>
-            </div>
-          </div>
-        )}
-      </Card>
     </div>
+  );
+
+  const renderCertificates = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">My Certificates</h2>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {certificatesQuery.isLoading ? (
+          <p>Loading certificates...</p>
+        ) : certificatesQuery.data?.length === 0 ? (
+          <p className="text-muted-foreground col-span-full text-center">
+            No certificates found.
+          </p>
+        ) : (
+          certificatesQuery.data?.map((cert) => (
+            <Card key={cert.id}>
+              <CardHeader>
+                <CardTitle className="text-lg">{cert.name}</CardTitle>
+                <CardDescription>{cert.issuingOrg}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  Issued: {formatDateStr(cert.issueDate)}
+                </p>
+                {cert.credentialId && (
+                  <p className="text-muted-foreground mt-1 font-mono text-xs">
+                    ID: {cert.credentialId}
+                  </p>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">
+                  View Credential
+                </Button>
+              </CardFooter>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  const renderProfile = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">My Profile</h2>
+        <Button onClick={() => setIsEditing(true)} variant="outline">
+          <Edit2 className="mr-2 h-4 w-4" />
+          Edit Profile
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-2xl font-bold text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+              {profileQuery.data?.fullName?.charAt(0) ?? "U"}
+            </div>
+            <div>
+              <CardTitle>{profileQuery.data?.fullName}</CardTitle>
+              <CardDescription>{profileQuery.data?.headline}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h4 className="mb-2 text-sm font-medium">About</h4>
+            <p className="text-muted-foreground text-sm">
+              {profileQuery.data?.bio || "No bio added yet."}
+            </p>
+          </div>
+
+          <div>
+            <h4 className="mb-2 text-sm font-medium">Skills</h4>
+            <div className="flex flex-wrap gap-2">
+              {profileQuery.data?.skills?.map((skill) => (
+                <Badge key={skill} variant="secondary">
+                  {skill}
+                </Badge>
+              )) ?? (
+                <p className="text-muted-foreground text-sm">
+                  No skills added.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="mb-2 text-sm font-medium">MyKad ID</h4>
+            <p className="text-muted-foreground font-mono text-sm">
+              {profileQuery.data?.mykadHash?.substring(0, 10)}...
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Career Insights */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lightbulb className="h-5 w-5 text-yellow-500" />
+            Career Insights
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {careerInsightsQuery.isLoading ? (
+            <p>Loading insights...</p>
+          ) : (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-md dark:border-slate-800/50 dark:bg-slate-950/50">
+                <h4 className="font-medium">Recommended Skills</h4>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  Based on your profile, learning{" "}
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    Project Management
+                  </span>{" "}
+                  could increase your job matches by 20%.
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="headline">Headline</Label>
+              <Input
+                id="headline"
+                value={formData.headline}
+                onChange={(e) =>
+                  setFormData({ ...formData, headline: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                value={formData.bio}
+                onChange={(e) =>
+                  setFormData({ ...formData, bio: e.target.value })
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="skills">Skills (comma separated)</Label>
+              <Input
+                id="skills"
+                value={formData.skills}
+                onChange={(e) =>
+                  setFormData({ ...formData, skills: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() =>
+                profileMutation.mutate({
+                  fullName: formData.fullName,
+                  headline: formData.headline,
+                  bio: formData.bio,
+                  skills: formData.skills
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+                  consentTalentPool: formData.consentTalentPool,
+                })
+              }
+              disabled={profileMutation.isPending}
+            >
+              {profileMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+
+  // --- Main Render ---
+
+  return (
+    <>
+      {activeTab === "home" && renderHome()}
+      {activeTab === "jobs" && renderJobs()}
+      {activeTab === "events" && renderEvents()}
+      {activeTab === "checkins" && renderCheckins()}
+      {activeTab === "certificates" && renderCertificates()}
+      {activeTab === "profile" && renderProfile()}
+
+      {/* QR Scanner Modal */}
+      <Dialog open={isScanModalOpen} onOpenChange={setIsScanModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Scan QR Code</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-square w-full overflow-hidden rounded-lg bg-black">
+            <QrReader
+              onResult={handleScanResult}
+              constraints={{ facingMode: "environment" }}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <p className="text-muted-foreground text-center text-sm">
+            Scan an event or organization QR code to check in.
+          </p>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

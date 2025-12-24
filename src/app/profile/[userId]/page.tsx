@@ -7,7 +7,7 @@ import {
   Award,
   CheckCircle,
 } from "lucide-react";
-import { Card } from "@/app/_components/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function CandidateProfilePage({
   params,
@@ -25,14 +25,14 @@ export default async function CandidateProfilePage({
 
   if (!user) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 p-4 text-center">
+      <div className="liquid-bg flex min-h-screen flex-col items-center justify-center p-4 text-center">
         <h1 className="text-2xl font-bold text-white">Profile Not Found</h1>
         <p className="mt-2 text-slate-400">
           This profile is private or does not exist.
         </p>
         <Link
           href="/"
-          className="mt-8 rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+          className="mt-8 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md hover:bg-white/20"
         >
           Go Back
         </Link>
@@ -43,9 +43,9 @@ export default async function CandidateProfilePage({
   const profile = user.profile;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200">
+    <div className="liquid-bg min-h-screen text-slate-200">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/80 px-4 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-white/5 px-4 py-4 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-4xl items-center gap-4">
           <Link
             href="/"

@@ -1,5 +1,16 @@
 import { api } from "@/trpc/server";
 import Link from "next/link";
+import {
+  CheckCircle,
+  XCircle,
+  Award,
+  Calendar,
+  Building2,
+  ArrowLeft,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default async function VerifyCertificatePage({
   params,
@@ -17,21 +28,9 @@ export default async function VerifyCertificatePage({
 
   if (!certificate) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 p-4 text-center">
-        <div className="rounded-full bg-rose-500/10 p-4">
-          <svg
-            className="h-12 w-12 text-rose-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+      <div className="liquid-bg flex min-h-screen flex-col items-center justify-center p-4 text-center">
+        <div className="rounded-full bg-red-500/10 p-4 backdrop-blur-md">
+          <XCircle className="h-12 w-12 text-red-500" />
         </div>
         <h1 className="mt-4 text-2xl font-bold text-white">
           Invalid Certificate
@@ -40,104 +39,122 @@ export default async function VerifyCertificatePage({
           The certificate you are looking for does not exist or has been
           revoked.
         </p>
-        <Link
-          href="/"
-          className="mt-8 rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
-        >
-          Go Home
-        </Link>
+        <Button asChild className="mt-8" variant="outline">
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Go Home
+          </Link>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 p-4 md:p-8">
-      <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="bg-slate-900 p-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
-            <svg
-              className="h-8 w-8 text-emerald-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+    <div className="liquid-bg min-h-screen p-4 md:p-8">
+      <div className="mx-auto max-w-3xl">
+        <Card className="overflow-hidden border-white/10 bg-white/5 backdrop-blur-2xl dark:border-slate-800/50 dark:bg-slate-900/40">
+          <div className="bg-emerald-500/10 p-8 text-center backdrop-blur-md">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
+              <CheckCircle className="h-8 w-8 text-emerald-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-white">
+              Verified Credential
+            </h1>
+            <p className="text-sm font-medium text-emerald-400/70">
+              This certificate has been cryptographically verified.
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-white">Verified Credential</h1>
-          <p className="text-slate-400">
-            This certificate has been cryptographically verified.
-          </p>
-        </div>
 
-        <div className="border-b border-slate-100 bg-slate-50 p-8 text-center">
-          <p className="text-sm font-medium tracking-wider text-slate-500 uppercase">
-            This certifies that
-          </p>
-          <h2 className="mt-2 font-serif text-3xl font-bold text-slate-900">
-            {certificate.recipientName}
-          </h2>
-          <p className="mt-6 text-sm font-medium tracking-wider text-slate-500 uppercase">
-            Has been awarded the
-          </p>
-          <h3 className="mt-2 text-2xl font-bold text-indigo-600">
-            {certificate.title}
-          </h3>
-          {certificate.description && (
-            <p className="mx-auto mt-4 max-w-lg text-slate-600">
-              {certificate.description}
-            </p>
-          )}
-        </div>
+          <CardContent className="p-8 md:p-12">
+            <div className="space-y-6 text-center">
+              <div>
+                <p className="text-xs font-bold tracking-widest text-slate-500 uppercase">
+                  This certifies that
+                </p>
+                <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                  {certificate.recipientName}
+                </h2>
+              </div>
 
-        <div className="grid grid-cols-2 divide-x divide-slate-100 bg-white">
-          <div className="p-6 text-center">
-            <p className="text-xs font-medium text-slate-400 uppercase">
-              Issued By
-            </p>
-            <p className="mt-1 font-semibold text-slate-900">
-              {certificate.organization?.name}
-            </p>
-            {certificate.event && (
-              <p className="text-sm text-slate-500">
-                Event: {certificate.event.title}
+              <div className="flex justify-center">
+                <div className="h-px w-24 bg-slate-800" />
+              </div>
+
+              <div>
+                <p className="text-xs font-bold tracking-widest text-slate-500 uppercase">
+                  Has been awarded the
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-emerald-400">
+                  {certificate.title}
+                </h3>
+                {certificate.description && (
+                  <p className="mx-auto mt-4 max-w-lg leading-relaxed text-slate-400">
+                    {certificate.description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-12 grid grid-cols-1 gap-6 border-t border-white/10 pt-8 md:grid-cols-2">
+              <div className="flex items-center gap-4">
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-md">
+                  <Building2 className="h-5 w-5 text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                    Issued By
+                  </p>
+                  <p className="font-semibold text-white">
+                    {certificate.organizationName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-md">
+                  <Calendar className="h-5 w-5 text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                    Issue Date
+                  </p>
+                  <p className="font-semibold text-white">
+                    {new Date(certificate.issueDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      },
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-white/5 bg-black/20 p-4 backdrop-blur-md">
+              <p className="mb-2 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+                Verification Hash
               </p>
-            )}
-          </div>
-          <div className="p-6 text-center">
-            <p className="text-xs font-medium text-slate-400 uppercase">
-              Date Issued
-            </p>
-            <p className="mt-1 font-semibold text-slate-900">
-              {certificate.issueDate.toLocaleDateString("en-MY", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-          </div>
-        </div>
+              <p className="font-mono text-[10px] break-all text-slate-400">
+                {hash}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-slate-50 p-6 text-center">
-          <p className="text-xs text-slate-400">Verification Hash</p>
-          <p className="mt-1 font-mono text-xs break-all text-slate-500">
-            {certificate.hash}
-          </p>
+        <div className="mt-8 text-center">
+          <Button
+            variant="ghost"
+            asChild
+            className="text-slate-400 hover:text-white"
+          >
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to TalentSync
+            </Link>
+          </Button>
         </div>
-      </div>
-
-      <div className="mt-8 text-center">
-        <Link
-          href="/"
-          className="text-sm font-medium text-slate-500 hover:text-white"
-        >
-          ← Back to TalentSync
-        </Link>
       </div>
     </div>
   );
